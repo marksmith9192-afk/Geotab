@@ -159,6 +159,14 @@
   .err-box{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:14px 18px;margin:0 0 16px;font-family:'Courier New',monospace;font-size:0.75rem;color:#dc2626;word-break:break-all;}
   .warn-box{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:12px 16px;margin:0 0 16px;font-family:'Courier New',monospace;font-size:0.73rem;color:#d97706;}
   .foot{font-family:'Courier New',monospace;font-size:0.7rem;color:var(--text3);text-align:center;padding-top:4px;}
+  /* TOAST */
+  .toast{position:fixed;bottom:28px;right:28px;background:#10b981;color:#fff;font-family:'Courier New',monospace;font-size:0.8rem;padding:12px 20px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.3);z-index:9999;display:flex;align-items:center;gap:8px;transform:translateY(80px);opacity:0;transition:transform 0.3s ease,opacity 0.3s ease;}
+  .toast.show{transform:translateY(0);opacity:1;}
+  /* SAVED INDICATOR on weight items */
+  .weight-item .saved-tag{font-size:0.65rem;color:#10b981;font-family:'Courier New',monospace;margin-top:4px;display:none;}
+  .weight-item.is-saved .saved-tag{display:block;}
+  .btn-save-def{background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.35);color:#10b981;}
+  .btn-save-def:hover{background:rgba(16,185,129,0.22);border-color:#10b981;}
   @keyframes spin{to{transform:rotate(360deg)}}
 </style>
 
@@ -238,7 +246,11 @@
       </div>
     </div>
     <div class="settings-footer">
-      <button class="btn btn-reset-w" onclick="safetyDash.resetWeights()">Reset to Defaults</button>
+      <button class="btn btn-reset-w" onclick="safetyDash.resetWeights()">Reset to Factory</button>
+      <button class="btn btn-save-def" onclick="safetyDash.saveAsDefault()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Save as Default
+      </button>
       <button class="btn btn-apply" onclick="safetyDash.applyWeights()">Apply & Recalculate</button>
     </div>
   </div>
@@ -263,6 +275,8 @@
   <div class="tbl-wrap"><div id="tbl"><div class="box"><div class="spinner"></div><div class="msg">WAITING FOR GEOTAB...</div></div></div></div>
   <div class="foot" id="foot"></div>
 </div>
+<div class="toast" id="toast"></div>
+<div class="toast" id="toast"></div>
 
 <script>
 var safetyDash = (function() {
@@ -500,7 +514,27 @@ var safetyDash = (function() {
   }
 
   return {
-    init:function(api){_api=api;setDateRange();document.getElementById('btnRefresh').onclick=fetchData;},
+    init:function(api){
+      _api=api;
+      setDateRange();
+      document.getElementById('btnRefresh').onclick=fetchData;
+      // Restore saved weights from localStorage on every page load
+      try{
+        var saved=localStorage.getItem('safetyWeights');
+        if(saved){
+          var parsed=JSON.parse(saved);
+          var cats=['speeding','braking','acceleration','cornering','seatbelt'];
+          if(cats.every(function(c){return parsed[c]&&typeof parsed[c].max==='number';})){
+            cats.forEach(function(cat){
+              _weights[cat]={max:parsed[cat].max,perEvent:Math.max(1,Math.round(parsed[cat].max/5))};
+              document.getElementById('w_'+cat).value=parsed[cat].max;
+              document.getElementById('wv_'+cat).textContent=parsed[cat].max;
+              document.getElementById('wd_'+cat).textContent='Max '+parsed[cat].max+' pts \u2022 ~'+Math.max(1,Math.round(parsed[cat].max/5))+' pts per incident';
+            });
+          }
+        }
+      }catch(e){}
+    },
     fetch:fetchData,
 
     setRange:function(days){
@@ -548,9 +582,34 @@ var safetyDash = (function() {
         _weights[cat]={max:max,perEvent:Math.max(1,Math.round(max/5))};
       });
       if(_rawData.length)rebuildRows();
+      safetyDash._showToast('Scores recalculated','#f59e0b');
+    },
+
+    saveAsDefault:function(){
+      ['speeding','braking','acceleration','cornering','seatbelt'].forEach(function(cat){
+        var max=parseInt(document.getElementById('w_'+cat).value,10);
+        _weights[cat]={max:max,perEvent:Math.max(1,Math.round(max/5))};
+      });
+      try{
+        localStorage.setItem('safetyWeights',JSON.stringify(_weights));
+        safetyDash._showToast('\u2713 Saved as default \u2014 will load automatically next visit','#10b981');
+      }catch(e){
+        safetyDash._showToast('Could not save: '+e.message,'#ef4444');
+      }
+      if(_rawData.length)rebuildRows();
+    },
+
+    _showToast:function(msg,color){
+      var t=document.getElementById('toast');
+      t.style.background=color||'#10b981';
+      t.textContent=msg;
+      t.classList.add('show');
+      setTimeout(function(){t.classList.remove('show');},3000);
     },
 
     resetWeights:function(){
+      // Clear saved weights and restore factory defaults
+      try{localStorage.removeItem('safetyWeights');}catch(e){}
       var defs={speeding:{max:25,perEvent:3},braking:{max:20,perEvent:4},acceleration:{max:20,perEvent:4},cornering:{max:20,perEvent:4},seatbelt:{max:15,perEvent:5}};
       Object.keys(defs).forEach(function(cat){
         _weights[cat]=Object.assign({},defs[cat]);
@@ -559,6 +618,7 @@ var safetyDash = (function() {
         document.getElementById('wd_'+cat).textContent='Max '+defs[cat].max+' pts \u2022 '+defs[cat].perEvent+' pts per incident';
       });
       if(_rawData.length)rebuildRows();
+      safetyDash._showToast('Reset to factory defaults','#64748b');
     },
 
     sort:function(k){
