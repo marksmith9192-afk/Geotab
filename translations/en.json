@@ -1,0 +1,20 @@
+{
+     "fleetdashboard": "Fleet Dashboard"
+   }
+```
+
+4. Click **Commit changes**
+
+It will look like this as you type it:
+```
+translations/  ← becomes a folder automatically
+              en.json  ← this becomes the file inside it
+```
+
+Your repo will then have:
+```
+Geotab/
+  ├── addin.html
+  ├── config.json
+  └── translations/
+        └── en.json
