@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Driver Safety Scorecard</title>
+</head>
+<body>
+<style>
+  html,body{margin:0;padding:0;background:#0b0f1a;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;min-height:100vh;}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,107,53,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,107,53,0.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+  *{box-sizing:border-box;}
+  #app{position:relative;z-index:1;max-width:1380px;margin:0 auto;padding:28px 24px;}
+
+  /* HEADER */
+  .hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:16px;}
+  h1{font-size:1.8rem;font-weight:800;letter-spacing:-0.03em;background:linear-gradient(90deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  #dateRange{font-size:0.82rem;color:#64748b;margin-top:4px;font-family:'Courier New',monospace;}
+  .hdr-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .range-group{display:flex;gap:6px;background:#121929;border:1px solid #1e2e4a;border-radius:10px;padding:4px;}
+  .range-btn{background:transparent;border:none;color:#64748b;padding:6px 14px;border-radius:7px;cursor:pointer;font-family:'Courier New',monospace;font-size:0.72rem;letter-spacing:0.05em;transition:all 0.2s;}
+  .range-btn:hover{color:#e2e8f0;}
+  .range-btn.active{background:#1a2540;color:#f59e0b;border:1px solid rgba(245,158,11,0.3);}
+  .btn{background:#1a2540;border:1px solid #1e2e4a;color:#e2e8f0;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:0.82rem;transition:all 0.2s;display:flex;align-items:center;gap:6px;white-space:nowrap;}
+  .btn:hover{border-color:#f59e0b;color:#f59e0b;}
+  .btn svg{width:14px;height:14px;flex-shrink:0;}
+
+  /* KPI CARDS */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:28px;}
+  .kpi{background:#121929;border:1px solid #1e2e4a;border-radius:14px;padding:20px;position:relative;overflow:hidden;}
+  .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+  .kpi.amber::before{background:#f59e0b;}.kpi.red::before{background:#ef4444;}.kpi.green::before{background:#10b981;}.kpi.blue::before{background:#00e5ff;}.kpi.purple::before{background:#a78bfa;}.kpi.orange::before{background:#ff6b35;}
+  .kpi-lbl{font-size:0.68rem;color:#64748b;text-transform:uppercase;letter-spacing:0.1em;font-family:'Courier New',monospace;margin-bottom:8px;}
+  .kpi-val{font-size:1.8rem;font-weight:800;line-height:1;}
+  .kpi.amber .kpi-val{color:#f59e0b;}.kpi.red .kpi-val{color:#ef4444;}.kpi.green .kpi-val{color:#10b981;}.kpi.blue .kpi-val{color:#00e5ff;}.kpi.purple .kpi-val{color:#a78bfa;}.kpi.orange .kpi-val{color:#ff6b35;}
+  .kpi-sub{font-size:0.75rem;color:#64748b;margin-top:5px;}
+
+  /* SECTION */
+  .sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
+  .sec-ttl{font-size:1rem;font-weight:700;}
+  .sec-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .srch{background:#121929;border:1px solid #1e2e4a;border-radius:8px;padding:8px 14px;color:#e2e8f0;font-size:0.875rem;width:200px;outline:none;transition:border-color 0.2s;}
+  .srch:focus{border-color:#f59e0b;}.srch::placeholder{color:#64748b;}
+
+  /* TABLE */
+  .tbl-wrap{background:#121929;border:1px solid #1e2e4a;border-radius:14px;overflow:hidden;margin-bottom:24px;}
+  table{width:100%;border-collapse:collapse;}
+  thead tr{background:#1a2540;border-bottom:1px solid #1e2e4a;}
+  th{font-family:'Courier New',monospace;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;padding:12px 16px;text-align:left;cursor:pointer;user-select:none;white-space:nowrap;}
+  th:hover{color:#f59e0b;}
+  th.sort-asc::after{content:' ↑';color:#f59e0b;}
+  th.sort-desc::after{content:' ↓';color:#f59e0b;}
+  tbody tr{border-bottom:1px solid #1e2e4a;transition:background 0.15s;}
+  tbody tr:last-child{border-bottom:none;}tbody tr:hover{background:#1a2540;}
+  td{padding:12px 16px;font-size:0.85rem;vertical-align:middle;}
+  .dname{font-family:'Courier New',monospace;font-size:0.82rem;font-weight:500;}
+
+  /* SCORE BADGE */
+  .score-wrap{display:flex;align-items:center;gap:10px;}
+  .score-num{font-family:'Courier New',monospace;font-size:1rem;font-weight:800;min-width:36px;}
+  .score-bar-bg{flex:1;height:7px;background:#1e2e4a;border-radius:99px;overflow:hidden;min-width:60px;}
+  .score-bar-fill{height:100%;border-radius:99px;transition:width 0.6s ease;}
+  .score-hi  .score-num{color:#10b981;} .score-hi  .score-bar-fill{background:linear-gradient(90deg,#10b981,#34d399);}
+  .score-med .score-num{color:#f59e0b;} .score-med .score-bar-fill{background:linear-gradient(90deg,#f59e0b,#fbbf24);}
+  .score-low .score-num{color:#ef4444;} .score-low .score-bar-fill{background:linear-gradient(90deg,#ef4444,#f87171);}
+
+  /* EVENT CELLS */
+  .ev-cell{display:flex;align-items:center;gap:6px;font-family:'Courier New',monospace;font-size:0.8rem;}
+  .ev-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+  .ev-0{color:#10b981;} .ev-0 .ev-dot{background:#10b981;}
+  .ev-1,.ev-2,.ev-3{color:#f59e0b;} .ev-1 .ev-dot,.ev-2 .ev-dot,.ev-3 .ev-dot{background:#f59e0b;}
+  .ev-many{color:#ef4444;} .ev-many .ev-dot{background:#ef4444;}
+
+  /* GRADE BADGE */
+  .grade{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;font-weight:800;font-size:0.9rem;font-family:'Courier New',monospace;}
+  .grade-a{background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3);}
+  .grade-b{background:rgba(0,229,255,0.1);color:#00e5ff;border:1px solid rgba(0,229,255,0.25);}
+  .grade-c{background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);}
+  .grade-d{background:rgba(255,107,53,0.15);color:#ff6b35;border:1px solid rgba(255,107,53,0.3);}
+  .grade-f{background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);}
+
+  .box{padding:40px 24px;text-align:center;}
+  .spinner{width:34px;height:34px;border:3px solid #1e2e4a;border-top-color:#f59e0b;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px;}
+  .pbar-bg{background:#1e2e4a;border-radius:99px;height:8px;overflow:hidden;max-width:400px;margin:12px auto 0;}
+  .pbar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#f59e0b,#ef4444);transition:width 0.3s ease;}
+  .msg{font-family:'Courier New',monospace;font-size:0.78rem;color:#64748b;margin-top:8px;}
+  .err-box{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:14px 18px;margin:0 0 16px;font-family:'Courier New',monospace;font-size:0.75rem;color:#f87171;word-break:break-all;}
+  .foot{font-family:'Courier New',monospace;font-size:0.7rem;color:#64748b;text-align:center;padding-top:4px;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+
+<div id="app">
+  <div class="hdr">
+    <div><h1>Driver Safety Scorecard</h1><p id="dateRange"></p></div>
+    <div class="hdr-right">
+      <div class="range-group">
+        <button class="range-btn" onclick="safetyDash.setRange(7)">7D</button>
+        <button class="range-btn active" onclick="safetyDash.setRange(30)">30D</button>
+        <button class="range-btn" onclick="safetyDash.setRange(60)">60D</button>
+        <button class="range-btn" onclick="safetyDash.setRange(90)">90D</button>
+      </div>
+      <button class="btn" id="btnRefresh">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI CARDS -->
+  <div class="kpis">
+    <div class="kpi amber"><div class="kpi-lbl">Fleet Avg Score</div><div class="kpi-val" id="k1">—</div><div class="kpi-sub">out of 100</div></div>
+    <div class="kpi green"><div class="kpi-lbl">Top Performers</div><div class="kpi-val" id="k2">—</div><div class="kpi-sub">score ≥ 80</div></div>
+    <div class="kpi red"><div class="kpi-lbl">At-Risk Drivers</div><div class="kpi-val" id="k3">—</div><div class="kpi-sub">score &lt; 60</div></div>
+    <div class="kpi blue"><div class="kpi-lbl">Total Speeding</div><div class="kpi-val" id="k4">—</div><div class="kpi-sub">events in period</div></div>
+    <div class="kpi orange"><div class="kpi-lbl">Hard Braking</div><div class="kpi-val" id="k5">—</div><div class="kpi-sub">events in period</div></div>
+    <div class="kpi purple"><div class="kpi-lbl">Drivers Tracked</div><div class="kpi-val" id="k6">—</div><div class="kpi-sub">active in period</div></div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="sec-hdr">
+    <span class="sec-ttl">Driver Scorecard</span>
+    <div class="sec-right">
+      <input type="text" class="srch" id="srch" placeholder="Search driver..." oninput="safetyDash.filter()"/>
+      <button class="btn" onclick="safetyDash.exportCSV()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export CSV
+      </button>
+    </div>
+  </div>
+
+  <div id="errBox"></div>
+  <div class="tbl-wrap"><div id="tbl"><div class="box"><div class="spinner"></div><div class="msg">WAITING FOR GEOTAB...</div></div></div></div>
+  <div class="foot" id="foot"></div>
+</div>
+
+<script>
+var safetyDash = (function() {
+  var _api     = null;
+  var _rows    = [];
+  var _days    = 30;
+  var _sortKey = 'score';
+  var _sortDir = 1; // 1 = asc (worst first by default for safety)
+
+  // Geotab exception rule name mappings — these are the default rule names
+  // Your account may use different names; errors will show if not found
+  var RULES = {
+    speeding:      ['Speeding', 'Speed', 'Over Speed'],
+    braking:       ['Hard Braking', 'HardBraking', 'Harsh Braking'],
+    acceleration:  ['Hard Acceleration', 'HardAcceleration', 'Harsh Acceleration'],
+    cornering:     ['Harsh Cornering', 'HarshCornering', 'Hard Cornering'],
+    seatbelt:      ['Seatbelt', 'Seat Belt', 'No Seatbelt', 'SeatBelt Reminder']
+  };
+
+  // Scoring weights — total 100 points, deductions per event
+  var WEIGHTS = {
+    speeding:     { max: 25, perEvent: 3 },
+    braking:      { max: 20, perEvent: 4 },
+    acceleration: { max: 20, perEvent: 4 },
+    cornering:    { max: 20, perEvent: 4 },
+    seatbelt:     { max: 15, perEvent: 5 }
+  };
+
+  function setDateRange() {
+    var now = new Date(), from = new Date(now);
+    from.setDate(from.getDate() - _days);
+    var fmt = function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});};
+    document.getElementById('dateRange').textContent = fmt(from) + ' \u2192 ' + fmt(now);
+  }
+
+  function showErr(msg) {
+    document.getElementById('errBox').innerHTML = '<div class="err-box">&#9888; ' + msg + '</div>';
+  }
+  function clearErr(){ document.getElementById('errBox').innerHTML=''; }
+
+  function showBox(label, pct) {
+    document.getElementById('tbl').innerHTML =
+      '<div class="box"><div class="spinner"></div><div class="msg">'+label+'</div>'+
+      (pct!==undefined?'<div class="pbar-bg"><div class="pbar-fill" style="width:'+pct+'%"></div></div>':'')+
+      '</div>';
+  }
+
+  function resetKPIs(){
+    ['k1','k2','k3','k4','k5','k6'].forEach(function(id){document.getElementById(id).textContent='—';});
+  }
+
+  // Calculate 0-100 score for a driver based on event counts
+  function calcScore(events, trips) {
+    if (!trips) return 100;
+    var score = 100;
+    // Deduct points per event, capped at max deduction per category
+    // Scale by trips so drivers with more trips aren't unfairly penalized
+    var scale = Math.max(1, trips / 10); // normalize per ~10 trips
+    Object.keys(WEIGHTS).forEach(function(cat) {
+      var w   = WEIGHTS[cat];
+      var cnt = events[cat] || 0;
+      var deduction = Math.min(w.max, (cnt / scale) * w.perEvent);
+      score -= deduction;
+    });
+    return Math.max(0, Math.round(score));
+  }
+
+  function scoreClass(s) {
+    return s >= 80 ? 'score-hi' : s >= 60 ? 'score-med' : 'score-low';
+  }
+
+  function gradeFromScore(s) {
+    if (s >= 90) return {letter:'A', cls:'grade-a'};
+    if (s >= 80) return {letter:'B', cls:'grade-b'};
+    if (s >= 70) return {letter:'C', cls:'grade-c'};
+    if (s >= 60) return {letter:'D', cls:'grade-d'};
+    return {letter:'F', cls:'grade-f'};
+  }
+
+  function evClass(n) {
+    if (n === 0) return 'ev-0';
+    if (n <= 3)  return 'ev-1';
+    if (n <= 7)  return 'ev-2';
+    return 'ev-many';
+  }
+
+  function renderKPIs(rows) {
+    var scores    = rows.map(function(r){return r.score;});
+    var avgScore  = scores.length ? Math.round(scores.reduce(function(a,b){return a+b;},0)/scores.length) : 0;
+    var topCount  = rows.filter(function(r){return r.score>=80;}).length;
+    var riskCount = rows.filter(function(r){return r.score<60;}).length;
+    var totSpd    = rows.reduce(function(s,r){return s+(r.events.speeding||0);},0);
+    var totBrk    = rows.reduce(function(s,r){return s+(r.events.braking||0);},0);
+
+    document.getElementById('k1').textContent = avgScore;
+    document.getElementById('k2').textContent = topCount;
+    document.getElementById('k3').textContent = riskCount;
+    document.getElementById('k4').textContent = totSpd.toLocaleString();
+    document.getElementById('k5').textContent = totBrk.toLocaleString();
+    document.getElementById('k6').textContent = rows.length;
+    document.getElementById('foot').textContent = 'Last refreshed: '+new Date().toLocaleString()+'  |  Last '+_days+' days';
+  }
+
+  function renderTable(rows) {
+    if (!rows||!rows.length){showBox('No driver data found for the selected period.');return;}
+
+    function thCls(k){
+      if(_sortKey!==k) return '';
+      return _sortDir===1?' class="sort-asc"':' class="sort-desc"';
+    }
+
+    var h='<table><thead><tr>'+
+      '<th onclick="safetyDash.sort(\'name\');"'+thCls('name')+'>Driver</th>'+
+      '<th onclick="safetyDash.sort(\'score\');"'+thCls('score')+'>Score</th>'+
+      '<th onclick="safetyDash.sort(\'score\');"'+thCls('score')+'>Grade</th>'+
+      '<th onclick="safetyDash.sort(\'trips\');"'+thCls('trips')+'>Trips</th>'+
+      '<th onclick="safetyDash.sort(\'speeding\');"'+thCls('speeding')+'>Speeding</th>'+
+      '<th onclick="safetyDash.sort(\'braking\');"'+thCls('braking')+'>Hard Braking</th>'+
+      '<th onclick="safetyDash.sort(\'acceleration\');"'+thCls('acceleration')+'>Hard Accel</th>'+
+      '<th onclick="safetyDash.sort(\'cornering\');"'+thCls('cornering')+'>Cornering</th>'+
+      '<th onclick="safetyDash.sort(\'seatbelt\');"'+thCls('seatbelt')+'>Seatbelt</th>'+
+      '</tr></thead><tbody>';
+
+    rows.forEach(function(r){
+      var sc  = scoreClass(r.score);
+      var gr  = gradeFromScore(r.score);
+
+      function evCell(cat){
+        var n   = r.events[cat]||0;
+        var cls = evClass(n);
+        return '<td><div class="ev-cell '+cls+'"><span class="ev-dot"></span>'+n+'</div></td>';
+      }
+
+      h+='<tr>'+
+        '<td class="dname">'+r.name+'</td>'+
+        '<td><div class="score-wrap '+sc+'">'+
+          '<span class="score-num">'+r.score+'</span>'+
+          '<div class="score-bar-bg"><div class="score-bar-fill" style="width:'+r.score+'%"></div></div>'+
+        '</div></td>'+
+        '<td><span class="grade '+gr.cls+'">'+gr.letter+'</span></td>'+
+        '<td style="font-family:\'Courier New\',monospace;color:#94a3b8;">'+r.trips+'</td>'+
+        evCell('speeding')+
+        evCell('braking')+
+        evCell('acceleration')+
+        evCell('cornering')+
+        evCell('seatbelt')+
+        '</tr>';
+    });
+
+    document.getElementById('tbl').innerHTML=h+'</tbody></table>';
+  }
+
+  function getFilteredRows(){
+    var q=document.getElementById('srch').value.toLowerCase();
+    return q?_rows.filter(function(r){return r.name.toLowerCase().indexOf(q)!==-1;}):_rows;
+  }
+
+  // Match a rule name against known aliases
+  function matchRule(ruleName, category) {
+    var aliases = RULES[category] || [];
+    var lower   = (ruleName||'').toLowerCase();
+    for (var i=0; i<aliases.length; i++) {
+      if (lower.indexOf(aliases[i].toLowerCase()) !== -1) return true;
+    }
+    return false;
+  }
+
+  function fetchData() {
+    if (!_api){showBox('API not ready — please refresh.');return;}
+    clearErr(); resetKPIs();
+    showBox('FETCHING DRIVERS...', 5);
+
+    var now = new Date(), from = new Date(now);
+    from.setDate(from.getDate() - _days);
+    var fromStr = from.toISOString(), toStr = now.toISOString();
+
+    // Step 1: get drivers + rules in parallel
+    _api.multiCall([
+      ['Get', {typeName:'Driver', resultsLimit:1000}],
+      ['Get', {typeName:'Rule',   resultsLimit:500}]
+    ], function(res) {
+      var drivers = (res&&res[0])||[];
+      var rules   = (res&&res[1])||[];
+
+      if (!drivers.length){showBox('No drivers found in this account.');return;}
+
+      showBox('FETCHING EXCEPTION EVENTS...', 25);
+
+      // Map rule IDs to categories
+      var ruleMap = {}; // ruleId → category
+      rules.forEach(function(rule){
+        ['speeding','braking','acceleration','cornering','seatbelt'].forEach(function(cat){
+          if (matchRule(rule.name, cat)) ruleMap[rule.id] = cat;
+        });
+      });
+
+      // Map driver IDs to names
+      var driverMap = {};
+      drivers.forEach(function(d){
+        var name = (d.firstName||'') + ' ' + (d.lastName||'');
+        name = name.trim() || d.name || d.id;
+        driverMap[d.id] = name;
+      });
+
+      // Step 2: fetch exception events + trips for all drivers
+      _api.multiCall([
+        ['Get', {
+          typeName: 'ExceptionEvent',
+          search:   { fromDate: fromStr, toDate: toStr },
+          resultsLimit: 100000
+        }],
+        ['Get', {
+          typeName: 'Trip',
+          search:   { fromDate: fromStr, toDate: toStr },
+          resultsLimit: 100000
+        }]
+      ], function(res2) {
+        var exceptions = (res2&&res2[0])||[];
+        var trips      = (res2&&res2[1])||[];
+
+        showBox('CALCULATING SCORES...', 80);
+
+        // Count trips per driver
+        var tripsByDriver = {};
+        trips.forEach(function(t){
+          var did = t.driver && t.driver.id;
+          if (!did || did === 'UnknownDriverId') return;
+          tripsByDriver[did] = (tripsByDriver[did]||0) + 1;
+        });
+
+        // Count events per driver per category
+        var eventsByDriver = {}; // driverId → {speeding:0, braking:0, ...}
+        exceptions.forEach(function(e){
+          var did = e.driver && e.driver.id;
+          if (!did || did === 'UnknownDriverId') return;
+          var rid = e.rule && e.rule.id;
+          var cat = ruleMap[rid];
+          if (!cat) return;
+          if (!eventsByDriver[did]) eventsByDriver[did] = {speeding:0,braking:0,acceleration:0,cornering:0,seatbelt:0};
+          eventsByDriver[did][cat]++;
+        });
+
+        // Build rows — include drivers with trips OR events
+        var seen = {};
+        Object.keys(tripsByDriver).forEach(function(k){seen[k]=1;});
+        Object.keys(eventsByDriver).forEach(function(k){seen[k]=1;});
+
+        var rows = [];
+        Object.keys(seen).forEach(function(did){
+          if (!driverMap[did]) return; // skip unknown
+          var events = eventsByDriver[did] || {speeding:0,braking:0,acceleration:0,cornering:0,seatbelt:0};
+          var trips  = tripsByDriver[did]  || 0;
+          var score  = calcScore(events, trips);
+          rows.push({
+            name:         driverMap[did],
+            score:        score,
+            trips:        trips,
+            events:       events,
+            speeding:     events.speeding,
+            braking:      events.braking,
+            acceleration: events.acceleration,
+            cornering:    events.cornering,
+            seatbelt:     events.seatbelt
+          });
+        });
+
+        // Default sort: worst score first
+        rows.sort(function(a,b){return a.score - b.score;});
+        _rows    = rows;
+        _sortKey = 'score';
+        _sortDir = 1;
+
+        if (!rows.length){
+          showBox('');
+          showErr('No driver events found. Make sure drivers are assigned to vehicles and exception rules are configured in your Geotab account.');
+          return;
+        }
+
+        renderKPIs(rows);
+        renderTable(rows);
+
+      }, function(err){
+        var msg=err&&err.message?err.message:JSON.stringify(err);
+        showBox(''); showErr('Error fetching events: '+msg);
+      });
+
+    }, function(err){
+      var msg=err&&err.message?err.message:JSON.stringify(err);
+      showBox(''); showErr('Error fetching drivers/rules: '+msg);
+    });
+  }
+
+  return {
+    init: function(api){
+      _api = api;
+      setDateRange();
+      document.getElementById('btnRefresh').onclick = fetchData;
+    },
+    fetch: fetchData,
+
+    setRange: function(days){
+      _days = days;
+      document.querySelectorAll('.range-btn').forEach(function(btn){
+        btn.classList.toggle('active', btn.textContent === days+'D');
+      });
+      setDateRange();
+      fetchData();
+    },
+
+    sort: function(k){
+      if (_sortKey===k){
+        _sortDir *= -1;
+      } else {
+        _sortKey = k;
+        _sortDir = k==='name' ? 1 : (k==='score' ? 1 : -1);
+      }
+      _rows.sort(function(a,b){
+        var av = a[k]!==undefined ? a[k] : (a.events&&a.events[k])||0;
+        var bv = b[k]!==undefined ? b[k] : (b.events&&b.events[k])||0;
+        if (typeof av==='string') return _sortDir * av.localeCompare(bv);
+        return _sortDir * (av - bv);
+      });
+      renderTable(getFilteredRows());
+    },
+
+    filter: function(){ renderTable(getFilteredRows()); },
+
+    exportCSV: function(){
+      if (!_rows.length) return;
+      var now=new Date(), from=new Date(now);
+      from.setDate(from.getDate()-_days);
+      var fmt=function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});};
+      var lines=[
+        'Driver Safety Scorecard Export',
+        'Period: '+fmt(from)+' to '+fmt(now),
+        '',
+        'Driver,Score,Grade,Trips,Speeding,Hard Braking,Hard Acceleration,Harsh Cornering,Seatbelt'
+      ];
+      _rows.forEach(function(r){
+        var gr = gradeFromScore(r.score);
+        lines.push(
+          '"'+r.name.replace(/"/g,'""')+'",'+
+          r.score+','+
+          gr.letter+','+
+          r.trips+','+
+          (r.events.speeding||0)+','+
+          (r.events.braking||0)+','+
+          (r.events.acceleration||0)+','+
+          (r.events.cornering||0)+','+
+          (r.events.seatbelt||0)
+        );
+      });
+      var csv  = lines.join('\r\n');
+      var blob = new Blob([csv],{type:'text/csv'});
+      var url  = URL.createObjectURL(blob);
+      var a    = document.createElement('a');
+      a.href=url; a.download='safety-scorecard-'+_days+'d.csv';
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a); URL.revokeObjectURL(url);
+    }
+  };
+})();
+
+geotab.addin = geotab.addin || {};
+geotab.addin.safetyscorecard = function() {
+  return {
+    initialize: function(api, state, cb){
+      safetyDash.init(api);
+      if (typeof cb==='function') cb();
+    },
+    focus: function(){ safetyDash.fetch(); },
+    blur:  function(){}
+  };
+};
+</script>
+</body>
+</html>
