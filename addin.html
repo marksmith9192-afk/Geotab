@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Fleet Dashboard – Mileage & Idle Time</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <title>Fleet Dashboard</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap');
+
     :root {
       --bg: #0b0f1a;
       --surface: #121929;
@@ -17,20 +18,17 @@
       --text: #e2e8f0;
       --muted: #64748b;
       --success: #10b981;
-      --warning: #f59e0b;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      padding: 0;
     }
 
-    /* GRID BACKGROUND */
     body::before {
       content: '';
       position: fixed;
@@ -48,22 +46,21 @@
       z-index: 1;
       max-width: 1280px;
       margin: 0 auto;
-      padding: 32px 24px;
+      padding: 28px 24px;
     }
 
-    /* HEADER */
     header {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      margin-bottom: 36px;
+      margin-bottom: 28px;
       flex-wrap: wrap;
       gap: 16px;
     }
 
     .header-left h1 {
-      font-family: 'Syne', sans-serif;
-      font-size: 2rem;
+      font-family: 'Syne', 'Arial Black', sans-serif;
+      font-size: 1.8rem;
       font-weight: 800;
       letter-spacing: -0.03em;
       background: linear-gradient(90deg, var(--accent), #a78bfa);
@@ -73,22 +70,17 @@
     }
 
     .header-left p {
-      font-size: 0.875rem;
+      font-size: 0.82rem;
       color: var(--muted);
       margin-top: 4px;
-      font-family: 'DM Mono', monospace;
+      font-family: 'DM Mono', 'Courier New', monospace;
     }
 
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
+    .header-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 
     .date-badge {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.75rem;
+      font-family: 'DM Mono', 'Courier New', monospace;
+      font-size: 0.72rem;
       color: var(--accent);
       background: rgba(0,229,255,0.08);
       border: 1px solid rgba(0,229,255,0.2);
@@ -104,87 +96,77 @@
       padding: 8px 18px;
       border-radius: 8px;
       cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
+      font-family: inherit;
       font-size: 0.875rem;
       transition: all 0.2s;
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .btn-refresh:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
+    .btn-refresh:hover { border-color: var(--accent); color: var(--accent); }
     .btn-refresh svg { width:15px; height:15px; }
 
-    /* KPI CARDS */
     .kpi-row {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 16px;
-      margin-bottom: 32px;
+      margin-bottom: 28px;
     }
 
     .kpi-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 14px;
-      padding: 24px;
+      padding: 22px;
       position: relative;
       overflow: hidden;
       animation: fadeUp 0.5s ease both;
     }
-
     .kpi-card::before {
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0;
       height: 2px;
     }
-    .kpi-card.blue::before  { background: var(--accent); }
+    .kpi-card.blue::before   { background: var(--accent); }
     .kpi-card.orange::before { background: var(--accent2); }
-    .kpi-card.purple::before { background: var(--accent3); }
+    .kpi-card.purple::before { background: #a78bfa; }
     .kpi-card.green::before  { background: var(--success); }
 
     .kpi-label {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      font-family: 'DM Mono', monospace;
+      font-family: 'DM Mono', 'Courier New', monospace;
       margin-bottom: 10px;
     }
 
     .kpi-value {
-      font-family: 'Syne', sans-serif;
-      font-size: 2rem;
+      font-family: 'Syne', 'Arial Black', sans-serif;
+      font-size: 1.9rem;
       font-weight: 800;
       line-height: 1;
     }
-    .kpi-card.blue .kpi-value  { color: var(--accent); }
+    .kpi-card.blue .kpi-value   { color: var(--accent); }
     .kpi-card.orange .kpi-value { color: var(--accent2); }
     .kpi-card.purple .kpi-value { color: #a78bfa; }
     .kpi-card.green .kpi-value  { color: var(--success); }
 
-    .kpi-sub {
-      font-size: 0.8rem;
-      color: var(--muted);
-      margin-top: 6px;
-    }
+    .kpi-sub { font-size: 0.78rem; color: var(--muted); margin-top: 6px; }
 
-    /* TABLE SECTION */
     .section-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       flex-wrap: wrap;
       gap: 10px;
     }
 
     .section-title {
-      font-family: 'Syne', sans-serif;
-      font-size: 1.1rem;
+      font-family: 'Syne', 'Arial Black', sans-serif;
+      font-size: 1rem;
       font-weight: 700;
       color: var(--text);
     }
@@ -196,8 +178,8 @@
       padding: 8px 14px;
       color: var(--text);
       font-size: 0.875rem;
-      font-family: 'DM Sans', sans-serif;
-      width: 220px;
+      font-family: inherit;
+      width: 200px;
       outline: none;
       transition: border-color 0.2s;
     }
@@ -209,85 +191,67 @@
       border: 1px solid var(--border);
       border-radius: 14px;
       overflow: hidden;
-      margin-bottom: 32px;
+      margin-bottom: 20px;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
+    table { width: 100%; border-collapse: collapse; }
 
-    thead tr {
-      background: var(--surface2);
-      border-bottom: 1px solid var(--border);
-    }
+    thead tr { background: var(--surface2); border-bottom: 1px solid var(--border); }
 
     th {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.72rem;
+      font-family: 'DM Mono', 'Courier New', monospace;
+      font-size: 0.7rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: var(--muted);
-      padding: 14px 20px;
+      padding: 13px 18px;
       text-align: left;
       cursor: pointer;
       user-select: none;
       white-space: nowrap;
     }
     th:hover { color: var(--accent); }
-    th .sort-icon { margin-left: 4px; opacity: 0.5; }
 
     tbody tr {
       border-bottom: 1px solid var(--border);
       transition: background 0.15s;
-      animation: fadeUp 0.4s ease both;
     }
     tbody tr:last-child { border-bottom: none; }
     tbody tr:hover { background: var(--surface2); }
 
-    td {
-      padding: 14px 20px;
-      font-size: 0.9rem;
-    }
+    td { padding: 13px 18px; font-size: 0.88rem; }
 
     td.vehicle-name {
-      font-weight: 500;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.85rem;
+      font-family: 'DM Mono', 'Courier New', monospace;
+      font-size: 0.82rem;
       color: var(--accent);
+      font-weight: 500;
     }
 
     .miles-val {
-      font-family: 'DM Mono', monospace;
+      font-family: 'DM Mono', 'Courier New', monospace;
       font-weight: 500;
     }
 
-    .idle-bar-wrap {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
+    .idle-bar-wrap { display: flex; align-items: center; gap: 10px; }
     .idle-bar-bg {
       flex: 1;
       height: 6px;
       background: var(--border);
       border-radius: 99px;
       overflow: hidden;
-      min-width: 80px;
+      min-width: 60px;
     }
-
     .idle-bar-fill {
       height: 100%;
       border-radius: 99px;
       background: linear-gradient(90deg, var(--accent2), #ff9a5c);
       transition: width 0.8s cubic-bezier(0.34,1.56,0.64,1);
     }
-
     .idle-val {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.85rem;
-      min-width: 55px;
+      font-family: 'DM Mono', 'Courier New', monospace;
+      font-size: 0.82rem;
+      min-width: 50px;
       text-align: right;
     }
 
@@ -295,94 +259,75 @@
       display: inline-block;
       padding: 3px 10px;
       border-radius: 99px;
-      font-size: 0.72rem;
-      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      font-family: 'DM Mono', 'Courier New', monospace;
       letter-spacing: 0.04em;
     }
-    .badge-high   { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
-    .badge-med    { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); }
-    .badge-low    { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.25); }
+    .badge-high { background: rgba(239,68,68,0.15);  color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
+    .badge-med  { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); }
+    .badge-low  { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.25); }
 
-    /* LOADING */
     .loading-overlay {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 60px 20px;
-      gap: 16px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 60px 20px; gap: 16px;
     }
-
     .spinner {
-      width: 36px; height: 36px;
+      width: 34px; height: 34px;
       border: 3px solid var(--border);
       border-top-color: var(--accent);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
-
     .loading-text {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.8rem;
+      font-family: 'DM Mono', 'Courier New', monospace;
+      font-size: 0.78rem;
       color: var(--muted);
       letter-spacing: 0.05em;
     }
 
-    /* EMPTY */
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--muted);
-    }
-    .empty-state svg { width: 48px; height: 48px; margin-bottom: 12px; opacity: 0.3; }
-    .empty-state p { font-size: 0.9rem; }
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+    .empty-state p { font-size: 0.9rem; margin-top: 12px; }
 
-    /* FOOTER */
     .footer-note {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.72rem;
+      font-family: 'DM Mono', 'Courier New', monospace;
+      font-size: 0.7rem;
       color: var(--muted);
       text-align: center;
-      padding-top: 8px;
+      padding-top: 4px;
       letter-spacing: 0.04em;
     }
 
-    /* ANIMATIONS */
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(12px); }
+      from { opacity: 0; transform: translateY(10px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .kpi-card:nth-child(1) { animation-delay: 0.05s; }
-    .kpi-card:nth-child(2) { animation-delay: 0.10s; }
-    .kpi-card:nth-child(3) { animation-delay: 0.15s; }
-    .kpi-card:nth-child(4) { animation-delay: 0.20s; }
-    tbody tr:nth-child(n)  { animation-delay: calc(0.03s * var(--i, 0)); }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
 <div class="wrapper">
 
-  <!-- HEADER -->
   <header>
     <div class="header-left">
       <h1>Fleet Dashboard</h1>
-      <p id="dateRange">Loading date range...</p>
+      <p id="dateRange">Calculating date range...</p>
     </div>
     <div class="header-right">
-      <span class="date-badge" id="dateBadge">LAST 30 DAYS</span>
-      <button class="btn-refresh" onclick="loadData()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+      <span class="date-badge">LAST 30 DAYS</span>
+      <button class="btn-refresh" id="btnRefresh">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+          <path d="M21 3v5h-5"/>
+          <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+          <path d="M8 16H3v5"/>
+        </svg>
         Refresh
       </button>
     </div>
   </header>
 
-  <!-- KPI CARDS -->
-  <div class="kpi-row" id="kpiRow">
+  <div class="kpi-row">
     <div class="kpi-card blue">
       <div class="kpi-label">Total Fleet Mileage</div>
       <div class="kpi-value" id="kpiTotalMiles">—</div>
@@ -405,7 +350,6 @@
     </div>
   </div>
 
-  <!-- TABLE -->
   <div class="section-header">
     <span class="section-title">Vehicle Breakdown</span>
     <input type="text" class="search-box" id="searchBox" placeholder="Search vehicle..." oninput="filterTable()"/>
@@ -424,267 +368,223 @@
 </div>
 
 <script>
-// ─── GEOTAB ADD-IN ENTRY POINT ──────────────────────────────────────────────
-var GeotabFleetDashboard = {
-  api: null,
-  state: null,
-  allRows: [],
+// ─── STATE ───────────────────────────────────────────────────────────────────
+var _api   = null;
+var _state = null;
+var _allRows = [];
 
-  initialize: function(freshApi, freshState) {
-    this.api = freshApi;
-    this.state = freshState;
-    this.setDateRange();
-    this.loadData();
-  },
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function setDateRange() {
+  var now  = new Date();
+  var from = new Date(now);
+  from.setDate(from.getDate() - 30);
+  var fmt = function(d) {
+    return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+  };
+  document.getElementById('dateRange').textContent = fmt(from) + ' \u2192 ' + fmt(now);
+}
 
-  setDateRange: function() {
-    var now = new Date();
-    var from = new Date(now);
-    from.setDate(from.getDate() - 30);
-    var fmt = function(d) {
-      return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
-    };
-    document.getElementById('dateRange').textContent = fmt(from) + ' → ' + fmt(now);
-  },
+function showLoading(msg) {
+  document.getElementById('tableContainer').innerHTML =
+    '<div class="loading-overlay"><div class="spinner"></div>' +
+    '<div class="loading-text">' + (msg || 'LOADING...') + '</div></div>';
+}
 
-  loadData: function() {
-    var self = this;
-    document.getElementById('tableContainer').innerHTML =
-      '<div class="loading-overlay"><div class="spinner"></div><div class="loading-text">FETCHING FLEET DATA...</div></div>';
+function showEmpty(msg) {
+  document.getElementById('tableContainer').innerHTML =
+    '<div class="empty-state">' +
+    '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">' +
+    '<circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>' +
+    '<p>' + msg + '</p></div>';
+}
 
-    // Reset KPIs
-    ['kpiTotalMiles','kpiTotalIdle','kpiAvgMiles','kpiVehicles'].forEach(function(id){
-      document.getElementById(id).textContent = '—';
-    });
+function resetKPIs() {
+  ['kpiTotalMiles','kpiTotalIdle','kpiAvgMiles','kpiVehicles'].forEach(function(id) {
+    document.getElementById(id).textContent = '—';
+  });
+}
 
-    var toDate   = new Date();
-    var fromDate = new Date();
-    fromDate.setDate(fromDate.getDate() - 30);
+// ─── DATA PROCESSING ─────────────────────────────────────────────────────────
+function processData(devices, trips, exceptions) {
+  var deviceMap = {};
+  devices.forEach(function(d) { deviceMap[d.id] = d.name || d.id; });
 
-    var fromStr = fromDate.toISOString();
-    var toStr   = toDate.toISOString();
+  var stats = {};
+  trips.forEach(function(t) {
+    var did = t.device && t.device.id;
+    if (!did) return;
+    if (!stats[did]) stats[did] = { name: deviceMap[did] || did, miles: 0, idleSec: 0, trips: 0 };
+    stats[did].miles    += (t.distance || 0) / 1609.344;
+    stats[did].idleSec  += (t.stopDuration || 0);
+    stats[did].trips++;
+  });
 
-    // Fetch vehicles first, then device status summary for mileage & idle
-    self.api.call('Get', {
-      typeName: 'Device',
-      resultsLimit: 1000
-    }, function(devices) {
-      if (!devices || devices.length === 0) {
-        self.showEmpty('No vehicles found in this account.');
-        return;
-      }
+  exceptions.forEach(function(e) {
+    var did = e.device && e.device.id;
+    if (!did) return;
+    if (!stats[did]) stats[did] = { name: deviceMap[did] || did, miles: 0, idleSec: 0, trips: 0 };
+    var dur = e.duration || 0;
+    if (dur > 1000000) dur = dur / 10000000;
+    stats[did].idleSec += dur;
+  });
 
-      // Fetch MileageLogRecord for each device over last 30 days
-      // Using DeviceStatusInfo for a summary approach + FuelTaxDetail for mileage
-      // Best practice: use "Get" with StatusData or use the "GetFeed" for trips
-      // We'll use trip summaries via the Trips entity
+  var rows = Object.keys(stats).map(function(k) { return stats[k]; });
+  rows = rows.filter(function(r) { return r.miles > 0 || r.idleSec > 0; });
+  rows.sort(function(a,b) { return b.miles - a.miles; });
 
-      self.api.call('Get', {
-        typeName: 'Trip',
-        search: {
-          fromDate: fromStr,
-          toDate:   toStr
-        },
-        resultsLimit: 50000
-      }, function(trips) {
+  _allRows = rows;
+  renderKPIs(rows);
+  renderTable(rows);
+}
 
-        // Also fetch exceptions (idle events)
-        self.api.call('Get', {
-          typeName: 'ExceptionEvent',
-          search: {
-            fromDate: fromStr,
-            toDate:   toStr,
-            ruleSearch: { name: 'Idling' }
-          },
-          resultsLimit: 50000
-        }, function(exceptions) {
-          self.processData(devices, trips || [], exceptions || []);
-        }, function(err) {
-          // Fallback if Idling rule name differs
-          self.processData(devices, trips || [], []);
-        });
+function renderKPIs(rows) {
+  var totalMiles = rows.reduce(function(s,r) { return s + r.miles; }, 0);
+  var totalIdleH = rows.reduce(function(s,r) { return s + r.idleSec / 3600; }, 0);
+  var avgMiles   = rows.length ? totalMiles / rows.length : 0;
 
-      }, function(err) {
-        self.showEmpty('Error fetching trip data: ' + (err.message || err));
-      });
+  document.getElementById('kpiTotalMiles').textContent = Math.round(totalMiles).toLocaleString();
+  document.getElementById('kpiTotalIdle').textContent  = totalIdleH.toFixed(1) + 'h';
+  document.getElementById('kpiAvgMiles').textContent   = Math.round(avgMiles).toLocaleString();
+  document.getElementById('kpiVehicles').textContent   = rows.length;
+  document.getElementById('footerNote').textContent    = 'Last refreshed: ' + new Date().toLocaleString();
+}
 
-    }, function(err) {
-      self.showEmpty('Error fetching devices: ' + (err.message || err));
-    });
-  },
-
-  processData: function(devices, trips, exceptions) {
-    // Build device lookup
-    var deviceMap = {};
-    devices.forEach(function(d) {
-      deviceMap[d.id] = d.name || d.id;
-    });
-
-    // Aggregate trips per device
-    var stats = {};
-    trips.forEach(function(t) {
-      var did = t.device && t.device.id;
-      if (!did) return;
-      if (!stats[did]) stats[did] = { name: deviceMap[did] || did, miles: 0, idleSec: 0, trips: 0 };
-      // distance in meters → miles
-      stats[did].miles += (t.distance || 0) / 1609.344;
-      // stop duration (idling within trip)
-      stats[did].idleSec += (t.stopDuration || 0);
-      stats[did].trips++;
-    });
-
-    // Aggregate idle exception events
-    exceptions.forEach(function(e) {
-      var did = e.device && e.device.id;
-      if (!did) return;
-      if (!stats[did]) stats[did] = { name: deviceMap[did] || did, miles: 0, idleSec: 0, trips: 0 };
-      var dur = e.duration || 0; // seconds
-      // ExceptionEvent duration may be in ticks (1 tick = 100ns); handle both
-      if (dur > 1000000) dur = dur / 10000000;
-      stats[did].idleSec = Math.max(stats[did].idleSec, dur); // use whichever is higher
-    });
-
-    var rows = Object.values(stats).filter(function(r){ return r.miles > 0 || r.idleSec > 0; });
-    rows.sort(function(a,b){ return b.miles - a.miles; });
-
-    this.allRows = rows;
-    this.renderKPIs(rows);
-    this.renderTable(rows);
-  },
-
-  renderKPIs: function(rows) {
-    var totalMiles = rows.reduce(function(s,r){ return s + r.miles; }, 0);
-    var totalIdleH = rows.reduce(function(s,r){ return s + r.idleSec / 3600; }, 0);
-    var avgMiles   = rows.length ? totalMiles / rows.length : 0;
-
-    document.getElementById('kpiTotalMiles').textContent = Math.round(totalMiles).toLocaleString();
-    document.getElementById('kpiTotalIdle').textContent  = totalIdleH.toFixed(1) + 'h';
-    document.getElementById('kpiAvgMiles').textContent   = Math.round(avgMiles).toLocaleString();
-    document.getElementById('kpiVehicles').textContent   = rows.length;
-    document.getElementById('footerNote').textContent    = 'Last refreshed: ' + new Date().toLocaleString();
-  },
-
-  renderTable: function(rows) {
-    if (!rows || rows.length === 0) {
-      this.showEmpty('No trip data found for the last 30 days.');
-      return;
-    }
-
-    var maxIdle = Math.max.apply(null, rows.map(function(r){ return r.idleSec; }));
-
-    var html = '<table><thead><tr>' +
-      '<th onclick="GeotabFleetDashboard.sort(\'name\')">Vehicle <span class="sort-icon">↕</span></th>' +
-      '<th onclick="GeotabFleetDashboard.sort(\'miles\')">Mileage (mi) <span class="sort-icon">↕</span></th>' +
-      '<th onclick="GeotabFleetDashboard.sort(\'trips\')">Trips <span class="sort-icon">↕</span></th>' +
-      '<th onclick="GeotabFleetDashboard.sort(\'idleSec\')">Idle Time <span class="sort-icon">↕</span></th>' +
-      '<th>Idle Level</th>' +
-      '</tr></thead><tbody>';
-
-    rows.forEach(function(r, i) {
-      var idleH     = r.idleSec / 3600;
-      var idlePct   = maxIdle > 0 ? (r.idleSec / maxIdle) * 100 : 0;
-      var idleLabel = idlePct > 66 ? 'HIGH' : idlePct > 33 ? 'MED' : 'LOW';
-      var idleClass = idlePct > 66 ? 'badge-high' : idlePct > 33 ? 'badge-med' : 'badge-low';
-
-      html += '<tr style="--i:' + i + '">' +
-        '<td class="vehicle-name">' + r.name + '</td>' +
-        '<td class="miles-val">' + Math.round(r.miles).toLocaleString() + '</td>' +
-        '<td>' + r.trips + '</td>' +
-        '<td>' +
-          '<div class="idle-bar-wrap">' +
-            '<div class="idle-bar-bg"><div class="idle-bar-fill" style="width:' + idlePct.toFixed(1) + '%"></div></div>' +
-            '<span class="idle-val">' + idleH.toFixed(1) + 'h</span>' +
-          '</div>' +
-        '</td>' +
-        '<td><span class="badge ' + idleClass + '">' + idleLabel + '</span></td>' +
-        '</tr>';
-    });
-
-    html += '</tbody></table>';
-    document.getElementById('tableContainer').innerHTML = html;
-  },
-
-  sort: function(key) {
-    this.allRows.sort(function(a,b){ return b[key] > a[key] ? 1 : -1; });
-    this.renderTable(this.filterRows(document.getElementById('searchBox').value));
-  },
-
-  filterRows: function(q) {
-    if (!q) return this.allRows;
-    var lower = q.toLowerCase();
-    return this.allRows.filter(function(r){ return r.name.toLowerCase().includes(lower); });
-  },
-
-  showEmpty: function(msg) {
-    document.getElementById('tableContainer').innerHTML =
-      '<div class="empty-state">' +
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>' +
-      '<p>' + msg + '</p></div>';
-  }
-};
-
-// ─── STANDALONE DEMO MODE (when not inside MyGeotab) ────────────────────────
-function loadData() {
-  if (window.api) {
-    GeotabFleetDashboard.loadData();
+function renderTable(rows) {
+  if (!rows || rows.length === 0) {
+    showEmpty('No trip data found for the last 30 days.');
     return;
   }
 
-  // Demo mode with mock data
-  var mockDevices = [
-    {id:'b1', name:'TRK-001'}, {id:'b2', name:'TRK-002'}, {id:'b3', name:'VAN-101'},
-    {id:'b4', name:'VAN-102'}, {id:'b5', name:'CAR-205'}, {id:'b6', name:'CAR-206'},
-    {id:'b7', name:'TRK-003'}, {id:'b8', name:'VAN-103'}
-  ];
-  var mockTrips = [];
-  mockDevices.forEach(function(d) {
-    var n = 15 + Math.floor(Math.random()*40);
-    for (var i=0; i<n; i++) {
-      mockTrips.push({
-        device: {id: d.id},
-        distance: 5000 + Math.random()*80000,
-        stopDuration: Math.random()*3600,
-        id: 't'+i
-      });
-    }
+  var maxIdle = Math.max.apply(null, rows.map(function(r) { return r.idleSec; })) || 1;
+
+  var html = '<table><thead><tr>' +
+    '<th onclick="sortTable(\'name\')">Vehicle &#8597;</th>' +
+    '<th onclick="sortTable(\'miles\')">Mileage (mi) &#8597;</th>' +
+    '<th onclick="sortTable(\'trips\')">Trips &#8597;</th>' +
+    '<th onclick="sortTable(\'idleSec\')">Idle Time &#8597;</th>' +
+    '<th>Idle Level</th>' +
+    '</tr></thead><tbody>';
+
+  rows.forEach(function(r) {
+    var idleH     = r.idleSec / 3600;
+    var idlePct   = (r.idleSec / maxIdle) * 100;
+    var idleLabel = idlePct > 66 ? 'HIGH' : idlePct > 33 ? 'MED' : 'LOW';
+    var idleClass = idlePct > 66 ? 'badge-high' : idlePct > 33 ? 'badge-med' : 'badge-low';
+
+    html += '<tr>' +
+      '<td class="vehicle-name">' + r.name + '</td>' +
+      '<td class="miles-val">' + Math.round(r.miles).toLocaleString() + '</td>' +
+      '<td>' + r.trips + '</td>' +
+      '<td>' +
+        '<div class="idle-bar-wrap">' +
+          '<div class="idle-bar-bg"><div class="idle-bar-fill" style="width:' + idlePct.toFixed(1) + '%"></div></div>' +
+          '<span class="idle-val">' + idleH.toFixed(1) + 'h</span>' +
+        '</div>' +
+      '</td>' +
+      '<td><span class="badge ' + idleClass + '">' + idleLabel + '</span></td>' +
+      '</tr>';
   });
 
-  document.getElementById('tableContainer').innerHTML =
-    '<div class="loading-overlay"><div class="spinner"></div><div class="loading-text">LOADING DEMO DATA...</div></div>';
-
-  setTimeout(function(){
-    GeotabFleetDashboard.processData(mockDevices, mockTrips, []);
-  }, 900);
+  html += '</tbody></table>';
+  document.getElementById('tableContainer').innerHTML = html;
 }
 
-// ─── GEOTAB LIFECYCLE ───────────────────────────────────────────────────────
+// ─── SORT & FILTER ────────────────────────────────────────────────────────────
+function sortTable(key) {
+  _allRows.sort(function(a,b) {
+    if (typeof a[key] === 'string') return a[key].localeCompare(b[key]);
+    return b[key] - a[key];
+  });
+  renderTable(filterRows(document.getElementById('searchBox').value));
+}
+
+function filterTable() {
+  renderTable(filterRows(document.getElementById('searchBox').value));
+}
+
+function filterRows(q) {
+  if (!q) return _allRows;
+  var lower = q.toLowerCase();
+  return _allRows.filter(function(r) { return r.name.toLowerCase().indexOf(lower) !== -1; });
+}
+
+// ─── MAIN DATA FETCH ──────────────────────────────────────────────────────────
+function fetchData() {
+  if (!_api) { showEmpty('Geotab API not available.'); return; }
+
+  showLoading('FETCHING FLEET DATA...');
+  resetKPIs();
+
+  var toDate   = new Date();
+  var fromDate = new Date();
+  fromDate.setDate(fromDate.getDate() - 30);
+  var fromStr  = fromDate.toISOString();
+  var toStr    = toDate.toISOString();
+
+  _api.call('Get', { typeName: 'Device', resultsLimit: 1000 },
+    function(devices) {
+      if (!devices || devices.length === 0) {
+        showEmpty('No vehicles found in this account.');
+        return;
+      }
+
+      _api.call('Get', {
+        typeName: 'Trip',
+        search: { fromDate: fromStr, toDate: toStr },
+        resultsLimit: 50000
+      },
+      function(trips) {
+        _api.call('Get', {
+          typeName: 'ExceptionEvent',
+          search: {
+            fromDate: fromStr,
+            toDate: toStr,
+            ruleSearch: { name: 'Idling' }
+          },
+          resultsLimit: 50000
+        },
+        function(exceptions) {
+          processData(devices, trips || [], exceptions || []);
+        },
+        function() {
+          // Idling rule not found — still show mileage data
+          processData(devices, trips || [], []);
+        });
+      },
+      function(err) {
+        showEmpty('Error fetching trips: ' + (err && err.message ? err.message : String(err)));
+      });
+    },
+    function(err) {
+      showEmpty('Error fetching devices: ' + (err && err.message ? err.message : String(err)));
+    }
+  );
+}
+
+// ─── GEOTAB ADD-IN REGISTRATION ───────────────────────────────────────────────
+// The object key "FleetMileageAndIdleDashboard" MUST match "name" in config.json
 geotab = {
   addin: {
-    fleetDashboard: function() {
+    FleetMileageAndIdleDashboard: function() {
       return {
         initialize: function(freshApi, freshState, callback) {
-          GeotabFleetDashboard.initialize(freshApi, freshState);
+          _api   = freshApi;
+          _state = freshState;
+          setDateRange();
+          document.getElementById('btnRefresh').onclick = fetchData;
           if (callback) callback();
         },
-        focus: function() { GeotabFleetDashboard.loadData(); },
-        blur:  function() {}
+        focus: function() {
+          fetchData();
+        },
+        blur: function() {}
       };
     }
   }
 };
 
-function filterTable() {
-  var q = document.getElementById('searchBox').value;
-  GeotabFleetDashboard.renderTable(GeotabFleetDashboard.filterRows(q));
-}
-
-// Auto-run demo if no Geotab API
-window.addEventListener('DOMContentLoaded', function() {
-  GeotabFleetDashboard.setDateRange();
-  if (typeof geotab === 'undefined' || !window.api) {
-    loadData();
-  }
-});
+// Init date range label immediately on load
+setDateRange();
 </script>
 </body>
 </html>
