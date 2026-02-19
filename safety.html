@@ -7,126 +7,109 @@
 </head>
 <body>
 <style>
-  /* ── DARK MODE (default) ── */
-  :root {
-    --bg:        #0b0f1a;
-    --bg2:       #121929;
-    --bg3:       #1a2540;
-    --border:    #1e2e4a;
-    --text:      #e2e8f0;
-    --text2:     #94a3b8;
-    --text3:     #64748b;
-    --grid-line: rgba(255,107,53,0.02);
-    --slider-bg: #1e2e4a;
-    --slider-border: #0b0f1a;
-    --shadow:    none;
-  }
-  body.light {
-    --bg:        #f1f5f9;
-    --bg2:       #ffffff;
-    --bg3:       #e2e8f0;
-    --border:    #cbd5e1;
-    --text:      #0f172a;
-    --text2:     #475569;
-    --text3:     #64748b;
-    --grid-line: rgba(0,0,0,0.04);
-    --slider-bg: #cbd5e1;
-    --slider-border: #ffffff;
-    --shadow:    0 1px 3px rgba(0,0,0,0.08);
-  }
-
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;min-height:100vh;transition:background 0.3s,color 0.3s;}
-  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--grid-line) 1px,transparent 1px),linear-gradient(90deg,var(--grid-line) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+  :root{--bg:#0b0f1a;--bg2:#121929;--bg3:#1a2540;--border:#1e2e4a;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--grid:rgba(255,107,53,0.02);--slbg:#1e2e4a;--slbdr:#0b0f1a;--shadow:none;}
+  body.light{--bg:#f1f5f9;--bg2:#ffffff;--bg3:#e2e8f0;--border:#cbd5e1;--text:#0f172a;--text2:#475569;--text3:#64748b;--grid:rgba(0,0,0,0.03);--slbg:#cbd5e1;--slbdr:#ffffff;--shadow:0 1px 3px rgba(0,0,0,0.08);}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;min-height:100vh;transition:background .3s,color .3s;}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
   *{box-sizing:border-box;}
   #app{position:relative;z-index:1;max-width:1380px;margin:0 auto;padding:28px 24px;}
-
-  /* HEADER */
   .hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:16px;}
-  h1{font-size:1.8rem;font-weight:800;letter-spacing:-0.03em;background:linear-gradient(90deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-  #dateRange{font-size:0.82rem;color:var(--text3);margin-top:4px;font-family:'Courier New',monospace;}
+  h1{font-size:1.8rem;font-weight:800;letter-spacing:-.03em;background:linear-gradient(90deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  #dateRange{font-size:.82rem;color:var(--text3);margin-top:4px;font-family:'Courier New',monospace;}
   .hdr-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-
   .range-group{display:flex;gap:6px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:4px;box-shadow:var(--shadow);}
-  .range-btn{background:transparent;border:none;color:var(--text3);padding:6px 14px;border-radius:7px;cursor:pointer;font-family:'Courier New',monospace;font-size:0.72rem;letter-spacing:0.05em;transition:all 0.2s;}
+  .range-btn{background:transparent;border:none;color:var(--text3);padding:6px 14px;border-radius:7px;cursor:pointer;font-family:'Courier New',monospace;font-size:.72rem;transition:all .2s;}
   .range-btn:hover{color:var(--text);}
-  .range-btn.active{background:var(--bg3);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);}
-
-  .btn{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:0.82rem;transition:all 0.2s;display:flex;align-items:center;gap:6px;white-space:nowrap;box-shadow:var(--shadow);}
+  .range-btn.active{background:var(--bg3);color:#f59e0b;border:1px solid rgba(245,158,11,.3);}
+  .btn{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:.82rem;transition:all .2s;display:flex;align-items:center;gap:6px;white-space:nowrap;box-shadow:var(--shadow);}
   .btn:hover{border-color:#f59e0b;color:#f59e0b;}
   .btn svg{width:14px;height:14px;flex-shrink:0;}
-  .btn.active-btn{border-color:#f59e0b;color:#f59e0b;background:rgba(245,158,11,0.1);}
-
-  /* LIGHT MODE TOGGLE */
-  .toggle-wrap{display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);box-shadow:var(--shadow);transition:all 0.2s;}
+  .btn.active-btn{border-color:#f59e0b;color:#f59e0b;background:rgba(245,158,11,.1);}
+  .btn-save{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.35);color:#10b981;}
+  .btn-save:hover{background:rgba(16,185,129,.22);border-color:#10b981;}
+  .btn-rules{background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.35);color:#a78bfa;}
+  .btn-rules:hover{background:rgba(167,139,250,.22);border-color:#a78bfa;}
+  .btn-apply{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.35);color:#f59e0b;}
+  .btn-apply:hover{background:rgba(245,158,11,.22);}
+  .toggle-wrap{display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);box-shadow:var(--shadow);transition:all .2s;}
   .toggle-wrap:hover{border-color:#f59e0b;}
-  .toggle-track{width:36px;height:20px;border-radius:99px;background:var(--border);position:relative;transition:background 0.3s;flex-shrink:0;}
+  .toggle-track{width:36px;height:20px;border-radius:99px;background:var(--border);position:relative;transition:background .3s;flex-shrink:0;}
   body.light .toggle-track{background:#f59e0b;}
-  .toggle-thumb{width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:transform 0.3s;box-shadow:0 1px 3px rgba(0,0,0,0.3);}
+  .toggle-thumb{width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:transform .3s;box-shadow:0 1px 3px rgba(0,0,0,.3);}
   body.light .toggle-thumb{transform:translateX(16px);}
-  .toggle-lbl{font-size:0.75rem;font-family:'Courier New',monospace;color:var(--text2);white-space:nowrap;}
-
-  /* KPI CARDS */
+  .toggle-lbl{font-size:.75rem;font-family:'Courier New',monospace;color:var(--text2);white-space:nowrap;}
+  /* KPI */
   .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:28px;}
-  .kpi{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;position:relative;overflow:hidden;box-shadow:var(--shadow);transition:background 0.3s,border-color 0.2s,transform 0.15s;}
+  .kpi{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;position:relative;overflow:hidden;box-shadow:var(--shadow);transition:background .3s,border-color .2s,transform .15s;}
   .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
   .kpi.amber::before{background:#f59e0b;}.kpi.red::before{background:#ef4444;}.kpi.green::before{background:#10b981;}.kpi.blue::before{background:#00e5ff;}.kpi.purple::before{background:#a78bfa;}.kpi.orange::before{background:#ff6b35;}
-  .kpi-lbl{font-size:0.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;font-family:'Courier New',monospace;margin-bottom:8px;}
+  .kpi-lbl{font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;font-family:'Courier New',monospace;margin-bottom:8px;}
   .kpi-val{font-size:1.8rem;font-weight:800;line-height:1;}
   .kpi.amber .kpi-val{color:#f59e0b;}.kpi.red .kpi-val{color:#ef4444;}.kpi.green .kpi-val{color:#10b981;}.kpi.blue .kpi-val{color:#00e5ff;}.kpi.purple .kpi-val{color:#a78bfa;}.kpi.orange .kpi-val{color:#ff6b35;}
-  .kpi-sub{font-size:0.75rem;color:var(--text3);margin-top:5px;}
-
-  /* CLICKABLE KPI */
+  .kpi-sub{font-size:.75rem;color:var(--text3);margin-top:5px;}
   .kpi.clickable{cursor:pointer;}
-  .kpi.clickable:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.15);}
-  .kpi.clickable .kpi-hint{font-size:0.65rem;color:var(--text3);margin-top:8px;font-family:'Courier New',monospace;opacity:0.7;}
+  .kpi.clickable:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.15);}
+  .kpi.clickable .kpi-hint{font-size:.65rem;color:var(--text3);margin-top:8px;font-family:'Courier New',monospace;opacity:.7;}
   .kpi.clickable:hover .kpi-hint{opacity:1;}
   .kpi.kpi-active{transform:translateY(-2px);}
-  .kpi.green.kpi-active{border-color:#10b981;box-shadow:0 0 0 2px rgba(16,185,129,0.2);}
-  .kpi.red.kpi-active{border-color:#ef4444;box-shadow:0 0 0 2px rgba(239,68,68,0.2);}
-
-  /* FILTER BADGE */
-  .filter-badge{display:inline-flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-family:'Courier New',monospace;font-size:0.75rem;color:var(--text2);margin-bottom:14px;}
+  .kpi.green.kpi-active{border-color:#10b981;box-shadow:0 0 0 2px rgba(16,185,129,.2);}
+  .kpi.red.kpi-active{border-color:#ef4444;box-shadow:0 0 0 2px rgba(239,68,68,.2);}
+  .filter-badge{display:inline-flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-family:'Courier New',monospace;font-size:.75rem;color:var(--text2);margin-bottom:14px;}
   .filter-badge-dot{width:8px;height:8px;border-radius:50%;}
-  .filter-badge-x{cursor:pointer;color:var(--text3);font-size:1rem;line-height:1;margin-left:4px;transition:color 0.15s;}
+  .filter-badge-x{cursor:pointer;color:var(--text3);font-size:1rem;line-height:1;margin-left:4px;transition:color .15s;}
   .filter-badge-x:hover{color:#ef4444;}
-
-  /* SETTINGS PANEL */
-  .settings-panel{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:24px;display:none;box-shadow:var(--shadow);}
-  .settings-panel.open{display:block;}
-  .settings-title{font-size:0.9rem;font-weight:700;margin-bottom:6px;color:var(--text);}
-  .settings-desc{font-size:0.78rem;color:var(--text3);margin-bottom:20px;font-family:'Courier New',monospace;}
+  /* PANELS */
+  .panel{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:24px;display:none;box-shadow:var(--shadow);}
+  .panel.open{display:block;}
+  .panel-title{font-size:.9rem;font-weight:700;margin-bottom:6px;color:var(--text);}
+  .panel-desc{font-size:.75rem;color:var(--text3);margin-bottom:18px;font-family:'Courier New',monospace;}
+  .panel-footer{display:flex;gap:10px;margin-top:20px;justify-content:flex-end;flex-wrap:wrap;align-items:center;}
+  /* WEIGHTS */
   .weight-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;}
   .weight-item{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;}
-  .weight-label{font-size:0.72rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;font-family:'Courier New',monospace;margin-bottom:8px;}
+  .weight-label{font-size:.72rem;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;font-family:'Courier New',monospace;margin-bottom:8px;}
   .weight-row{display:flex;align-items:center;gap:10px;}
-  .weight-slider{flex:1;-webkit-appearance:none;appearance:none;height:4px;border-radius:99px;background:var(--slider-bg);outline:none;cursor:pointer;}
-  .weight-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#f59e0b;cursor:pointer;border:2px solid var(--slider-border);}
-  .weight-val{font-family:'Courier New',monospace;font-size:0.85rem;color:#f59e0b;min-width:28px;text-align:right;font-weight:700;}
-  .weight-sub{font-size:0.7rem;color:var(--text3);margin-top:6px;}
-  .settings-footer{display:flex;gap:10px;margin-top:20px;justify-content:flex-end;}
-  .btn-apply{background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.4);color:#f59e0b;}
-  .btn-apply:hover{background:rgba(245,158,11,0.25);}
-  .btn-reset-w{background:transparent;border:1px solid var(--border);color:var(--text3);}
-  .btn-reset-w:hover{border-color:var(--text2);color:var(--text2);}
-
+  .weight-slider{flex:1;-webkit-appearance:none;appearance:none;height:4px;border-radius:99px;background:var(--slbg);outline:none;cursor:pointer;}
+  .weight-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#f59e0b;cursor:pointer;border:2px solid var(--slbdr);}
+  .weight-val{font-family:'Courier New',monospace;font-size:.85rem;color:#f59e0b;min-width:28px;text-align:right;font-weight:700;}
+  .weight-sub{font-size:.7rem;color:var(--text3);margin-top:6px;}
+  /* RULES PANEL */
+  .rules-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:8px;}
+  .rules-count{font-size:.75rem;color:var(--text3);font-family:'Courier New',monospace;}
+  .rules-cats{display:flex;flex-direction:column;gap:14px;}
+  .rule-cat-block{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;}
+  .rule-cat-title{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;font-family:'Courier New',monospace;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+  .rule-cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .rules-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;}
+  .rule-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);cursor:pointer;transition:border-color .15s;}
+  .rule-row:hover{border-color:#f59e0b;}
+  .rule-row.rule-on{border-color:rgba(16,185,129,.4);background:rgba(16,185,129,.05);}
+  .rule-chk{width:17px;height:17px;border-radius:4px;border:2px solid var(--border);background:transparent;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+  .rule-row.rule-on .rule-chk{background:#10b981;border-color:#10b981;}
+  .rule-chk svg{display:none;width:10px;height:10px;}
+  .rule-row.rule-on .rule-chk svg{display:block;}
+  .rule-info{flex:1;min-width:0;}
+  .rule-name{font-size:.8rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .rule-row.rule-on .rule-name{color:#10b981;}
+  .rule-meta{font-size:.68rem;color:var(--text3);font-family:'Courier New',monospace;}
+  .rule-wt{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:3px 6px;font-size:.72rem;font-family:'Courier New',monospace;cursor:pointer;outline:none;}
+  .rule-wt:focus{border-color:#f59e0b;}
   /* TABLE */
   .sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
   .sec-ttl{font-size:1rem;font-weight:700;color:var(--text);}
   .sec-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-  .srch{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--text);font-size:0.875rem;width:200px;outline:none;transition:border-color 0.2s;box-shadow:var(--shadow);}
+  .srch{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--text);font-size:.875rem;width:200px;outline:none;transition:border-color .2s;box-shadow:var(--shadow);}
   .srch:focus{border-color:#f59e0b;}.srch::placeholder{color:var(--text3);}
   .tbl-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:24px;box-shadow:var(--shadow);}
   table{width:100%;border-collapse:collapse;}
   thead tr{background:var(--bg3);border-bottom:1px solid var(--border);}
-  th{font-family:'Courier New',monospace;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);padding:12px 16px;text-align:left;cursor:pointer;user-select:none;white-space:nowrap;}
+  th{font-family:'Courier New',monospace;font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);padding:12px 16px;text-align:left;cursor:pointer;user-select:none;white-space:nowrap;}
   th:hover{color:#f59e0b;}
-  th.sort-asc::after{content:' ↑';color:#f59e0b;}th.sort-desc::after{content:' ↓';color:#f59e0b;}
-  tbody tr{border-bottom:1px solid var(--border);transition:background 0.15s;}
+  th.sort-asc::after{content:' \2191';color:#f59e0b;}th.sort-desc::after{content:' \2193';color:#f59e0b;}
+  tbody tr{border-bottom:1px solid var(--border);transition:background .15s;}
   tbody tr:last-child{border-bottom:none;}tbody tr:hover{background:var(--bg3);}
-  td{padding:12px 16px;font-size:0.85rem;vertical-align:middle;}
-  .dname{font-family:'Courier New',monospace;font-size:0.82rem;font-weight:600;color:var(--text);}
-
-  /* SCORE */
+  td{padding:12px 16px;font-size:.85rem;vertical-align:middle;}
+  .dname{font-family:'Courier New',monospace;font-size:.82rem;font-weight:600;color:var(--text);}
   .score-wrap{display:flex;align-items:center;gap:10px;}
   .score-num{font-family:'Courier New',monospace;font-size:1rem;font-weight:800;min-width:36px;}
   .score-bar-bg{flex:1;height:7px;background:var(--border);border-radius:99px;overflow:hidden;min-width:60px;}
@@ -134,69 +117,28 @@
   .score-hi .score-num{color:#10b981;}.score-hi .score-bar-fill{background:linear-gradient(90deg,#10b981,#34d399);}
   .score-med .score-num{color:#f59e0b;}.score-med .score-bar-fill{background:linear-gradient(90deg,#f59e0b,#fbbf24);}
   .score-low .score-num{color:#ef4444;}.score-low .score-bar-fill{background:linear-gradient(90deg,#ef4444,#f87171);}
-
-  /* EVENT CELLS */
-  .ev-cell{display:flex;align-items:center;gap:7px;font-family:'Courier New',monospace;font-size:0.82rem;font-weight:600;}
+  .ev-cell{display:flex;align-items:center;gap:7px;font-family:'Courier New',monospace;font-size:.82rem;font-weight:600;}
   .ev-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
   .ev-0{color:#10b981;}.ev-0 .ev-dot{background:#10b981;}
   .ev-few{color:#f59e0b;}.ev-few .ev-dot{background:#f59e0b;}
   .ev-mid{color:#fb923c;}.ev-mid .ev-dot{background:#fb923c;}
   .ev-many{color:#ef4444;}.ev-many .ev-dot{background:#ef4444;}
-
-  /* GRADE */
-  .grade{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;font-weight:800;font-size:0.9rem;font-family:'Courier New',monospace;}
-  .grade-a{background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.35);}
-  .grade-b{background:rgba(0,229,255,0.1);color:#00bcd4;border:1px solid rgba(0,188,212,0.3);}
-  .grade-c{background:rgba(245,158,11,0.15);color:#d97706;border:1px solid rgba(217,119,6,0.3);}
-  .grade-d{background:rgba(255,107,53,0.15);color:#ea580c;border:1px solid rgba(234,88,12,0.3);}
-  .grade-f{background:rgba(239,68,68,0.15);color:#dc2626;border:1px solid rgba(220,38,38,0.3);}
-
+  .grade{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;font-weight:800;font-size:.9rem;font-family:'Courier New',monospace;}
+  .grade-a{background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.35);}
+  .grade-b{background:rgba(0,229,255,.1);color:#00bcd4;border:1px solid rgba(0,188,212,.3);}
+  .grade-c{background:rgba(245,158,11,.15);color:#d97706;border:1px solid rgba(217,119,6,.3);}
+  .grade-d{background:rgba(255,107,53,.15);color:#ea580c;border:1px solid rgba(234,88,12,.3);}
+  .grade-f{background:rgba(239,68,68,.15);color:#dc2626;border:1px solid rgba(220,38,38,.3);}
   .box{padding:40px 24px;text-align:center;}
-  .spinner{width:34px;height:34px;border:3px solid var(--border);border-top-color:#f59e0b;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px;}
+  .spinner{width:34px;height:34px;border:3px solid var(--border);border-top-color:#f59e0b;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;}
   .pbar-bg{background:var(--border);border-radius:99px;height:8px;overflow:hidden;max-width:400px;margin:12px auto 0;}
-  .pbar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#f59e0b,#ef4444);transition:width 0.3s ease;}
-  .msg{font-family:'Courier New',monospace;font-size:0.78rem;color:var(--text3);margin-top:8px;}
-  .err-box{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:14px 18px;margin:0 0 16px;font-family:'Courier New',monospace;font-size:0.75rem;color:#dc2626;word-break:break-all;}
-  .warn-box{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:12px 16px;margin:0 0 16px;font-family:'Courier New',monospace;font-size:0.73rem;color:#d97706;}
-  .foot{font-family:'Courier New',monospace;font-size:0.7rem;color:var(--text3);text-align:center;padding-top:4px;}
-  /* TOAST */
-  .toast{position:fixed;bottom:28px;right:28px;background:#10b981;color:#fff;font-family:'Courier New',monospace;font-size:0.8rem;padding:12px 20px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.3);z-index:9999;display:flex;align-items:center;gap:8px;transform:translateY(80px);opacity:0;transition:transform 0.3s ease,opacity 0.3s ease;}
+  .pbar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#f59e0b,#ef4444);transition:width .3s ease;}
+  .msg{font-family:'Courier New',monospace;font-size:.78rem;color:var(--text3);margin-top:8px;}
+  .err-box{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:14px 18px;margin:0 0 16px;font-family:'Courier New',monospace;font-size:.75rem;color:#dc2626;word-break:break-all;}
+  .warn-box{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:10px;padding:12px 16px;margin:0 0 16px;font-family:'Courier New',monospace;font-size:.73rem;color:#d97706;}
+  .foot{font-family:'Courier New',monospace;font-size:.7rem;color:var(--text3);text-align:center;padding-top:4px;}
+  .toast{position:fixed;bottom:28px;right:28px;color:#fff;font-family:'Courier New',monospace;font-size:.8rem;padding:12px 20px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.3);z-index:9999;display:flex;align-items:center;gap:8px;transform:translateY(80px);opacity:0;transition:transform .3s ease,opacity .3s ease;}
   .toast.show{transform:translateY(0);opacity:1;}
-  /* SAVED INDICATOR on weight items */
-  .weight-item .saved-tag{font-size:0.65rem;color:#10b981;font-family:'Courier New',monospace;margin-top:4px;display:none;}
-  .weight-item.is-saved .saved-tag{display:block;}
-  .btn-save-def{background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.35);color:#10b981;}
-  .btn-save-def:hover{background:rgba(16,185,129,0.22);border-color:#10b981;}
-  /* RULE PICKER */
-  .rules-panel{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:24px;display:none;box-shadow:var(--shadow);}
-  .rules-panel.open{display:block;}
-  .rules-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:10px;}
-  .rules-title{font-size:0.9rem;font-weight:700;color:var(--text);}
-  .rules-desc{font-size:0.75rem;color:var(--text3);margin-bottom:18px;font-family:'Courier New',monospace;}
-  .rules-cats{display:flex;flex-direction:column;gap:18px;}
-  .rule-cat-block{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;}
-  .rule-cat-title{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;font-family:'Courier New',monospace;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
-  .rule-cat-dot{width:8px;height:8px;border-radius:50%;}
-  .rules-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;}
-  .rule-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);cursor:pointer;transition:border-color 0.15s,background 0.15s;}
-  .rule-row:hover{border-color:#f59e0b;}
-  .rule-row.rule-on{border-color:rgba(16,185,129,0.4);background:rgba(16,185,129,0.05);}
-  .rule-chk{width:16px;height:16px;border-radius:4px;border:2px solid var(--border);background:transparent;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
-  .rule-row.rule-on .rule-chk{background:#10b981;border-color:#10b981;}
-  .rule-chk-tick{color:#fff;font-size:11px;font-weight:900;display:none;}
-  .rule-row.rule-on .rule-chk-tick{display:block;}
-  .rule-info{flex:1;min-width:0;}
-  .rule-name{font-size:0.8rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .rule-row.rule-on .rule-name{color:#10b981;}
-  .rule-type{font-size:0.68rem;color:var(--text3);font-family:'Courier New',monospace;}
-  .rule-weight-sel{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:3px 6px;font-size:0.72rem;font-family:'Courier New',monospace;cursor:pointer;outline:none;}
-  .rule-weight-sel:focus{border-color:#f59e0b;}
-  .rules-footer{display:flex;gap:10px;margin-top:20px;justify-content:space-between;align-items:center;flex-wrap:wrap;}
-  .rules-count{font-size:0.75rem;color:var(--text3);font-family:'Courier New',monospace;}
-  .rules-footer-btns{display:flex;gap:10px;}
-  .btn-rules{background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.35);color:#a78bfa;}
-  .btn-rules:hover{background:rgba(167,139,250,0.22);border-color:#a78bfa;}
-  .no-rules{font-family:'Courier New',monospace;font-size:0.78rem;color:var(--text3);padding:12px 0;}
   @keyframes spin{to{transform:rotate(360deg)}}
 </style>
 
@@ -210,16 +152,15 @@
         <button class="range-btn" onclick="safetyDash.setRange(60)">60D</button>
         <button class="range-btn" onclick="safetyDash.setRange(90)">90D</button>
       </div>
-      <!-- Light mode toggle -->
-      <div class="toggle-wrap" onclick="safetyDash.toggleTheme()" title="Toggle light/dark mode">
+      <div class="toggle-wrap" onclick="safetyDash.toggleTheme()">
         <div class="toggle-track"><div class="toggle-thumb"></div></div>
         <span class="toggle-lbl" id="themeLbl">DARK</span>
       </div>
-      <button class="btn" id="btnSettings" onclick="safetyDash.toggleSettings()">
+      <button class="btn" id="btnWeights" onclick="safetyDash.togglePanel('weights')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         Weights
       </button>
-      <button class="btn btn-rules" id="btnRules" onclick="safetyDash.toggleRules()">
+      <button class="btn btn-rules" id="btnRules" onclick="safetyDash.togglePanel('rules')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
         Rules
       </button>
@@ -230,86 +171,60 @@
     </div>
   </div>
 
-  <!-- KPI CARDS -->
   <div class="kpis">
-    <div class="kpi amber"><div class="kpi-lbl">Fleet Avg Score</div><div class="kpi-val" id="k1">—</div><div class="kpi-sub">out of 100</div></div>
-    <div class="kpi green clickable" id="kpi-top" onclick="safetyDash.filterByGroup('top')" title="Click to filter">
-      <div class="kpi-lbl">Top Performers</div><div class="kpi-val" id="k2">—</div>
-      <div class="kpi-sub">score ≥ 80</div>
-      <div class="kpi-hint">&#9654; Click to filter list</div>
+    <div class="kpi amber"><div class="kpi-lbl">Fleet Avg Score</div><div class="kpi-val" id="k1">&#8212;</div><div class="kpi-sub">out of 100</div></div>
+    <div class="kpi green clickable" id="kpi-top" onclick="safetyDash.filterGroup('top')">
+      <div class="kpi-lbl">Top Performers</div><div class="kpi-val" id="k2">&#8212;</div>
+      <div class="kpi-sub">score &#8805; 80</div><div class="kpi-hint">&#9654; Click to filter</div>
     </div>
-    <div class="kpi red clickable" id="kpi-risk" onclick="safetyDash.filterByGroup('risk')" title="Click to filter">
-      <div class="kpi-lbl">At-Risk Drivers</div><div class="kpi-val" id="k3">—</div>
-      <div class="kpi-sub">score &lt; 60</div>
-      <div class="kpi-hint">&#9654; Click to filter list</div>
+    <div class="kpi red clickable" id="kpi-risk" onclick="safetyDash.filterGroup('risk')">
+      <div class="kpi-lbl">At-Risk Drivers</div><div class="kpi-val" id="k3">&#8212;</div>
+      <div class="kpi-sub">score &lt; 60</div><div class="kpi-hint">&#9654; Click to filter</div>
     </div>
-    <div class="kpi blue"><div class="kpi-lbl">Total Speeding</div><div class="kpi-val" id="k4">—</div><div class="kpi-sub">events in period</div></div>
-    <div class="kpi orange"><div class="kpi-lbl">Hard Braking</div><div class="kpi-val" id="k5">—</div><div class="kpi-sub">events in period</div></div>
-    <div class="kpi purple"><div class="kpi-lbl">Drivers Tracked</div><div class="kpi-val" id="k6">—</div><div class="kpi-sub">active in period</div></div>
+    <div class="kpi blue"><div class="kpi-lbl">Total Speeding</div><div class="kpi-val" id="k4">&#8212;</div><div class="kpi-sub">events in period</div></div>
+    <div class="kpi orange"><div class="kpi-lbl">Hard Braking</div><div class="kpi-val" id="k5">&#8212;</div><div class="kpi-sub">events in period</div></div>
+    <div class="kpi purple"><div class="kpi-lbl">Drivers Tracked</div><div class="kpi-val" id="k6">&#8212;</div><div class="kpi-sub">active in period</div></div>
   </div>
 
-  <!-- SETTINGS PANEL -->
-  <div class="settings-panel" id="settingsPanel">
-    <div class="settings-title">&#9881; Score Weight Configuration</div>
-    <div class="settings-desc">Adjust how much each behavior affects the score. Higher = bigger penalty per incident. Changes apply when you click Apply.</div>
+  <!-- WEIGHTS PANEL -->
+  <div class="panel" id="panelWeights">
+    <div class="panel-title">&#9881; Score Weight Configuration</div>
+    <div class="panel-desc">Max points deducted per category. Higher = bigger penalty per incident. Saves persist across sessions.</div>
     <div class="weight-grid">
-      <div class="weight-item">
-        <div class="weight-label">Speeding</div>
-        <div class="weight-row"><input type="range" class="weight-slider" id="w_speeding" min="0" max="40" step="1" value="25" oninput="safetyDash.updateWeightLabel('speeding')"/><span class="weight-val" id="wv_speeding">25</span></div>
-        <div class="weight-sub" id="wd_speeding">Max 25 pts &bull; ~3 pts per incident</div>
-      </div>
-      <div class="weight-item">
-        <div class="weight-label">Hard Braking</div>
-        <div class="weight-row"><input type="range" class="weight-slider" id="w_braking" min="0" max="40" step="1" value="20" oninput="safetyDash.updateWeightLabel('braking')"/><span class="weight-val" id="wv_braking">20</span></div>
-        <div class="weight-sub" id="wd_braking">Max 20 pts &bull; ~4 pts per incident</div>
-      </div>
-      <div class="weight-item">
-        <div class="weight-label">Hard Acceleration</div>
-        <div class="weight-row"><input type="range" class="weight-slider" id="w_acceleration" min="0" max="40" step="1" value="20" oninput="safetyDash.updateWeightLabel('acceleration')"/><span class="weight-val" id="wv_acceleration">20</span></div>
-        <div class="weight-sub" id="wd_acceleration">Max 20 pts &bull; ~4 pts per incident</div>
-      </div>
-      <div class="weight-item">
-        <div class="weight-label">Harsh Cornering</div>
-        <div class="weight-row"><input type="range" class="weight-slider" id="w_cornering" min="0" max="40" step="1" value="20" oninput="safetyDash.updateWeightLabel('cornering')"/><span class="weight-val" id="wv_cornering">20</span></div>
-        <div class="weight-sub" id="wd_cornering">Max 20 pts &bull; ~4 pts per incident</div>
-      </div>
-      <div class="weight-item">
-        <div class="weight-label">Seatbelt</div>
-        <div class="weight-row"><input type="range" class="weight-slider" id="w_seatbelt" min="0" max="40" step="1" value="15" oninput="safetyDash.updateWeightLabel('seatbelt')"/><span class="weight-val" id="wv_seatbelt">15</span></div>
-        <div class="weight-sub" id="wd_seatbelt">Max 15 pts &bull; ~5 pts per incident</div>
-      </div>
+      <div class="weight-item"><div class="weight-label">Speeding</div><div class="weight-row"><input type="range" class="weight-slider" id="w_speeding" min="0" max="40" step="1" value="25" oninput="safetyDash.updateWLabel('speeding')"/><span class="weight-val" id="wv_speeding">25</span></div><div class="weight-sub" id="wd_speeding">Max 25 pts &bull; ~3 pts/incident</div></div>
+      <div class="weight-item"><div class="weight-label">Hard Braking</div><div class="weight-row"><input type="range" class="weight-slider" id="w_braking" min="0" max="40" step="1" value="20" oninput="safetyDash.updateWLabel('braking')"/><span class="weight-val" id="wv_braking">20</span></div><div class="weight-sub" id="wd_braking">Max 20 pts &bull; ~4 pts/incident</div></div>
+      <div class="weight-item"><div class="weight-label">Hard Acceleration</div><div class="weight-row"><input type="range" class="weight-slider" id="w_acceleration" min="0" max="40" step="1" value="20" oninput="safetyDash.updateWLabel('acceleration')"/><span class="weight-val" id="wv_acceleration">20</span></div><div class="weight-sub" id="wd_acceleration">Max 20 pts &bull; ~4 pts/incident</div></div>
+      <div class="weight-item"><div class="weight-label">Harsh Cornering</div><div class="weight-row"><input type="range" class="weight-slider" id="w_cornering" min="0" max="40" step="1" value="20" oninput="safetyDash.updateWLabel('cornering')"/><span class="weight-val" id="wv_cornering">20</span></div><div class="weight-sub" id="wd_cornering">Max 20 pts &bull; ~4 pts/incident</div></div>
+      <div class="weight-item"><div class="weight-label">Seatbelt</div><div class="weight-row"><input type="range" class="weight-slider" id="w_seatbelt" min="0" max="40" step="1" value="15" oninput="safetyDash.updateWLabel('seatbelt')"/><span class="weight-val" id="wv_seatbelt">15</span></div><div class="weight-sub" id="wd_seatbelt">Max 15 pts &bull; ~5 pts/incident</div></div>
     </div>
-    <div class="settings-footer">
-      <button class="btn btn-reset-w" onclick="safetyDash.resetWeights()">Reset to Factory</button>
-      <button class="btn btn-save-def" onclick="safetyDash.saveAsDefault()">
+    <div class="panel-footer">
+      <button class="btn" onclick="safetyDash.resetWeights()">Reset to Factory</button>
+      <button class="btn btn-save" onclick="safetyDash.saveWeights()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
         Save as Default
       </button>
-      <button class="btn btn-apply" onclick="safetyDash.applyWeights()">Apply & Recalculate</button>
+      <button class="btn btn-apply" onclick="safetyDash.applyWeights()">Apply &amp; Recalculate</button>
     </div>
   </div>
 
   <!-- RULES PANEL -->
-  <div class="rules-panel" id="rulesPanel">
+  <div class="panel" id="panelRules">
     <div class="rules-header">
-      <div class="rules-title">&#10003; Rule Configuration</div>
-      <span class="rules-count" id="rulesCount"></span>
+      <div class="panel-title">&#10003; Rule Configuration</div>
+      <span class="rules-count" id="ruleCount"></span>
     </div>
-    <div class="rules-desc">Select which exception rules count toward driver scores. Each enabled rule can be assigned a penalty weight (pts deducted per incident). Rules are grouped by detected safety category. Custom rules appear under "Uncategorized" — assign them a category manually.</div>
-    <div id="rulesCatList"><div style="padding:20px;text-align:center;font-family:'Courier New',monospace;font-size:0.78rem;color:var(--text3);">Load data first to see available rules.</div></div>
-    <div class="rules-footer">
-      <span class="rules-count" id="rulesEnabledCount"></span>
-      <div class="rules-footer-btns">
-        <button class="btn btn-reset-w" onclick="safetyDash.resetRules()">Reset Rules</button>
-        <button class="btn btn-save-def" onclick="safetyDash.saveRules()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-          Save & Recalculate
-        </button>
-      </div>
+    <div class="panel-desc">Toggle which exception rules affect driver scores. Each rule can have its own penalty weight per incident. Custom rules appear under Uncategorized.</div>
+    <div id="rulesList"><div class="box"><div class="msg">Load data first to see available rules.</div></div></div>
+    <div class="panel-footer">
+      <span class="rules-count" id="rulesEnabled"></span>
+      <button class="btn" onclick="safetyDash.resetRules()" style="margin-left:auto;">Reset Rules</button>
+      <button class="btn btn-save" onclick="safetyDash.saveRules()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Save &amp; Recalculate
+      </button>
     </div>
   </div>
 
-  <!-- TABLE -->
   <div class="sec-hdr">
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
       <span class="sec-ttl">Driver Scorecard</span>
@@ -330,97 +245,120 @@
   <div class="foot" id="foot"></div>
 </div>
 <div class="toast" id="toast"></div>
-<div class="toast" id="toast"></div>
 
 <script>
 var safetyDash = (function() {
-  var _api          = null;
-  var _rows         = [];
-  var _rawData      = [];
-  var _allRules     = [];   // all Rule objects from Geotab
-  var _ruleConfig   = {};   // ruleId -> {enabled:bool, category:str, perEvent:number}
-  var _days         = 30;
-  var _sortKey      = 'score';
-  var _sortDir      = 1;
-  var _groupFilter  = null;
-  var _isLight      = false;
+  var _api = null, _rows = [], _rawData = [], _allRules = [], _ruleConfig = {};
+  var _days = 30, _sortKey = 'score', _sortDir = 1, _groupFilter = null, _isLight = false;
 
-  var FACTORY_WEIGHTS = {
-    speeding:{max:25,perEvent:3}, braking:{max:20,perEvent:4},
-    acceleration:{max:20,perEvent:4}, cornering:{max:20,perEvent:4}, seatbelt:{max:15,perEvent:5}
-  };
-  var CATS = ['speeding','braking','acceleration','cornering','seatbelt','other'];
+  var WCATS = ['speeding','braking','acceleration','cornering','seatbelt'];
+  var CATS  = ['speeding','braking','acceleration','cornering','seatbelt','other'];
   var CAT_LABELS = {speeding:'Speeding',braking:'Hard Braking',acceleration:'Hard Acceleration',cornering:'Harsh Cornering',seatbelt:'Seatbelt',other:'Uncategorized / Custom'};
   var CAT_COLORS = {speeding:'#ef4444',braking:'#f59e0b',acceleration:'#fb923c',cornering:'#a78bfa',seatbelt:'#00e5ff',other:'#64748b'};
-  var RULE_KEYWORDS = {speeding:['speed'],braking:['brak'],acceleration:['accel'],cornering:['corner'],seatbelt:['seat','belt']};
+  var KEYWORDS   = {speeding:['speed'],braking:['brak'],acceleration:['accel'],cornering:['corner'],seatbelt:['seat','belt']};
+  var WMAX = {speeding:25,braking:20,acceleration:20,cornering:20,seatbelt:15,other:10};
+  var _wmax = {speeding:25,braking:20,acceleration:20,cornering:20,seatbelt:15};
+  var _wper = {speeding:3,braking:4,acceleration:4,cornering:4,seatbelt:5};
 
-  // ── HELPERS ────────────────────────────────────────────────────────────────
-  function setDateRange(){
-    var now=new Date(),from=new Date(now);
-    from.setDate(from.getDate()-_days);
-    var fmt=function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});};
-    document.getElementById('dateRange').textContent=fmt(from)+' \u2192 '+fmt(now);
+  // ── utils ──────────────────────────────────────────────────────────────────
+  function setDateRange() {
+    var now = new Date(), from = new Date(now);
+    from.setDate(from.getDate() - _days);
+    var f = function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});};
+    document.getElementById('dateRange').textContent = f(from) + ' \u2192 ' + f(now);
   }
   function showErr(m){document.getElementById('errBox').innerHTML='<div class="err-box">&#9888; '+m+'</div>';}
   function showWarn(m){document.getElementById('warnBox').innerHTML='<div class="warn-box">&#9432; '+m+'</div>';}
-  function clearMessages(){document.getElementById('errBox').innerHTML='';document.getElementById('warnBox').innerHTML='';}
+  function clearMsg(){document.getElementById('errBox').innerHTML='';document.getElementById('warnBox').innerHTML='';}
   function showBox(label,pct){
-    document.getElementById('tbl').innerHTML='<div class="box"><div class="spinner"></div><div class="msg">'+label+'</div>'+(pct!==undefined?'<div class="pbar-bg"><div class="pbar-fill" style="width:'+pct+'%"></div></div>':'')+' </div>';
+    document.getElementById('tbl').innerHTML='<div class="box"><div class="spinner"></div><div class="msg">'+label+'</div>'+(pct!==undefined?'<div class="pbar-bg"><div class="pbar-fill" style="width:'+pct+'%"></div></div>':'')+'</div>';
   }
-  function resetKPIs(){['k1','k2','k3','k4','k5','k6'].forEach(function(id){document.getElementById(id).textContent='—';});}
-  function showToast(msg,color){
+  function resetKPIs(){['k1','k2','k3','k4','k5','k6'].forEach(function(id){document.getElementById(id).textContent='\u2014';});}
+  function toast(msg,color){
     var t=document.getElementById('toast');
-    t.style.background=color||'#10b981';
-    t.textContent=msg;
-    t.classList.add('show');
-    setTimeout(function(){t.classList.remove('show');},3000);
+    t.style.background=color||'#10b981'; t.textContent=msg;
+    t.classList.add('show'); setTimeout(function(){t.classList.remove('show');},3000);
   }
-
-  // ── RULE CATEGORIZATION ───────────────────────────────────────────────────
   function guessCategory(ruleName){
-    var lower=(ruleName||'').toLowerCase();
-    var cats=Object.keys(RULE_KEYWORDS);
-    for(var i=0;i<cats.length;i++){
-      var kws=RULE_KEYWORDS[cats[i]];
-      for(var j=0;j<kws.length;j++){if(lower.indexOf(kws[j])!==-1)return cats[i];}
-    }
+    var l=(ruleName||'').toLowerCase();
+    var ks=Object.keys(KEYWORDS);
+    for(var i=0;i<ks.length;i++){var kws=KEYWORDS[ks[i]];for(var j=0;j<kws.length;j++){if(l.indexOf(kws[j])!==-1)return ks[i];}}
     return 'other';
   }
+  function buildName(u){
+    if(!u) return null;
+    var f=(u.firstName||'').trim(), l=(u.lastName||'').trim();
+    if(f||l) return (f+' '+l).trim();
+    if(u.name&&u.name.trim()) return u.name.trim();
+    return null;
+  }
+  function scoreClass(s){return s>=80?'score-hi':s>=60?'score-med':'score-low';}
+  function gradeFromScore(s){
+    if(s>=90)return{l:'A',c:'grade-a'};if(s>=80)return{l:'B',c:'grade-b'};
+    if(s>=70)return{l:'C',c:'grade-c'};if(s>=60)return{l:'D',c:'grade-d'};
+    return{l:'F',c:'grade-f'};
+  }
+  function evClass(n){return n===0?'ev-0':n<=5?'ev-few':n<=20?'ev-mid':'ev-many';}
 
-  // ── SCORING ───────────────────────────────────────────────────────────────
-  function calcScore(eventCounts, trips){
+  // ── scoring ────────────────────────────────────────────────────────────────
+  function calcScore(ebr, trips) {
     if(!trips) return 100;
     var score=100, scale=Math.max(1,trips/10);
-    // sum deductions across all enabled rules
     Object.keys(_ruleConfig).forEach(function(rid){
       var cfg=_ruleConfig[rid];
       if(!cfg.enabled) return;
-      var cnt=eventCounts[rid]||0;
-      var maxDed=FACTORY_WEIGHTS[cfg.category]?FACTORY_WEIGHTS[cfg.category].max:10;
-      score-=Math.min(maxDed,(cnt/scale)*cfg.perEvent);
+      var cnt=ebr[rid]||0;
+      var maxD=WMAX[cfg.category]||10;
+      score -= Math.min(maxD, (cnt/scale)*cfg.perEvent);
     });
     return Math.max(0,Math.round(score));
   }
 
-  function scoreClass(s){return s>=80?'score-hi':s>=60?'score-med':'score-low';}
-  function gradeFromScore(s){
-    if(s>=90)return{letter:'A',cls:'grade-a'};if(s>=80)return{letter:'B',cls:'grade-b'};
-    if(s>=70)return{letter:'C',cls:'grade-c'};if(s>=60)return{letter:'D',cls:'grade-d'};
-    return{letter:'F',cls:'grade-f'};
+  // ── rule config ────────────────────────────────────────────────────────────
+  function initRuleConfig(rules) {
+    var saved=null;
+    try{var s=localStorage.getItem('safetyRuleConfig');if(s)saved=JSON.parse(s);}catch(e){}
+    _allRules = rules;
+    _ruleConfig = {};
+    rules.forEach(function(rule){
+      var cat = guessCategory(rule.name);
+      if(saved && saved[rule.id]){
+        _ruleConfig[rule.id]={enabled:!!saved[rule.id].enabled,category:saved[rule.id].category||cat,perEvent:saved[rule.id].perEvent||3};
+      } else {
+        _ruleConfig[rule.id]={enabled:cat!=='other',category:cat,perEvent:3};
+      }
+    });
   }
-  function evClass(n){return n===0?'ev-0':n<=5?'ev-few':n<=20?'ev-mid':'ev-many';}
 
-  // ── KPI / TABLE RENDER ─────────────────────────────────────────────────────
+  // ── rebuild ────────────────────────────────────────────────────────────────
+  function rebuildRows(){
+    _rows = _rawData.map(function(d){
+      var score = calcScore(d.ebr, d.trips);
+      var row = {name:d.name,score:score,trips:d.trips,ebr:d.ebr};
+      // category totals for sorting
+      CATS.forEach(function(cat){
+        row['cat_'+cat]=Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid].enabled&&_ruleConfig[rid].category===cat;}).reduce(function(s,rid){return s+(d.ebr[rid]||0);},0);
+      });
+      Object.keys(d.ebr).forEach(function(rid){row['rule_'+rid]=d.ebr[rid];});
+      return row;
+    });
+    _rows.sort(function(a,b){return a.score-b.score;});
+    _sortKey='score'; _sortDir=1;
+    renderKPIs(_rows);
+    updateBadge();
+    renderTable(getDisplayRows());
+    renderRulesPanel();
+  }
+
+  // ── render KPIs ────────────────────────────────────────────────────────────
   function renderKPIs(rows){
     var avg=rows.length?Math.round(rows.reduce(function(s,r){return s+r.score;},0)/rows.length):0;
-    // count speeding + braking events across enabled rules for those categories
     var spd=0,brk=0;
     rows.forEach(function(r){
       Object.keys(_ruleConfig).forEach(function(rid){
-        var cfg=_ruleConfig[rid];
-        if(!cfg.enabled) return;
-        if(cfg.category==='speeding') spd+=(r.eventsByRule[rid]||0);
-        if(cfg.category==='braking')  brk+=(r.eventsByRule[rid]||0);
+        var cfg=_ruleConfig[rid]; if(!cfg.enabled)return;
+        if(cfg.category==='speeding') spd+=(r.ebr[rid]||0);
+        if(cfg.category==='braking')  brk+=(r.ebr[rid]||0);
       });
     });
     document.getElementById('k1').textContent=avg;
@@ -432,7 +370,7 @@ var safetyDash = (function() {
     document.getElementById('foot').textContent='Last refreshed: '+new Date().toLocaleString()+'  |  Last '+_days+' days  |  Score = 100 minus weighted deductions (normalized by trips)';
   }
 
-  function updateFilterBadge(){
+  function updateBadge(){
     var badge=document.getElementById('filterBadge');
     document.getElementById('kpi-top').classList.remove('kpi-active');
     document.getElementById('kpi-risk').classList.remove('kpi-active');
@@ -443,74 +381,67 @@ var safetyDash = (function() {
     if(isTop)document.getElementById('kpi-top').classList.add('kpi-active');
     else document.getElementById('kpi-risk').classList.add('kpi-active');
     badge.style.display='inline-flex';
-    badge.innerHTML='<span class="filter-badge"><span class="filter-badge-dot" style="background:'+color+'"></span>Filtered: '+label+'<span class="filter-badge-x" onclick="safetyDash.clearGroupFilter()" title="Clear filter">\u2715</span></span>';
+    badge.innerHTML='<span class="filter-badge"><span class="filter-badge-dot" style="background:'+color+'"></span>Filtered: '+label+'<span class="filter-badge-x" onclick="safetyDash.clearFilter()">&#x2715;</span></span>';
   }
 
   function getDisplayRows(){
     var rows=_rows;
-    if(_groupFilter==='top') rows=rows.filter(function(r){return r.score>=80;});
+    if(_groupFilter==='top')  rows=rows.filter(function(r){return r.score>=80;});
     if(_groupFilter==='risk') rows=rows.filter(function(r){return r.score<60;});
     var q=document.getElementById('srch').value.toLowerCase();
     if(q) rows=rows.filter(function(r){return r.name.toLowerCase().indexOf(q)!==-1;});
     return rows;
   }
 
+  // ── render table ───────────────────────────────────────────────────────────
   function renderTable(rows){
     if(!rows||!rows.length){
-      document.getElementById('tbl').innerHTML='<div class="box"><div class="msg">'+(_groupFilter?'No drivers match this filter.':'No driver data found for the selected period.')+'</div></div>';
+      document.getElementById('tbl').innerHTML='<div class="box"><div class="msg">'+(_groupFilter?'No drivers match this filter.':'No driver data found.')+'</div></div>';
       return;
     }
-    // Build dynamic columns from enabled rules (group by category for display)
-    var enabledRules=Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid].enabled;});
-    // Group enabled rules by category for column headers
-    var catRules={};
-    enabledRules.forEach(function(rid){
-      var cat=_ruleConfig[rid].category;
-      if(!catRules[cat]) catRules[cat]=[];
-      catRules[cat].push(rid);
-    });
-    // Column order: known cats first, then other
-    var colCats=CATS.filter(function(c){return catRules[c]&&catRules[c].length;});
+    var enabled=Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid].enabled;});
+    var useCat=enabled.length>8;
+    var colCats=CATS.filter(function(c){return enabled.some(function(rid){return _ruleConfig[rid].category===c;});});
 
-    function thCls(k){return _sortKey===k?(_sortDir===1?' class="sort-asc"':' class="sort-desc"'):'';}
+    function thc(k){return _sortKey===k?(_sortDir===1?' class="sort-asc"':' class="sort-desc"'):'';}
     var h='<table><thead><tr>'+
-      '<th onclick="safetyDash.sort('name')"'+thCls('name')+'>Driver</th>'+
-      '<th onclick="safetyDash.sort('score')"'+thCls('score')+'>Score</th>'+
+      '<th onclick="safetyDash.sort(\'name\')"'+thc('name')+'>Driver</th>'+
+      '<th onclick="safetyDash.sort(\'score\')"'+thc('score')+'>Score</th>'+
       '<th>Grade</th>'+
-      '<th onclick="safetyDash.sort('trips')"'+thCls('trips')+'>Trips</th>';
+      '<th onclick="safetyDash.sort(\'trips\')"'+thc('trips')+'>Trips</th>';
 
-    // One column per enabled rule (if ≤8 rules), else one column per category
-    var useCatCols = enabledRules.length > 8;
-    if(useCatCols){
+    if(useCat){
       colCats.forEach(function(cat){
-        h+='<th onclick="safetyDash.sort('cat_'+cat+'')"'+thCls('cat_'+cat)+'>'+CAT_LABELS[cat]+'</th>';
+        h+='<th onclick="safetyDash.sort(\'cat_'+cat+'\')"'+thc('cat_'+cat)+'>'+CAT_LABELS[cat]+'</th>';
       });
     } else {
-      enabledRules.forEach(function(rid){
-        var rule=_allRules.find(function(r){return r.id===rid;})||{name:rid};
-        var shortName=rule.name.length>18?rule.name.substring(0,16)+'…':rule.name;
-        h+='<th onclick="safetyDash.sort('rule_'+rid+'')"'+thCls('rule_'+rid)+' title="'+rule.name+'">'+shortName+'</th>';
+      enabled.forEach(function(rid){
+        var rule=null;
+        for(var i=0;i<_allRules.length;i++){if(_allRules[i].id===rid){rule=_allRules[i];break;}}
+        var nm=rule?rule.name:rid;
+        var short=nm.length>18?nm.substring(0,16)+'\u2026':nm;
+        h+='<th onclick="safetyDash.sort(\'rule_'+rid+'\')"'+thc('rule_'+rid)+' title="'+nm+'">'+short+'</th>';
       });
     }
     h+='</tr></thead><tbody>';
 
     rows.forEach(function(r){
-      var sc=scoreClass(r.score),gr=gradeFromScore(r.score);
+      var sc=scoreClass(r.score), gr=gradeFromScore(r.score);
       h+='<tr><td class="dname">'+r.name+'</td>'+
         '<td><div class="score-wrap '+sc+'"><span class="score-num">'+r.score+'</span>'+
         '<div class="score-bar-bg"><div class="score-bar-fill" style="width:'+r.score+'%"></div></div></div></td>'+
-        '<td><span class="grade '+gr.cls+'">'+gr.letter+'</span></td>'+
-        '<td style="font-family:'Courier New',monospace;color:var(--text2);">'+r.trips+'</td>';
-      if(useCatCols){
+        '<td><span class="grade '+gr.c+'">'+gr.l+'</span></td>'+
+        '<td style="font-family:\'Courier New\',monospace;color:var(--text2);">'+r.trips+'</td>';
+
+      if(useCat){
         colCats.forEach(function(cat){
-          var total=(catRules[cat]||[]).reduce(function(s,rid){return s+(r.eventsByRule[rid]||0);},0);
-          var cls=evClass(total);
-          h+='<td><div class="ev-cell '+cls+'"><span class="ev-dot"></span>'+total+'</div></td>';
+          var total=enabled.filter(function(rid){return _ruleConfig[rid].category===cat;}).reduce(function(s,rid){return s+(r.ebr[rid]||0);},0);
+          h+='<td><div class="ev-cell '+evClass(total)+'"><span class="ev-dot"></span>'+total+'</div></td>';
         });
       } else {
-        enabledRules.forEach(function(rid){
-          var n=r.eventsByRule[rid]||0, cls=evClass(n);
-          h+='<td><div class="ev-cell '+cls+'"><span class="ev-dot"></span>'+n+'</div></td>';
+        enabled.forEach(function(rid){
+          var n=r.ebr[rid]||0;
+          h+='<td><div class="ev-cell '+evClass(n)+'"><span class="ev-dot"></span>'+n+'</div></td>';
         });
       }
       h+='</tr>';
@@ -518,117 +449,58 @@ var safetyDash = (function() {
     document.getElementById('tbl').innerHTML=h+'</tbody></table>';
   }
 
-  // ── RULES PANEL RENDER ────────────────────────────────────────────────────
+  // ── render rules panel ─────────────────────────────────────────────────────
   function renderRulesPanel(){
-    if(!_allRules.length){return;}
-    // Group rules by category
-    var byCategory={};
-    CATS.forEach(function(c){byCategory[c]=[];});
-    _allRules.forEach(function(rule){
-      var cfg=_ruleConfig[rule.id];
-      var cat=cfg?cfg.category:guessCategory(rule.name);
-      if(!byCategory[cat]) byCategory[cat]=[];
-      byCategory[cat].push(rule);
-    });
-
+    if(!_allRules.length) return;
     var enabledCount=Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid]&&_ruleConfig[rid].enabled;}).length;
-    document.getElementById('rulesCount').textContent=_allRules.length+' rules available';
-    document.getElementById('rulesEnabledCount').textContent=enabledCount+' rules enabled in scoring';
+    document.getElementById('ruleCount').textContent=_allRules.length+' rules available';
+    document.getElementById('rulesEnabled').textContent=enabledCount+' rules enabled';
+
+    var bycat={};
+    CATS.forEach(function(c){bycat[c]=[];});
+    _allRules.forEach(function(rule){
+      var cat=_ruleConfig[rule.id]?_ruleConfig[rule.id].category:guessCategory(rule.name);
+      if(!bycat[cat])bycat[cat]=[];
+      bycat[cat].push(rule);
+    });
 
     var html='<div class="rules-cats">';
     CATS.forEach(function(cat){
-      var rules=byCategory[cat]||[];
+      var rules=bycat[cat]||[];
       if(!rules.length) return;
       html+='<div class="rule-cat-block">'+
         '<div class="rule-cat-title"><span class="rule-cat-dot" style="background:'+CAT_COLORS[cat]+'"></span>'+CAT_LABELS[cat]+' ('+rules.length+')</div>'+
         '<div class="rules-grid">';
       rules.forEach(function(rule){
         var cfg=_ruleConfig[rule.id]||{enabled:false,category:cat,perEvent:3};
-        var isOn=cfg.enabled;
-        html+='<div class="rule-row'+(isOn?' rule-on':'')+'" id="rrow_'+rule.id+'" onclick="safetyDash.toggleRule(''+rule.id+'')">'+
-          '<div class="rule-chk"><span class="rule-chk-tick">\u2713</span></div>'+
+        var on=cfg.enabled;
+        html+='<div class="rule-row'+(on?' rule-on':'')+'" id="rr_'+rule.id+'" onclick="safetyDash.toggleRule(\''+rule.id+'\')">'+
+          '<div class="rule-chk">'+
+            '<svg viewBox="0 0 12 10" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="1,5 4.5,8.5 11,1"/></svg>'+
+          '</div>'+
           '<div class="rule-info">'+
             '<div class="rule-name" title="'+rule.name+'">'+rule.name+'</div>'+
-            '<div class="rule-type">'+CAT_LABELS[cat]+' &bull; '+rule.id+'</div>'+
+            '<div class="rule-meta">'+CAT_LABELS[cat]+' &bull; id:'+rule.id+'</div>'+
           '</div>'+
-          '<select class="rule-weight-sel" onclick="event.stopPropagation()" onchange="safetyDash.setRuleWeight(''+rule.id+'',this.value)" title="Penalty pts per incident">'+
-          [1,2,3,4,5,7,10].map(function(v){return '<option value="'+v+'"'+(cfg.perEvent===v?' selected':'')+'>'+v+' pt'+(v!==1?'s':'')+'</option>';}).join('')+
+          '<select class="rule-wt" onclick="event.stopPropagation()" onchange="safetyDash.setRuleWt(\''+rule.id+'\',this.value)">'+
+          [1,2,3,4,5,7,10].map(function(v){return '<option value="'+v+'"'+(cfg.perEvent===v?' selected':'')+'>'+v+'pt</option>';}).join('')+
           '</select>'+
         '</div>';
       });
       html+='</div></div>';
     });
     html+='</div>';
-    document.getElementById('rulesCatList').innerHTML=html;
+    document.getElementById('rulesList').innerHTML=html;
   }
 
-  // ── DATA FETCH ────────────────────────────────────────────────────────────
-  function buildName(u){
-    if(!u)return null;
-    var fn=(u.firstName||'').trim(),ln=(u.lastName||'').trim();
-    if(fn||ln)return(fn+' '+ln).trim();
-    if(u.name&&u.name.trim())return u.name.trim();
-    return null;
-  }
-
-  function rebuildRows(){
-    _rows=_rawData.map(function(d){
-      var score=calcScore(d.eventsByRule,d.trips);
-      // build category totals for sort
-      var catTotals={};
-      CATS.forEach(function(cat){catTotals['cat_'+cat]=0;});
-      Object.keys(_ruleConfig).forEach(function(rid){
-        var cfg=_ruleConfig[rid];
-        if(!cfg.enabled) return;
-        var n=d.eventsByRule[rid]||0;
-        catTotals['cat_'+cfg.category]=(catTotals['cat_'+cfg.category]||0)+n;
-      });
-      var row={name:d.name,score:score,trips:d.trips,eventsByRule:d.eventsByRule};
-      Object.keys(catTotals).forEach(function(k){row[k]=catTotals[k];});
-      // rule-level sort keys
-      Object.keys(d.eventsByRule).forEach(function(rid){row['rule_'+rid]=d.eventsByRule[rid];});
-      return row;
-    });
-    _rows.sort(function(a,b){return a.score-b.score;});
-    _sortKey='score';_sortDir=1;
-    renderKPIs(_rows);
-    updateFilterBadge();
-    renderTable(getDisplayRows());
-    renderRulesPanel();
-  }
-
-  function initRuleConfig(rules){
-    // Load saved rule config from localStorage
-    var savedStr=null;
-    try{savedStr=localStorage.getItem('safetyRuleConfig');}catch(e){}
-    var saved=null;
-    if(savedStr){try{saved=JSON.parse(savedStr);}catch(e){}}
-
-    _allRules=rules;
-    _ruleConfig={};
-    rules.forEach(function(rule){
-      var cat=guessCategory(rule.name);
-      if(saved&&saved[rule.id]){
-        _ruleConfig[rule.id]={
-          enabled: saved[rule.id].enabled===true,
-          category: saved[rule.id].category||cat,
-          perEvent: saved[rule.id].perEvent||3
-        };
-      } else {
-        // Default: enable rules that match a known safety category
-        var isKnown = cat !== 'other';
-        _ruleConfig[rule.id]={enabled:isKnown, category:cat, perEvent:3};
-      }
-    });
-  }
-
+  // ── fetch ──────────────────────────────────────────────────────────────────
   function fetchData(){
-    if(!_api){showBox('API not ready — please refresh.');return;}
-    clearMessages();resetKPIs();_groupFilter=null;updateFilterBadge();
-    showBox('FETCHING RULES & USERS...',10);
-    var now=new Date(),from=new Date(now);
+    if(!_api){showBox('API not ready.');return;}
+    clearMsg(); resetKPIs(); _groupFilter=null; updateBadge();
+    showBox('FETCHING RULES...',5);
+    var now=new Date(), from=new Date(now);
     from.setDate(from.getDate()-_days);
-    var fromStr=from.toISOString(),toStr=now.toISOString();
+    var fromStr=from.toISOString(), toStr=now.toISOString();
 
     _api.multiCall([
       ['Get',{typeName:'Rule',resultsLimit:1000}],
@@ -637,204 +509,186 @@ var safetyDash = (function() {
       var rules=(res&&res[0])||[];
       var users=(res&&res[1])||[];
       initRuleConfig(rules);
-
-      var nameMap={};
-      users.forEach(function(u){var name=buildName(u);if(name&&u.id)nameMap[u.id]=name;});
-
-      fetchEventsAndTrips(nameMap,fromStr,toStr);
+      var driverMap={};
+      users.forEach(function(u){var n=buildName(u);if(n&&u.id)driverMap[u.id]=n;});
+      doFetch(driverMap,fromStr,toStr);
     },function(){
-      // Fallback: fetch rules only
       _api.call('Get',{typeName:'Rule',resultsLimit:1000},function(rules){
-        rules=rules||[];
-        initRuleConfig(rules);
-        fetchEventsAndTrips({},fromStr,toStr);
+        initRuleConfig(rules||[]);
+        doFetch({},fromStr,toStr);
       },function(e){showBox('');showErr('Error: '+(e&&e.message?e.message:JSON.stringify(e)));});
     });
   }
 
-  function fetchEventsAndTrips(nameMap,fromStr,toStr){
-    showBox('FETCHING EXCEPTIONS & TRIPS...',35);
+  function doFetch(driverMap,fromStr,toStr){
+    showBox('FETCHING EXCEPTIONS & TRIPS...',30);
     _api.multiCall([
       ['Get',{typeName:'ExceptionEvent',search:{fromDate:fromStr,toDate:toStr},resultsLimit:100000}],
       ['Get',{typeName:'Trip',search:{fromDate:fromStr,toDate:toStr},resultsLimit:100000}]
-    ],function(res2){
-      var exceptions=(res2&&res2[0])||[];
-      var trips=(res2&&res2[1])||[];
+    ],function(res){
+      var excs=(res&&res[0])||[];
+      var trips=(res&&res[1])||[];
       showBox('BUILDING SCORECARDS...',80);
 
       trips.forEach(function(t){
-        var d=t.driver;
-        if(!d||!d.id||d.id==='UnknownDriverId')return;
-        if(!nameMap[d.id]){var name=buildName(d);if(name)nameMap[d.id]=name;}
+        var d=t.driver; if(!d||!d.id||d.id==='UnknownDriverId')return;
+        if(!driverMap[d.id]){var n=buildName(d);if(n)driverMap[d.id]=n;}
       });
-      var tripCount={};
+      var tc={};
       trips.forEach(function(t){
-        var did=t.driver&&t.driver.id;
-        if(!did||did==='UnknownDriverId')return;
-        tripCount[did]=(tripCount[did]||0)+1;
+        var did=t.driver&&t.driver.id; if(!did||did==='UnknownDriverId')return;
+        tc[did]=(tc[did]||0)+1;
       });
-
-      // Count events per driver per RULE ID (not category)
-      var eventsByDriverByRule={};
-      exceptions.forEach(function(e){
-        var did=e.driver&&e.driver.id;
-        if(!did||did==='UnknownDriverId')return;
-        var rid=e.rule&&e.rule.id;
-        if(!rid)return;
-        if(!eventsByDriverByRule[did]) eventsByDriverByRule[did]={};
-        eventsByDriverByRule[did][rid]=(eventsByDriverByRule[did][rid]||0)+1;
-        if(!nameMap[did]&&e.driver){var name=buildName(e.driver);if(name)nameMap[did]=name;}
+      var ebrd={};
+      excs.forEach(function(e){
+        var did=e.driver&&e.driver.id; if(!did||did==='UnknownDriverId')return;
+        var rid=e.rule&&e.rule.id; if(!rid)return;
+        if(!ebrd[did])ebrd[did]={};
+        ebrd[did][rid]=(ebrd[did][rid]||0)+1;
+        if(!driverMap[did]&&e.driver){var n=buildName(e.driver);if(n)driverMap[did]=n;}
       });
 
       var seen={};
-      Object.keys(tripCount).forEach(function(k){seen[k]=1;});
-      Object.keys(eventsByDriverByRule).forEach(function(k){seen[k]=1;});
-
+      Object.keys(tc).forEach(function(k){seen[k]=1;});
+      Object.keys(ebrd).forEach(function(k){seen[k]=1;});
       _rawData=[];
       Object.keys(seen).forEach(function(did){
-        var name=nameMap[did]||('Driver '+did);
-        var tc=tripCount[did]||0;
-        var ebr=eventsByDriverByRule[did]||{};
-        _rawData.push({name:name,trips:tc,eventsByRule:ebr});
+        _rawData.push({name:driverMap[did]||('Driver '+did),trips:tc[did]||0,ebr:ebrd[did]||{}});
       });
-
-      if(!_rawData.length){
-        showBox('');
-        showErr('No driver data found. Ensure drivers are assigned to vehicles and have trips in this period.');
-        return;
-      }
+      if(!_rawData.length){showBox('');showErr('No driver data found. Ensure drivers are assigned to vehicles and have trips in this period.');return;}
       rebuildRows();
     },function(err){showBox('');showErr('Error: '+(err&&err.message?err.message:JSON.stringify(err)));});
   }
 
-  // ── PUBLIC API ─────────────────────────────────────────────────────────────
+  // ── load saved weights on init ─────────────────────────────────────────────
+  function loadSavedWeights(){
+    try{
+      var sw=localStorage.getItem('safetyWeights');
+      if(!sw) return;
+      var pw=JSON.parse(sw);
+      WCATS.forEach(function(cat){
+        if(pw[cat]&&typeof pw[cat].max==='number'){
+          _wmax[cat]=pw[cat].max;
+          _wper[cat]=Math.max(1,Math.round(pw[cat].max/5));
+          var el=document.getElementById('w_'+cat);
+          if(el){
+            el.value=pw[cat].max;
+            document.getElementById('wv_'+cat).textContent=pw[cat].max;
+            document.getElementById('wd_'+cat).textContent='Max '+pw[cat].max+' pts \u2022 ~'+Math.max(1,Math.round(pw[cat].max/5))+' pts/incident';
+          }
+        }
+      });
+    }catch(e){}
+  }
+
+  // ── public ─────────────────────────────────────────────────────────────────
   return {
-    init:function(api){
+    init: function(api){
       _api=api; setDateRange();
       document.getElementById('btnRefresh').onclick=fetchData;
-      // Load saved weights
-      try{
-        var sw=localStorage.getItem('safetyWeights');
-        if(sw){
-          var pw=JSON.parse(sw);
-          Object.keys(FACTORY_WEIGHTS).forEach(function(cat){
-            if(pw[cat]&&typeof pw[cat].max==='number'){
-              FACTORY_WEIGHTS[cat]={max:pw[cat].max,perEvent:Math.max(1,Math.round(pw[cat].max/5))};
-              var el=document.getElementById('w_'+cat);
-              if(el){el.value=pw[cat].max;document.getElementById('wv_'+cat).textContent=pw[cat].max;document.getElementById('wd_'+cat).textContent='Max '+pw[cat].max+' pts \u2022 ~'+Math.max(1,Math.round(pw[cat].max/5))+' pts per incident';}
-            }
-          });
-        }
-      }catch(e){}
+      loadSavedWeights();
     },
     fetch: fetchData,
 
-    setRange:function(days){
+    setRange: function(days){
       _days=days;
-      document.querySelectorAll('.range-btn').forEach(function(btn){btn.classList.toggle('active',btn.textContent===days+'D');});
+      document.querySelectorAll('.range-btn').forEach(function(b){b.classList.toggle('active',b.textContent===days+'D');});
       setDateRange(); fetchData();
     },
 
-    toggleTheme:function(){
+    toggleTheme: function(){
       _isLight=!_isLight;
       document.body.classList.toggle('light',_isLight);
       document.getElementById('themeLbl').textContent=_isLight?'LIGHT':'DARK';
     },
 
-    toggleSettings:function(){
-      var p=document.getElementById('settingsPanel'),b=document.getElementById('btnSettings');
-      var open=p.classList.toggle('open'); b.classList.toggle('active-btn',open);
-      if(open) document.getElementById('rulesPanel').classList.remove('open'),document.getElementById('btnRules').classList.remove('active-btn');
+    togglePanel: function(which){
+      var panels={weights:'panelWeights',rules:'panelRules'};
+      var btns={weights:'btnWeights',rules:'btnRules'};
+      Object.keys(panels).forEach(function(k){
+        var open = k===which ? document.getElementById(panels[k]).classList.toggle('open') : false;
+        if(k!==which) document.getElementById(panels[k]).classList.remove('open');
+        document.getElementById(btns[k]).classList.toggle('active-btn', k===which && document.getElementById(panels[k]).classList.contains('open'));
+      });
+      if(which==='rules' && document.getElementById('panelRules').classList.contains('open') && _allRules.length){
+        renderRulesPanel();
+      }
     },
 
-    toggleRules:function(){
-      var p=document.getElementById('rulesPanel'),b=document.getElementById('btnRules');
-      var open=p.classList.toggle('open'); b.classList.toggle('active-btn',open);
-      if(open) document.getElementById('settingsPanel').classList.remove('open'),document.getElementById('btnSettings').classList.remove('active-btn');
-      if(open && _allRules.length) renderRulesPanel();
-      else if(open) document.getElementById('rulesCatList').innerHTML='<div style="padding:20px;text-align:center;font-family:\'Courier New\',monospace;font-size:0.78rem;color:var(--text3);">Click Refresh first to load available rules.</div>';
-    },
-
-    toggleRule:function(rid){
+    toggleRule: function(rid){
       if(!_ruleConfig[rid]) return;
       _ruleConfig[rid].enabled=!_ruleConfig[rid].enabled;
-      var row=document.getElementById('rrow_'+rid);
+      var row=document.getElementById('rr_'+rid);
       if(row) row.classList.toggle('rule-on',_ruleConfig[rid].enabled);
-      var enabledCount=Object.keys(_ruleConfig).filter(function(r){return _ruleConfig[r]&&_ruleConfig[r].enabled;}).length;
-      var el=document.getElementById('rulesEnabledCount');
-      if(el) el.textContent=enabledCount+' rules enabled in scoring';
+      var cnt=Object.keys(_ruleConfig).filter(function(r){return _ruleConfig[r]&&_ruleConfig[r].enabled;}).length;
+      var el=document.getElementById('rulesEnabled'); if(el) el.textContent=cnt+' rules enabled';
     },
 
-    setRuleWeight:function(rid,val){
+    setRuleWt: function(rid,val){
       if(_ruleConfig[rid]) _ruleConfig[rid].perEvent=parseInt(val,10)||1;
     },
 
-    saveRules:function(){
+    saveRules: function(){
       try{
         localStorage.setItem('safetyRuleConfig',JSON.stringify(_ruleConfig));
-        showToast('\u2713 Rule config saved & scores recalculated','#10b981');
-      }catch(e){showToast('Could not save: '+e.message,'#ef4444');}
+        toast('\u2713 Rule config saved','#10b981');
+      }catch(e){toast('Could not save: '+e.message,'#ef4444');}
       if(_rawData.length) rebuildRows();
     },
 
-    resetRules:function(){
+    resetRules: function(){
       try{localStorage.removeItem('safetyRuleConfig');}catch(e){}
-      if(_allRules.length){
-        initRuleConfig(_allRules);
-        renderRulesPanel();
-        if(_rawData.length) rebuildRows();
-      }
-      showToast('Rules reset to auto-detected defaults','#64748b');
+      if(_allRules.length){initRuleConfig(_allRules);renderRulesPanel();}
+      if(_rawData.length) rebuildRows();
+      toast('Rules reset to defaults','#64748b');
     },
 
-    filterByGroup:function(group){
-      _groupFilter=(_groupFilter===group)?null:group;
-      updateFilterBadge(); renderTable(getDisplayRows());
+    filterGroup: function(g){
+      _groupFilter=(_groupFilter===g)?null:g;
+      updateBadge(); renderTable(getDisplayRows());
     },
-    clearGroupFilter:function(){_groupFilter=null;updateFilterBadge();renderTable(getDisplayRows());},
+    clearFilter: function(){_groupFilter=null;updateBadge();renderTable(getDisplayRows());},
 
-    updateWeightLabel:function(cat){
-      var val=parseInt(document.getElementById('w_'+cat).value,10);
-      document.getElementById('wv_'+cat).textContent=val;
-      document.getElementById('wd_'+cat).textContent='Max '+val+' pts \u2022 ~'+Math.max(1,Math.round(val/5))+' pts per incident';
+    updateWLabel: function(cat){
+      var v=parseInt(document.getElementById('w_'+cat).value,10);
+      document.getElementById('wv_'+cat).textContent=v;
+      document.getElementById('wd_'+cat).textContent='Max '+v+' pts \u2022 ~'+Math.max(1,Math.round(v/5))+' pts/incident';
     },
 
-    applyWeights:function(){
-      Object.keys(FACTORY_WEIGHTS).forEach(function(cat){
-        var max=parseInt(document.getElementById('w_'+cat).value,10);
-        FACTORY_WEIGHTS[cat]={max:max,perEvent:Math.max(1,Math.round(max/5))};
+    applyWeights: function(){
+      WCATS.forEach(function(cat){
+        var v=parseInt(document.getElementById('w_'+cat).value,10);
+        _wmax[cat]=v; _wper[cat]=Math.max(1,Math.round(v/5));
       });
       if(_rawData.length) rebuildRows();
-      showToast('Scores recalculated','#f59e0b');
+      toast('Scores recalculated','#f59e0b');
     },
 
-    saveAsDefault:function(){
-      Object.keys(FACTORY_WEIGHTS).forEach(function(cat){
-        var max=parseInt(document.getElementById('w_'+cat).value,10);
-        FACTORY_WEIGHTS[cat]={max:max,perEvent:Math.max(1,Math.round(max/5))};
+    saveWeights: function(){
+      WCATS.forEach(function(cat){
+        var v=parseInt(document.getElementById('w_'+cat).value,10);
+        _wmax[cat]=v; _wper[cat]=Math.max(1,Math.round(v/5));
       });
-      try{
-        localStorage.setItem('safetyWeights',JSON.stringify(FACTORY_WEIGHTS));
-        showToast('\u2713 Weights saved as default','#10b981');
-      }catch(e){showToast('Could not save: '+e.message,'#ef4444');}
+      var toSave={};
+      WCATS.forEach(function(cat){toSave[cat]={max:_wmax[cat],perEvent:_wper[cat]};});
+      try{localStorage.setItem('safetyWeights',JSON.stringify(toSave));toast('\u2713 Weights saved as default','#10b981');}
+      catch(e){toast('Could not save: '+e.message,'#ef4444');}
       if(_rawData.length) rebuildRows();
     },
 
-    resetWeights:function(){
+    resetWeights: function(){
       try{localStorage.removeItem('safetyWeights');}catch(e){}
-      var defs={speeding:{max:25,perEvent:3},braking:{max:20,perEvent:4},acceleration:{max:20,perEvent:4},cornering:{max:20,perEvent:4},seatbelt:{max:15,perEvent:5}};
-      Object.keys(defs).forEach(function(cat){
-        FACTORY_WEIGHTS[cat]=Object.assign({},defs[cat]);
+      var defs={speeding:25,braking:20,acceleration:20,cornering:20,seatbelt:15};
+      WCATS.forEach(function(cat){
+        _wmax[cat]=defs[cat]; _wper[cat]=Math.max(1,Math.round(defs[cat]/5));
         var el=document.getElementById('w_'+cat);
-        if(el){el.value=defs[cat].max;document.getElementById('wv_'+cat).textContent=defs[cat].max;document.getElementById('wd_'+cat).textContent='Max '+defs[cat].max+' pts \u2022 '+defs[cat].perEvent+' pts per incident';}
+        if(el){el.value=defs[cat];document.getElementById('wv_'+cat).textContent=defs[cat];document.getElementById('wd_'+cat).textContent='Max '+defs[cat]+' pts \u2022 ~'+Math.max(1,Math.round(defs[cat]/5))+' pts/incident';}
       });
       if(_rawData.length) rebuildRows();
-      showToast('Reset to factory defaults','#64748b');
+      toast('Reset to factory defaults','#64748b');
     },
 
-    _showToast: showToast,
-
-    sort:function(k){
+    sort: function(k){
       if(_sortKey===k){_sortDir*=-1;}else{_sortKey=k;_sortDir=(k==='name'||k==='score')?1:-1;}
       _rows.sort(function(a,b){
         var av=a[k]!==undefined?a[k]:0, bv=b[k]!==undefined?b[k]:0;
@@ -844,39 +698,41 @@ var safetyDash = (function() {
       renderTable(getDisplayRows());
     },
 
-    filter:function(){renderTable(getDisplayRows());},
+    filter: function(){renderTable(getDisplayRows());},
 
-    exportCSV:function(){
-      if(!_rows.length)return;
-      var now=new Date(),from=new Date(now);
+    exportCSV: function(){
+      if(!_rows.length) return;
+      var now=new Date(), from=new Date(now);
       from.setDate(from.getDate()-_days);
-      var fmt=function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});};
+      var f=function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});};
       var exportRows=getDisplayRows();
-      var filterNote=_groupFilter?(' — '+(_groupFilter==='top'?'Top Performers':'At-Risk Drivers')):'';
-      var enabledRules=Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid].enabled;});
-      var ruleNames=enabledRules.map(function(rid){var r=_allRules.find(function(x){return x.id===rid;})||{name:rid};return r.name;});
-      var lines=['Driver Safety Scorecard'+filterNote,'Period: '+fmt(from)+' to '+fmt(now),'','Driver,Score,Grade,Trips,'+ruleNames.join(',')];
+      var enabled=Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid].enabled;});
+      var ruleNames=enabled.map(function(rid){
+        var r=null; for(var i=0;i<_allRules.length;i++){if(_allRules[i].id===rid){r=_allRules[i];break;}}
+        return r?r.name:rid;
+      });
+      var note=_groupFilter?(' - '+(_groupFilter==='top'?'Top Performers':'At-Risk Drivers')):'';
+      var lines=['Driver Safety Scorecard'+note,'Period: '+f(from)+' to '+f(now),'','Driver,Score,Grade,Trips,'+ruleNames.join(',')];
       exportRows.forEach(function(r){
         var gr=gradeFromScore(r.score);
-        var evCols=enabledRules.map(function(rid){return r.eventsByRule[rid]||0;});
-        lines.push('"'+r.name.replace(/"/g,'""')+'",'+r.score+','+gr.letter+','+r.trips+','+evCols.join(','));
+        lines.push('"'+r.name.replace(/"/g,'""')+'",'+r.score+','+gr.l+','+r.trips+','+enabled.map(function(rid){return r.ebr[rid]||0;}).join(','));
       });
       var csv=lines.join('\r\n');
       var blob=new Blob([csv],{type:'text/csv'});
       var url=URL.createObjectURL(blob);
       var a=document.createElement('a');
-      a.href=url;a.download='safety-scorecard-'+_days+'d.csv';
-      document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+      a.href=url; a.download='safety-scorecard-'+_days+'d.csv';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
     }
   };
 })();
 
-geotab.addin=geotab.addin||{};
-geotab.addin.safetyscorecard=function(){
-  return{
-    initialize:function(api,state,cb){safetyDash.init(api);if(typeof cb==='function')cb();},
-    focus:function(){safetyDash.fetch();},
-    blur:function(){}
+geotab.addin = geotab.addin || {};
+geotab.addin.safetyscorecard = function() {
+  return {
+    initialize: function(api,state,cb){safetyDash.init(api);if(typeof cb==='function')cb();},
+    focus:      function(){safetyDash.fetch();},
+    blur:       function(){}
   };
 };
 </script>
