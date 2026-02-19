@@ -1,20 +1,17 @@
 {
-  "name": "Fleet Mileage & Idle Dashboard",
+  "name": "FleetMileageAndIdleDashboard",
   "supportEmail": "support@yourcompany.com",
   "version": "1.0.0",
   "defaultPage": "map",
   "isSigned": false,
   "items": [
     {
-      "url": "addin.html",
+      "url": "https://marksmith9192-afk.github.io/Geotab/addin.html",
       "path": "ActivityLink",
       "menuName": {
         "en": "Fleet Dashboard"
       },
-      "icon": "images/icon.svg"
+      "icon": "https://marksmith9192-afk.github.io/Geotab/images/icon.svg"
     }
-  ],
-  "files": {
-    "addin.html": "addin.html"
-  }
+  ]
 }
