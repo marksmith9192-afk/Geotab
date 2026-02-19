@@ -22,6 +22,9 @@
   .btn{background:#1a2540;border:1px solid #1e2e4a;color:#e2e8f0;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:0.82rem;transition:all 0.2s;display:flex;align-items:center;gap:6px;white-space:nowrap;}
   .btn:hover{border-color:#f59e0b;color:#f59e0b;}
   .btn svg{width:14px;height:14px;flex-shrink:0;}
+  .btn.active-btn{border-color:#f59e0b;color:#f59e0b;background:rgba(245,158,11,0.08);}
+
+  /* KPI CARDS */
   .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:28px;}
   .kpi{background:#121929;border:1px solid #1e2e4a;border-radius:14px;padding:20px;position:relative;overflow:hidden;}
   .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
@@ -30,6 +33,27 @@
   .kpi-val{font-size:1.8rem;font-weight:800;line-height:1;}
   .kpi.amber .kpi-val{color:#f59e0b;}.kpi.red .kpi-val{color:#ef4444;}.kpi.green .kpi-val{color:#10b981;}.kpi.blue .kpi-val{color:#00e5ff;}.kpi.purple .kpi-val{color:#a78bfa;}.kpi.orange .kpi-val{color:#ff6b35;}
   .kpi-sub{font-size:0.75rem;color:#64748b;margin-top:5px;}
+
+  /* SETTINGS PANEL */
+  .settings-panel{background:#121929;border:1px solid #1e2e4a;border-radius:14px;padding:24px;margin-bottom:24px;display:none;}
+  .settings-panel.open{display:block;}
+  .settings-title{font-size:0.9rem;font-weight:700;margin-bottom:6px;}
+  .settings-desc{font-size:0.78rem;color:#64748b;margin-bottom:20px;font-family:'Courier New',monospace;}
+  .weight-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;}
+  .weight-item{background:#0b0f1a;border:1px solid #1e2e4a;border-radius:10px;padding:16px;}
+  .weight-label{font-size:0.72rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.08em;font-family:'Courier New',monospace;margin-bottom:8px;}
+  .weight-row{display:flex;align-items:center;gap:10px;}
+  .weight-slider{flex:1;-webkit-appearance:none;appearance:none;height:4px;border-radius:99px;background:#1e2e4a;outline:none;cursor:pointer;}
+  .weight-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#f59e0b;cursor:pointer;border:2px solid #0b0f1a;}
+  .weight-val{font-family:'Courier New',monospace;font-size:0.85rem;color:#f59e0b;min-width:28px;text-align:right;font-weight:700;}
+  .weight-sub{font-size:0.7rem;color:#64748b;margin-top:6px;}
+  .settings-footer{display:flex;gap:10px;margin-top:20px;justify-content:flex-end;}
+  .btn-apply{background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.4);color:#f59e0b;}
+  .btn-apply:hover{background:rgba(245,158,11,0.25);}
+  .btn-reset{background:transparent;border:1px solid #1e2e4a;color:#64748b;}
+  .btn-reset:hover{border-color:#94a3b8;color:#94a3b8;}
+
+  /* TABLE */
   .sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
   .sec-ttl{font-size:1rem;font-weight:700;}
   .sec-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
@@ -40,37 +64,44 @@
   thead tr{background:#1a2540;border-bottom:1px solid #1e2e4a;}
   th{font-family:'Courier New',monospace;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;padding:12px 16px;text-align:left;cursor:pointer;user-select:none;white-space:nowrap;}
   th:hover{color:#f59e0b;}
-  th.sort-asc::after{content:' ↑';color:#f59e0b;}
-  th.sort-desc::after{content:' ↓';color:#f59e0b;}
+  th.sort-asc::after{content:' ↑';color:#f59e0b;}th.sort-desc::after{content:' ↓';color:#f59e0b;}
   tbody tr{border-bottom:1px solid #1e2e4a;transition:background 0.15s;}
   tbody tr:last-child{border-bottom:none;}tbody tr:hover{background:#1a2540;}
   td{padding:12px 16px;font-size:0.85rem;vertical-align:middle;}
-  .dname{font-family:'Courier New',monospace;font-size:0.82rem;font-weight:500;}
+  .dname{font-family:'Courier New',monospace;font-size:0.82rem;font-weight:500;color:#e2e8f0;}
+
+  /* SCORE */
   .score-wrap{display:flex;align-items:center;gap:10px;}
   .score-num{font-family:'Courier New',monospace;font-size:1rem;font-weight:800;min-width:36px;}
   .score-bar-bg{flex:1;height:7px;background:#1e2e4a;border-radius:99px;overflow:hidden;min-width:60px;}
-  .score-bar-fill{height:100%;border-radius:99px;transition:width 0.6s ease;}
+  .score-bar-fill{height:100%;border-radius:99px;}
   .score-hi .score-num{color:#10b981;}.score-hi .score-bar-fill{background:linear-gradient(90deg,#10b981,#34d399);}
   .score-med .score-num{color:#f59e0b;}.score-med .score-bar-fill{background:linear-gradient(90deg,#f59e0b,#fbbf24);}
   .score-low .score-num{color:#ef4444;}.score-low .score-bar-fill{background:linear-gradient(90deg,#ef4444,#f87171);}
-  .ev-cell{display:flex;align-items:center;gap:6px;font-family:'Courier New',monospace;font-size:0.8rem;}
-  .ev-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-  .ev-0{color:#10b981;}.ev-0 .ev-dot{background:#10b981;}
-  .ev-few{color:#f59e0b;}.ev-few .ev-dot{background:#f59e0b;}
-  .ev-many{color:#ef4444;}.ev-many .ev-dot{background:#ef4444;}
+
+  /* EVENT CELLS — improved contrast */
+  .ev-cell{display:flex;align-items:center;gap:7px;font-family:'Courier New',monospace;font-size:0.82rem;font-weight:600;}
+  .ev-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .ev-0  {color:#34d399;}.ev-0   .ev-dot{background:#34d399;}
+  .ev-few{color:#fcd34d;}.ev-few .ev-dot{background:#fcd34d;}
+  .ev-mid{color:#fb923c;}.ev-mid .ev-dot{background:#fb923c;}
+  .ev-many{color:#ff6b6b;}.ev-many .ev-dot{background:#ff6b6b;}
+
+  /* GRADE */
   .grade{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;font-weight:800;font-size:0.9rem;font-family:'Courier New',monospace;}
-  .grade-a{background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3);}
-  .grade-b{background:rgba(0,229,255,0.1);color:#00e5ff;border:1px solid rgba(0,229,255,0.25);}
-  .grade-c{background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);}
-  .grade-d{background:rgba(255,107,53,0.15);color:#ff6b35;border:1px solid rgba(255,107,53,0.3);}
-  .grade-f{background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);}
+  .grade-a{background:rgba(16,185,129,0.2);color:#10b981;border:1px solid rgba(16,185,129,0.4);}
+  .grade-b{background:rgba(0,229,255,0.12);color:#00e5ff;border:1px solid rgba(0,229,255,0.3);}
+  .grade-c{background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.4);}
+  .grade-d{background:rgba(255,107,53,0.2);color:#fb923c;border:1px solid rgba(255,107,53,0.4);}
+  .grade-f{background:rgba(239,68,68,0.2);color:#ff6b6b;border:1px solid rgba(239,68,68,0.4);}
+
   .box{padding:40px 24px;text-align:center;}
   .spinner{width:34px;height:34px;border:3px solid #1e2e4a;border-top-color:#f59e0b;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px;}
   .pbar-bg{background:#1e2e4a;border-radius:99px;height:8px;overflow:hidden;max-width:400px;margin:12px auto 0;}
   .pbar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#f59e0b,#ef4444);transition:width 0.3s ease;}
   .msg{font-family:'Courier New',monospace;font-size:0.78rem;color:#64748b;margin-top:8px;}
-  .err-box{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:14px 18px;margin:0 0 16px;font-family:'Courier New',monospace;font-size:0.75rem;color:#f87171;word-break:break-all;}
-  .warn-box{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:12px 16px;margin:0 0 16px;font-family:'Courier New',monospace;font-size:0.73rem;color:#fbbf24;}
+  .err-box{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:14px 18px;margin:0 0 16px;font-family:'Courier New',monospace;font-size:0.75rem;color:#fca5a5;word-break:break-all;}
+  .warn-box{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:12px 16px;margin:0 0 16px;font-family:'Courier New',monospace;font-size:0.73rem;color:#fcd34d;}
   .foot{font-family:'Courier New',monospace;font-size:0.7rem;color:#64748b;text-align:center;padding-top:4px;}
   @keyframes spin{to{transform:rotate(360deg)}}
 </style>
@@ -85,6 +116,10 @@
         <button class="range-btn" onclick="safetyDash.setRange(60)">60D</button>
         <button class="range-btn" onclick="safetyDash.setRange(90)">90D</button>
       </div>
+      <button class="btn" id="btnSettings" onclick="safetyDash.toggleSettings()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Score Weights
+      </button>
       <button class="btn" id="btnRefresh">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
         Refresh
@@ -92,6 +127,7 @@
     </div>
   </div>
 
+  <!-- KPI CARDS -->
   <div class="kpis">
     <div class="kpi amber"><div class="kpi-lbl">Fleet Avg Score</div><div class="kpi-val" id="k1">—</div><div class="kpi-sub">out of 100</div></div>
     <div class="kpi green"><div class="kpi-lbl">Top Performers</div><div class="kpi-val" id="k2">—</div><div class="kpi-sub">score ≥ 80</div></div>
@@ -101,6 +137,63 @@
     <div class="kpi purple"><div class="kpi-lbl">Drivers Tracked</div><div class="kpi-val" id="k6">—</div><div class="kpi-sub">active in period</div></div>
   </div>
 
+  <!-- SETTINGS PANEL -->
+  <div class="settings-panel" id="settingsPanel">
+    <div class="settings-title">&#9881; Score Weight Configuration</div>
+    <div class="settings-desc">
+      Adjust how much each behavior affects the overall score (0–100).
+      Higher weight = bigger penalty per incident. Numbers shown are max points deducted per category.
+      Changes apply immediately when you click Apply.
+    </div>
+    <div class="weight-grid">
+      <div class="weight-item">
+        <div class="weight-label">Speeding</div>
+        <div class="weight-row">
+          <input type="range" class="weight-slider" id="w_speeding" min="0" max="40" step="1" value="25" oninput="safetyDash.updateWeightLabel('speeding')"/>
+          <span class="weight-val" id="wv_speeding">25</span>
+        </div>
+        <div class="weight-sub" id="wd_speeding">Max 25 pts deducted &bull; 3 pts per incident</div>
+      </div>
+      <div class="weight-item">
+        <div class="weight-label">Hard Braking</div>
+        <div class="weight-row">
+          <input type="range" class="weight-slider" id="w_braking" min="0" max="40" step="1" value="20" oninput="safetyDash.updateWeightLabel('braking')"/>
+          <span class="weight-val" id="wv_braking">20</span>
+        </div>
+        <div class="weight-sub" id="wd_braking">Max 20 pts deducted &bull; 4 pts per incident</div>
+      </div>
+      <div class="weight-item">
+        <div class="weight-label">Hard Acceleration</div>
+        <div class="weight-row">
+          <input type="range" class="weight-slider" id="w_acceleration" min="0" max="40" step="1" value="20" oninput="safetyDash.updateWeightLabel('acceleration')"/>
+          <span class="weight-val" id="wv_acceleration">20</span>
+        </div>
+        <div class="weight-sub" id="wd_acceleration">Max 20 pts deducted &bull; 4 pts per incident</div>
+      </div>
+      <div class="weight-item">
+        <div class="weight-label">Harsh Cornering</div>
+        <div class="weight-row">
+          <input type="range" class="weight-slider" id="w_cornering" min="0" max="40" step="1" value="20" oninput="safetyDash.updateWeightLabel('cornering')"/>
+          <span class="weight-val" id="wv_cornering">20</span>
+        </div>
+        <div class="weight-sub" id="wd_cornering">Max 20 pts deducted &bull; 4 pts per incident</div>
+      </div>
+      <div class="weight-item">
+        <div class="weight-label">Seatbelt</div>
+        <div class="weight-row">
+          <input type="range" class="weight-slider" id="w_seatbelt" min="0" max="40" step="1" value="15" oninput="safetyDash.updateWeightLabel('seatbelt')"/>
+          <span class="weight-val" id="wv_seatbelt">15</span>
+        </div>
+        <div class="weight-sub" id="wd_seatbelt">Max 15 pts deducted &bull; 5 pts per incident</div>
+      </div>
+    </div>
+    <div class="settings-footer">
+      <button class="btn btn-reset" onclick="safetyDash.resetWeights()">Reset to Defaults</button>
+      <button class="btn btn-apply" onclick="safetyDash.applyWeights()">Apply & Recalculate</button>
+    </div>
+  </div>
+
+  <!-- TABLE -->
   <div class="sec-hdr">
     <span class="sec-ttl">Driver Scorecard</span>
     <div class="sec-right">
@@ -120,13 +213,15 @@
 
 <script>
 var safetyDash = (function() {
-  var _api     = null;
-  var _rows    = [];
-  var _days    = 30;
-  var _sortKey = 'score';
-  var _sortDir = 1;
+  var _api      = null;
+  var _rows     = [];
+  var _rawData  = []; // store raw event/trip data for recalculation
+  var _days     = 30;
+  var _sortKey  = 'score';
+  var _sortDir  = 1;
 
-  var WEIGHTS = {
+  // Default weights — max points deducted per category, and deduction per incident
+  var _weights = {
     speeding:     { max: 25, perEvent: 3 },
     braking:      { max: 20, perEvent: 4 },
     acceleration: { max: 20, perEvent: 4 },
@@ -134,60 +229,53 @@ var safetyDash = (function() {
     seatbelt:     { max: 15, perEvent: 5 }
   };
 
-  // Keywords to match rule names to categories
   var RULE_KEYWORDS = {
     speeding:     ['speed'],
     braking:      ['brak'],
     acceleration: ['accel'],
     cornering:    ['corner'],
-    seatbelt:     ['seat', 'belt']
+    seatbelt:     ['seat','belt']
   };
 
   function setDateRange() {
-    var now = new Date(), from = new Date(now);
-    from.setDate(from.getDate() - _days);
-    var fmt = function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});};
-    document.getElementById('dateRange').textContent = fmt(from) + ' \u2192 ' + fmt(now);
+    var now=new Date(), from=new Date(now);
+    from.setDate(from.getDate()-_days);
+    var fmt=function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});};
+    document.getElementById('dateRange').textContent=fmt(from)+' \u2192 '+fmt(now);
   }
 
   function showErr(msg){ document.getElementById('errBox').innerHTML='<div class="err-box">&#9888; '+msg+'</div>'; }
   function showWarn(msg){ document.getElementById('warnBox').innerHTML='<div class="warn-box">&#9432; '+msg+'</div>'; }
   function clearMessages(){ document.getElementById('errBox').innerHTML=''; document.getElementById('warnBox').innerHTML=''; }
-
-  function showBox(label, pct) {
-    document.getElementById('tbl').innerHTML =
-      '<div class="box"><div class="spinner"></div><div class="msg">'+label+'</div>'+
-      (pct!==undefined?'<div class="pbar-bg"><div class="pbar-fill" style="width:'+pct+'%"></div></div>':'')+
-      '</div>';
+  function showBox(label,pct){
+    document.getElementById('tbl').innerHTML='<div class="box"><div class="spinner"></div><div class="msg">'+label+'</div>'+(pct!==undefined?'<div class="pbar-bg"><div class="pbar-fill" style="width:'+pct+'%"></div></div>':'')+'</div>';
   }
-
   function resetKPIs(){ ['k1','k2','k3','k4','k5','k6'].forEach(function(id){document.getElementById(id).textContent='—';}); }
 
   function categorizeRule(ruleName) {
-    var lower = (ruleName||'').toLowerCase();
-    var cats  = Object.keys(RULE_KEYWORDS);
-    for (var i=0; i<cats.length; i++) {
-      var keywords = RULE_KEYWORDS[cats[i]];
-      for (var j=0; j<keywords.length; j++) {
-        if (lower.indexOf(keywords[j]) !== -1) return cats[i];
+    var lower=(ruleName||'').toLowerCase();
+    var cats=Object.keys(RULE_KEYWORDS);
+    for(var i=0;i<cats.length;i++){
+      var kws=RULE_KEYWORDS[cats[i]];
+      for(var j=0;j<kws.length;j++){
+        if(lower.indexOf(kws[j])!==-1) return cats[i];
       }
     }
     return null;
   }
 
   function calcScore(events, trips) {
-    if (!trips) return 100;
-    var score = 100;
-    var scale = Math.max(1, trips / 10);
-    Object.keys(WEIGHTS).forEach(function(cat) {
-      var deduction = Math.min(WEIGHTS[cat].max, ((events[cat]||0) / scale) * WEIGHTS[cat].perEvent);
-      score -= deduction;
+    if(!trips) return 100;
+    var score=100;
+    var scale=Math.max(1, trips/10);
+    Object.keys(_weights).forEach(function(cat){
+      var deduction=Math.min(_weights[cat].max, ((events[cat]||0)/scale)*_weights[cat].perEvent);
+      score-=deduction;
     });
     return Math.max(0, Math.round(score));
   }
 
   function scoreClass(s){ return s>=80?'score-hi':s>=60?'score-med':'score-low'; }
-
   function gradeFromScore(s){
     if(s>=90)return{letter:'A',cls:'grade-a'};
     if(s>=80)return{letter:'B',cls:'grade-b'};
@@ -195,22 +283,17 @@ var safetyDash = (function() {
     if(s>=60)return{letter:'D',cls:'grade-d'};
     return{letter:'F',cls:'grade-f'};
   }
-
-  function evClass(n){ return n===0?'ev-0':n<=5?'ev-few':'ev-many'; }
+  function evClass(n){ return n===0?'ev-0':n<=5?'ev-few':n<=20?'ev-mid':'ev-many'; }
 
   function renderKPIs(rows) {
-    var avg   = rows.length ? Math.round(rows.reduce(function(s,r){return s+r.score;},0)/rows.length) : 0;
-    var top   = rows.filter(function(r){return r.score>=80;}).length;
-    var risk  = rows.filter(function(r){return r.score<60;}).length;
-    var spd   = rows.reduce(function(s,r){return s+(r.events.speeding||0);},0);
-    var brk   = rows.reduce(function(s,r){return s+(r.events.braking||0);},0);
+    var avg=rows.length?Math.round(rows.reduce(function(s,r){return s+r.score;},0)/rows.length):0;
     document.getElementById('k1').textContent=avg;
-    document.getElementById('k2').textContent=top;
-    document.getElementById('k3').textContent=risk;
-    document.getElementById('k4').textContent=spd.toLocaleString();
-    document.getElementById('k5').textContent=brk.toLocaleString();
+    document.getElementById('k2').textContent=rows.filter(function(r){return r.score>=80;}).length;
+    document.getElementById('k3').textContent=rows.filter(function(r){return r.score<60;}).length;
+    document.getElementById('k4').textContent=rows.reduce(function(s,r){return s+(r.events.speeding||0);},0).toLocaleString();
+    document.getElementById('k5').textContent=rows.reduce(function(s,r){return s+(r.events.braking||0);},0).toLocaleString();
     document.getElementById('k6').textContent=rows.length;
-    document.getElementById('foot').textContent='Last refreshed: '+new Date().toLocaleString()+'  |  Last '+_days+' days';
+    document.getElementById('foot').textContent='Last refreshed: '+new Date().toLocaleString()+'  |  Last '+_days+' days  |  Incidents = raw event count  |  Score = 100 minus weighted deductions';
   }
 
   function renderTable(rows) {
@@ -218,8 +301,8 @@ var safetyDash = (function() {
     function thCls(k){return _sortKey===k?(_sortDir===1?' class="sort-asc"':' class="sort-desc"'):'';}
     var h='<table><thead><tr>'+
       '<th onclick="safetyDash.sort(\'name\')"'+thCls('name')+'>Driver</th>'+
-      '<th onclick="safetyDash.sort(\'score\')"'+thCls('score')+'>Score</th>'+
-      '<th onclick="safetyDash.sort(\'score\')">Grade</th>'+
+      '<th onclick="safetyDash.sort(\'score\')"'+thCls('score')+'>Score (0–100)</th>'+
+      '<th>Grade</th>'+
       '<th onclick="safetyDash.sort(\'trips\')"'+thCls('trips')+'>Trips</th>'+
       '<th onclick="safetyDash.sort(\'speeding\')"'+thCls('speeding')+'>Speeding</th>'+
       '<th onclick="safetyDash.sort(\'braking\')"'+thCls('braking')+'>Hard Braking</th>'+
@@ -227,7 +310,6 @@ var safetyDash = (function() {
       '<th onclick="safetyDash.sort(\'cornering\')"'+thCls('cornering')+'>Cornering</th>'+
       '<th onclick="safetyDash.sort(\'seatbelt\')"'+thCls('seatbelt')+'>Seatbelt</th>'+
       '</tr></thead><tbody>';
-
     rows.forEach(function(r){
       var sc=scoreClass(r.score), gr=gradeFromScore(r.score);
       function evCell(cat){
@@ -253,137 +335,141 @@ var safetyDash = (function() {
     return q?_rows.filter(function(r){return r.name.toLowerCase().indexOf(q)!==-1;}):_rows;
   }
 
+  // Build display name from User object
+  function buildName(u) {
+    if (!u) return null;
+    var fn = (u.firstName||'').trim();
+    var ln = (u.lastName||'').trim();
+    if (fn || ln) return (fn+' '+ln).trim();
+    if (u.name && u.name.trim()) return u.name.trim();
+    return null;
+  }
+
+  function rebuildRows() {
+    _rows = _rawData.map(function(d){
+      var score = calcScore(d.events, d.trips);
+      return {
+        name:         d.name,
+        score:        score,
+        trips:        d.trips,
+        events:       d.events,
+        speeding:     d.events.speeding,
+        braking:      d.events.braking,
+        acceleration: d.events.acceleration,
+        cornering:    d.events.cornering,
+        seatbelt:     d.events.seatbelt
+      };
+    });
+    _rows.sort(function(a,b){return a.score-b.score;});
+    _sortKey='score'; _sortDir=1;
+    renderKPIs(_rows);
+    renderTable(_rows);
+  }
+
   function fetchData() {
     if(!_api){showBox('API not ready — please refresh.');return;}
     clearMessages(); resetKPIs();
-    showBox('FETCHING RULES & EXCEPTIONS...', 10);
+    showBox('FETCHING RULES & USERS...', 10);
 
     var now=new Date(), from=new Date(now);
     from.setDate(from.getDate()-_days);
     var fromStr=from.toISOString(), toStr=now.toISOString();
 
-    // Step 1: Get rules only (avoid Driver type cast error)
-    _api.call('Get', {typeName:'Rule', resultsLimit:500},
-    function(rules) {
-      rules = rules || [];
+    // Fetch Rules and Users together
+    // Use typeName:'User' with isDriver:true filter to get driver records
+    _api.multiCall([
+      ['Get', {typeName:'Rule', resultsLimit:500}],
+      ['Get', {typeName:'User', search:{isDriver:true}, resultsLimit:1000}]
+    ],
+    function(res) {
+      var rules = (res&&res[0]) || [];
+      var users = (res&&res[1]) || [];
 
-      // Build ruleId → category map using keyword matching
-      var ruleMap = {};
-      var matchedCats = {};
+      // Build ruleId → category map
+      var ruleMap = {}, matchedCats = {};
       rules.forEach(function(rule){
         var cat = categorizeRule(rule.name);
-        if (cat) {
-          ruleMap[rule.id] = cat;
-          matchedCats[cat] = true;
-        }
+        if(cat){ ruleMap[rule.id]=cat; matchedCats[cat]=true; }
       });
 
-      // Warn if some categories couldn't be matched
-      var allCats = ['speeding','braking','acceleration','cornering','seatbelt'];
-      var unmatched = allCats.filter(function(c){return !matchedCats[c];});
-      if (unmatched.length) {
-        showWarn('Could not find rules for: ' + unmatched.join(', ') + '. These will show 0. Check your Geotab exception rule names match these categories.');
+      // Build driverId → name map from Users
+      var nameMap = {};
+      users.forEach(function(u){
+        var name = buildName(u);
+        if(name && u.id) nameMap[u.id] = name;
+      });
+
+      var unmatched=['speeding','braking','acceleration','cornering','seatbelt'].filter(function(c){return !matchedCats[c];});
+      if(unmatched.length){
+        showWarn('Rules not found for: '+unmatched.join(', ')+'. These show 0. Your Geotab exception rule names may differ.');
       }
 
-      showBox('FETCHING EXCEPTION EVENTS & TRIPS...', 30);
+      showBox('FETCHING EXCEPTIONS & TRIPS...', 35);
 
-      // Step 2: Fetch exceptions and trips together
       _api.multiCall([
-        ['Get', {
-          typeName: 'ExceptionEvent',
-          search:   {fromDate: fromStr, toDate: toStr},
-          resultsLimit: 100000
-        }],
-        ['Get', {
-          typeName: 'Trip',
-          search:   {fromDate: fromStr, toDate: toStr},
-          resultsLimit: 100000
-        }]
+        ['Get',{typeName:'ExceptionEvent',search:{fromDate:fromStr,toDate:toStr},resultsLimit:100000}],
+        ['Get',{typeName:'Trip',search:{fromDate:fromStr,toDate:toStr},resultsLimit:100000}]
       ],
-      function(res) {
-        var exceptions = (res&&res[0]) || [];
-        var trips      = (res&&res[1]) || [];
+      function(res2){
+        var exceptions=(res2&&res2[0])||[];
+        var trips=(res2&&res2[1])||[];
 
         showBox('BUILDING SCORECARDS...', 80);
 
-        // Build driver name map from trips (driver object on each trip)
-        var driverNames = {};
+        // Supplement nameMap from trip driver objects (catches drivers not in User query)
         trips.forEach(function(t){
-          var d = t.driver;
-          if (!d || !d.id || d.id==='UnknownDriverId') return;
-          if (!driverNames[d.id]) {
-            var name = '';
-            if (d.firstName || d.lastName) {
-              name = ((d.firstName||'')+' '+(d.lastName||'')).trim();
-            } else if (d.name) {
-              name = d.name;
-            } else {
-              name = d.id;
-            }
-            driverNames[d.id] = name;
+          var d=t.driver;
+          if(!d||!d.id||d.id==='UnknownDriverId') return;
+          if(!nameMap[d.id]){
+            var name=buildName(d);
+            if(name) nameMap[d.id]=name;
           }
         });
 
         // Count trips per driver
-        var tripCount = {};
+        var tripCount={};
         trips.forEach(function(t){
-          var did = t.driver && t.driver.id;
-          if (!did || did==='UnknownDriverId') return;
-          tripCount[did] = (tripCount[did]||0) + 1;
+          var did=t.driver&&t.driver.id;
+          if(!did||did==='UnknownDriverId') return;
+          tripCount[did]=(tripCount[did]||0)+1;
         });
 
         // Count events per driver per category
-        var eventsByDriver = {};
+        var eventsByDriver={};
         exceptions.forEach(function(e){
-          var did = e.driver && e.driver.id;
-          if (!did || did==='UnknownDriverId') return;
-          var cat = ruleMap[e.rule && e.rule.id];
-          if (!cat) return;
-          if (!eventsByDriver[did]) eventsByDriver[did]={speeding:0,braking:0,acceleration:0,cornering:0,seatbelt:0};
+          var did=e.driver&&e.driver.id;
+          if(!did||did==='UnknownDriverId') return;
+          var cat=ruleMap[e.rule&&e.rule.id];
+          if(!cat) return;
+          if(!eventsByDriver[did]) eventsByDriver[did]={speeding:0,braking:0,acceleration:0,cornering:0,seatbelt:0};
           eventsByDriver[did][cat]++;
-          // Also capture driver name from exception if not in trips
-          if (!driverNames[did] && e.driver) {
-            var d = e.driver;
-            driverNames[did] = ((d.firstName||'')+' '+(d.lastName||'')).trim() || d.name || did;
+          // Try to get name from exception driver object too
+          if(!nameMap[did]&&e.driver){
+            var name=buildName(e.driver);
+            if(name) nameMap[did]=name;
           }
         });
 
-        // Combine all seen driver IDs
-        var seen = {};
+        // Combine all driver IDs
+        var seen={};
         Object.keys(tripCount).forEach(function(k){seen[k]=1;});
         Object.keys(eventsByDriver).forEach(function(k){seen[k]=1;});
 
-        var rows = [];
+        _rawData=[];
         Object.keys(seen).forEach(function(did){
-          var name   = driverNames[did];
-          if (!name || name.trim()==='') return; // skip if no name
-          var events = eventsByDriver[did] || {speeding:0,braking:0,acceleration:0,cornering:0,seatbelt:0};
-          var trips  = tripCount[did] || 0;
-          var score  = calcScore(events, trips);
-          rows.push({
-            name:         name,
-            score:        score,
-            trips:        trips,
-            events:       events,
-            speeding:     events.speeding,
-            braking:      events.braking,
-            acceleration: events.acceleration,
-            cornering:    events.cornering,
-            seatbelt:     events.seatbelt
-          });
+          var name=nameMap[did]||('Driver '+did);
+          var events=eventsByDriver[did]||{speeding:0,braking:0,acceleration:0,cornering:0,seatbelt:0};
+          var trips=tripCount[did]||0;
+          _rawData.push({name:name, trips:trips, events:events});
         });
 
-        rows.sort(function(a,b){return a.score-b.score;}); // worst first
-        _rows=rows; _sortKey='score'; _sortDir=1;
-
-        if (!rows.length) {
+        if(!_rawData.length){
           showBox('');
-          showErr('No driver data found. Make sure drivers are assigned to vehicles in your Geotab account and have taken trips in this period.');
+          showErr('No driver data found. Ensure drivers are assigned to vehicles and have taken trips in this period.');
           return;
         }
 
-        renderKPIs(rows);
-        renderTable(rows);
+        rebuildRows();
       },
       function(err){
         var msg=err&&err.message?err.message:JSON.stringify(err);
@@ -391,8 +477,73 @@ var safetyDash = (function() {
       });
     },
     function(err){
-      var msg=err&&err.message?err.message:JSON.stringify(err);
-      showBox(''); showErr('Error fetching rules: '+msg);
+      // If isDriver filter fails, retry without it
+      var msg=err&&err.message?err.message:'';
+      if(msg.toLowerCase().indexOf('isdriver')!==-1 || msg.toLowerCase().indexOf('search')!==-1){
+        retryWithoutDriverFilter(fromStr, toStr);
+      } else {
+        showBox(''); showErr('Error: '+msg);
+      }
+    });
+  }
+
+  function retryWithoutDriverFilter(fromStr, toStr){
+    _api.call('Get',{typeName:'Rule',resultsLimit:500},function(rules){
+      rules=rules||[];
+      var ruleMap={};
+      rules.forEach(function(rule){
+        var cat=categorizeRule(rule.name);
+        if(cat) ruleMap[rule.id]=cat;
+      });
+      fetchEventsAndTrips(ruleMap, {}, fromStr, toStr);
+    },function(err){
+      showBox(''); showErr('Error: '+(err&&err.message?err.message:JSON.stringify(err)));
+    });
+  }
+
+  function fetchEventsAndTrips(ruleMap, nameMap, fromStr, toStr){
+    showBox('FETCHING EXCEPTIONS & TRIPS...', 35);
+    _api.multiCall([
+      ['Get',{typeName:'ExceptionEvent',search:{fromDate:fromStr,toDate:toStr},resultsLimit:100000}],
+      ['Get',{typeName:'Trip',search:{fromDate:fromStr,toDate:toStr},resultsLimit:100000}]
+    ],function(res2){
+      var exceptions=(res2&&res2[0])||[];
+      var trips=(res2&&res2[1])||[];
+      trips.forEach(function(t){
+        var d=t.driver;
+        if(!d||!d.id||d.id==='UnknownDriverId') return;
+        if(!nameMap[d.id]){var name=buildName(d);if(name)nameMap[d.id]=name;}
+      });
+      var tripCount={};
+      trips.forEach(function(t){
+        var did=t.driver&&t.driver.id;
+        if(!did||did==='UnknownDriverId') return;
+        tripCount[did]=(tripCount[did]||0)+1;
+      });
+      var eventsByDriver={};
+      exceptions.forEach(function(e){
+        var did=e.driver&&e.driver.id;
+        if(!did||did==='UnknownDriverId') return;
+        var cat=ruleMap[e.rule&&e.rule.id];
+        if(!cat) return;
+        if(!eventsByDriver[did]) eventsByDriver[did]={speeding:0,braking:0,acceleration:0,cornering:0,seatbelt:0};
+        eventsByDriver[did][cat]++;
+        if(!nameMap[did]&&e.driver){var name=buildName(e.driver);if(name)nameMap[did]=name;}
+      });
+      var seen={};
+      Object.keys(tripCount).forEach(function(k){seen[k]=1;});
+      Object.keys(eventsByDriver).forEach(function(k){seen[k]=1;});
+      _rawData=[];
+      Object.keys(seen).forEach(function(did){
+        var name=nameMap[did]||('Driver '+did);
+        var events=eventsByDriver[did]||{speeding:0,braking:0,acceleration:0,cornering:0,seatbelt:0};
+        var trips=tripCount[did]||0;
+        _rawData.push({name:name,trips:trips,events:events});
+      });
+      if(!_rawData.length){showBox('');showErr('No driver data found.');return;}
+      rebuildRows();
+    },function(err){
+      showBox('');showErr('Error: '+(err&&err.message?err.message:JSON.stringify(err)));
     });
   }
 
@@ -403,17 +554,49 @@ var safetyDash = (function() {
       document.getElementById('btnRefresh').onclick=fetchData;
     },
     fetch: fetchData,
+
     setRange: function(days){
       _days=days;
-      document.querySelectorAll('.range-btn').forEach(function(btn){
-        btn.classList.toggle('active', btn.textContent===days+'D');
-      });
-      setDateRange();
-      fetchData();
+      document.querySelectorAll('.range-btn').forEach(function(btn){btn.classList.toggle('active',btn.textContent===days+'D');});
+      setDateRange(); fetchData();
     },
+
+    toggleSettings: function(){
+      var panel=document.getElementById('settingsPanel');
+      var btn=document.getElementById('btnSettings');
+      var open=panel.classList.toggle('open');
+      btn.classList.toggle('active-btn', open);
+    },
+
+    updateWeightLabel: function(cat){
+      var val=parseInt(document.getElementById('w_'+cat).value,10);
+      document.getElementById('wv_'+cat).textContent=val;
+      var perEvent=Math.max(1,Math.round(val/5));
+      document.getElementById('wd_'+cat).textContent='Max '+val+' pts deducted \u2022 ~'+perEvent+' pts per incident';
+    },
+
+    applyWeights: function(){
+      ['speeding','braking','acceleration','cornering','seatbelt'].forEach(function(cat){
+        var max=parseInt(document.getElementById('w_'+cat).value,10);
+        _weights[cat].max=max;
+        _weights[cat].perEvent=Math.max(1,Math.round(max/5));
+      });
+      if(_rawData.length) rebuildRows();
+    },
+
+    resetWeights: function(){
+      var defaults={speeding:{max:25,perEvent:3},braking:{max:20,perEvent:4},acceleration:{max:20,perEvent:4},cornering:{max:20,perEvent:4},seatbelt:{max:15,perEvent:5}};
+      Object.keys(defaults).forEach(function(cat){
+        _weights[cat]=Object.assign({},defaults[cat]);
+        document.getElementById('w_'+cat).value=defaults[cat].max;
+        document.getElementById('wv_'+cat).textContent=defaults[cat].max;
+        document.getElementById('wd_'+cat).textContent='Max '+defaults[cat].max+' pts deducted \u2022 '+defaults[cat].perEvent+' pts per incident';
+      });
+      if(_rawData.length) rebuildRows();
+    },
+
     sort: function(k){
-      if(_sortKey===k){_sortDir*=-1;}
-      else{_sortKey=k; _sortDir=k==='name'?1:(k==='score'?1:-1);}
+      if(_sortKey===k){_sortDir*=-1;}else{_sortKey=k;_sortDir=k==='name'?1:(k==='score'?1:-1);}
       _rows.sort(function(a,b){
         var av=a[k]!==undefined?a[k]:(a.events&&a.events[k])||0;
         var bv=b[k]!==undefined?b[k]:(b.events&&b.events[k])||0;
@@ -422,13 +605,15 @@ var safetyDash = (function() {
       });
       renderTable(getFilteredRows());
     },
+
     filter: function(){renderTable(getFilteredRows());},
+
     exportCSV: function(){
       if(!_rows.length) return;
-      var now=new Date(), from=new Date(now);
+      var now=new Date(),from=new Date(now);
       from.setDate(from.getDate()-_days);
       var fmt=function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});};
-      var lines=['Driver Safety Scorecard','Period: '+fmt(from)+' to '+fmt(now),'','Driver,Score,Grade,Trips,Speeding,Hard Braking,Hard Acceleration,Harsh Cornering,Seatbelt'];
+      var lines=['Driver Safety Scorecard','Period: '+fmt(from)+' to '+fmt(now),'Scoring: 100 minus weighted deductions normalized by trip count','','Driver,Score,Grade,Trips,Speeding,Hard Braking,Hard Acceleration,Harsh Cornering,Seatbelt'];
       _rows.forEach(function(r){
         var gr=gradeFromScore(r.score);
         lines.push('"'+r.name.replace(/"/g,'""')+'",'+r.score+','+gr.letter+','+r.trips+','+(r.events.speeding||0)+','+(r.events.braking||0)+','+(r.events.acceleration||0)+','+(r.events.cornering||0)+','+(r.events.seatbelt||0));
@@ -437,9 +622,8 @@ var safetyDash = (function() {
       var blob=new Blob([csv],{type:'text/csv'});
       var url=URL.createObjectURL(blob);
       var a=document.createElement('a');
-      a.href=url; a.download='safety-scorecard-'+_days+'d.csv';
-      document.body.appendChild(a); a.click();
-      document.body.removeChild(a); URL.revokeObjectURL(url);
+      a.href=url;a.download='safety-scorecard-'+_days+'d.csv';
+      document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
     }
   };
 })();
@@ -447,12 +631,9 @@ var safetyDash = (function() {
 geotab.addin = geotab.addin || {};
 geotab.addin.safetyscorecard = function() {
   return {
-    initialize: function(api, state, cb){
-      safetyDash.init(api);
-      if(typeof cb==='function') cb();
-    },
-    focus: function(){safetyDash.fetch();},
-    blur:  function(){}
+    initialize: function(api,state,cb){ safetyDash.init(api); if(typeof cb==='function') cb(); },
+    focus:      function(){ safetyDash.fetch(); },
+    blur:       function(){}
   };
 };
 </script>
