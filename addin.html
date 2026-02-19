@@ -53,7 +53,8 @@
   .pbar-bg{background:#1e2e4a;border-radius:99px;height:8px;overflow:hidden;max-width:400px;margin:12px auto 0;}
   .pbar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#00e5ff,#a78bfa);transition:width 0.3s ease;}
   .msg{font-family:'Courier New',monospace;font-size:0.78rem;color:#64748b;margin-top:8px;}
-  .err-box{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:16px 20px;margin:0 0 16px;font-family:'Courier New',monospace;font-size:0.78rem;color:#f87171;word-break:break-all;}
+  .err-box{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:16px 20px;margin:0 0 16px;font-family:'Courier New',monospace;font-size:0.75rem;color:#f87171;word-break:break-all;white-space:pre-wrap;}
+  .info-box{background:rgba(0,229,255,0.07);border:1px solid rgba(0,229,255,0.2);border-radius:10px;padding:14px 18px;margin:0 0 16px;font-family:'Courier New',monospace;font-size:0.72rem;color:#94a3b8;word-break:break-all;white-space:pre-wrap;max-height:200px;overflow:auto;}
   .foot{font-family:'Courier New',monospace;font-size:0.7rem;color:#64748b;text-align:center;padding-top:4px;}
   @keyframes spin{to{transform:rotate(360deg)}}
 </style>
@@ -77,12 +78,12 @@
     <input type="text" class="srch" id="srch" placeholder="Search vehicle..." oninput="fleetDash.filter()"/>
   </div>
   <div id="errBox"></div>
+  <div id="infoBox"></div>
   <div class="tbl-wrap"><div id="tbl"><div class="box"><div class="spinner"></div><div class="msg">WAITING FOR GEOTAB...</div></div></div></div>
   <div class="foot" id="foot"></div>
 </div>
 
 <script>
-// Wrap everything in a named namespace to avoid touching the global geotab object
 var fleetDash = (function() {
   var _api  = null;
   var _rows = [];
@@ -97,7 +98,13 @@ var fleetDash = (function() {
   function showErr(msg) {
     document.getElementById('errBox').innerHTML = '<div class="err-box">&#9888; ' + msg + '</div>';
   }
-  function clearErr() { document.getElementById('errBox').innerHTML = ''; }
+  function showInfo(msg) {
+    document.getElementById('infoBox').innerHTML = '<div class="info-box">' + msg + '</div>';
+  }
+  function clearMessages() {
+    document.getElementById('errBox').innerHTML = '';
+    document.getElementById('infoBox').innerHTML = '';
+  }
 
   function showBox(label, pct) {
     document.getElementById('tbl').innerHTML =
@@ -115,7 +122,7 @@ var fleetDash = (function() {
     var tm=rows.reduce(function(s,r){return s+r.miles;},0);
     var ti=rows.reduce(function(s,r){return s+r.idleH;},0);
     document.getElementById('k1').textContent=Math.round(tm).toLocaleString();
-    document.getElementById('k2').textContent=ti.toFixed(1)+'h';
+    document.getElementById('k2').textContent=isNaN(ti)?'0.0h':ti.toFixed(1)+'h';
     document.getElementById('k3').textContent=rows.length?Math.round(tm/rows.length).toLocaleString():'0';
     document.getElementById('k4').textContent=rows.length;
     document.getElementById('foot').textContent='Last refreshed: '+new Date().toLocaleString();
@@ -123,21 +130,22 @@ var fleetDash = (function() {
 
   function renderTable(rows) {
     if (!rows||!rows.length){showBox('No data found for the last 30 days.');return;}
-    var mx=Math.max.apply(null,rows.map(function(r){return r.idleH;}))||1;
+    var mx=Math.max.apply(null,rows.map(function(r){return r.idleH||0;}))||1;
     var h='<table><thead><tr>'+
       '<th onclick="fleetDash.sort(\'name\')">Vehicle &#8597;</th>'+
       '<th onclick="fleetDash.sort(\'miles\')">Mileage (mi) &#8597;</th>'+
       '<th onclick="fleetDash.sort(\'idleH\')">Idle Time &#8597;</th>'+
       '<th>Idle Level</th></tr></thead><tbody>';
     rows.forEach(function(r){
-      var pct=(r.idleH/mx)*100;
+      var idleH = isNaN(r.idleH) ? 0 : r.idleH;
+      var pct=(idleH/mx)*100;
       var lbl=pct>66?'HIGH':pct>33?'MED':'LOW';
       var cls=pct>66?'bh':pct>33?'bm':'bl';
       h+='<tr><td class="vname">'+r.name+'</td>'+
         '<td class="mval">'+Math.round(r.miles).toLocaleString()+'</td>'+
         '<td><div class="ibar-wrap">'+
           '<div class="ibar-bg"><div class="ibar-fill" style="width:'+pct.toFixed(1)+'%"></div></div>'+
-          '<span class="ival">'+r.idleH.toFixed(1)+'h</span></div></td>'+
+          '<span class="ival">'+idleH.toFixed(1)+'h</span></div></td>'+
         '<td><span class="bdg '+cls+'">'+lbl+'</span></td></tr>';
     });
     document.getElementById('tbl').innerHTML=h+'</tbody></table>';
@@ -148,9 +156,55 @@ var fleetDash = (function() {
     return q?_rows.filter(function(r){return r.name.toLowerCase().indexOf(q)!==-1;}):_rows;
   }
 
+  // Parse Geotab timespan strings like "00:15:30.000" or "1.02:15:30" → hours
+  // Also handles plain numbers (seconds or hours depending on magnitude)
+  function parseIdleHours(val) {
+    if (val === null || val === undefined) return 0;
+    if (typeof val === 'number') {
+      // Geotab stopDuration is in seconds, idlingDuration may be ticks or seconds
+      // If value > 100000 it's likely ticks (100-nanosecond intervals) → divide by 36000000000
+      // If value < 1000 it might already be hours
+      // Most reliable: if < 86400 treat as seconds, else treat as ticks
+      if (val > 864000) return val / 36000000000; // ticks to hours
+      return val / 3600; // seconds to hours
+    }
+    if (typeof val === 'string') {
+      // Format: "HH:MM:SS" or "HH:MM:SS.fff" or "D.HH:MM:SS"
+      var parts = val.split(':');
+      if (parts.length >= 3) {
+        var days = 0, hours, mins, secs;
+        // Check for day prefix "D.HH"
+        if (parts[0].indexOf('.') !== -1) {
+          var dp = parts[0].split('.');
+          days = parseInt(dp[0], 10) || 0;
+          hours = parseInt(dp[1], 10) || 0;
+        } else {
+          hours = parseInt(parts[0], 10) || 0;
+        }
+        mins = parseInt(parts[1], 10) || 0;
+        secs = parseFloat(parts[2]) || 0;
+        return (days * 24) + hours + (mins / 60) + (secs / 3600);
+      }
+    }
+    return 0;
+  }
+
+  // Parse distance — Geotab Trip.distance is in metres
+  // But some accounts/SDK versions return km or already-converted values
+  function parseMiles(distVal) {
+    if (!distVal) return 0;
+    var d = parseFloat(distVal);
+    if (isNaN(d)) return 0;
+    // If value is very small (< 500) it might already be in km or miles
+    // If value > 500 it's almost certainly metres
+    if (d > 500) return d / 1609.344;   // metres → miles
+    if (d > 1)   return d * 0.621371;   // km → miles
+    return d; // already miles (very short trip)
+  }
+
   function fetchData() {
     if (!_api){showBox('API not ready — please refresh.');return;}
-    clearErr(); resetKPIs();
+    clearMessages(); resetKPIs();
     showBox('FETCHING VEHICLES...',5);
 
     var now=new Date(), from=new Date(now);
@@ -160,70 +214,58 @@ var fleetDash = (function() {
     _api.call('Get',{typeName:'Device',resultsLimit:1000},
     function(devices){
       if(!devices||!devices.length){showBox('No vehicles found.');return;}
-      showBox('FETCHING DATA FOR '+devices.length+' VEHICLES...',20);
+      showBox('FETCHING TRIPS FOR '+devices.length+' VEHICLES...',20);
 
       var devMap={};
       devices.forEach(function(d){devMap[d.id]=d.name||d.id;});
 
-      _api.multiCall([
-        ['Get',{typeName:'StatusData',search:{diagnosticSearch:{id:'DiagnosticOdometerAdjustmentId'},fromDate:fromStr,toDate:toStr},resultsLimit:100000}],
-        ['Get',{typeName:'StatusData',search:{diagnosticSearch:{id:'DiagnosticTotalIdleHoursId'},fromDate:fromStr,toDate:toStr},resultsLimit:100000}]
-      ],
-      function(res){
-        var odomData=(res&&res[0])||[];
-        var idleData=(res&&res[1])||[];
-
-        if(odomData.length===0&&idleData.length===0){
-          showErr('No diagnostic data found — trying trip-based method instead.');
-          fetchViaTrips(devices,devMap,fromStr,toStr);
-          return;
+      // Fetch one sample trip first to inspect raw field values
+      _api.call('Get',{
+        typeName:'Trip',
+        search:{fromDate:fromStr, toDate:toStr},
+        resultsLimit:3
+      }, function(sample) {
+        // Log raw fields so we can see exact format
+        if (sample && sample.length > 0) {
+          var s = sample[0];
+          showInfo('RAW TRIP SAMPLE (first record):\n' +
+            'distance = ' + JSON.stringify(s.distance) + ' (type: ' + typeof s.distance + ')\n' +
+            'idlingDuration = ' + JSON.stringify(s.idlingDuration) + ' (type: ' + typeof s.idlingDuration + ')\n' +
+            'stopDuration = ' + JSON.stringify(s.stopDuration) + ' (type: ' + typeof s.stopDuration + ')\n' +
+            'drivingDuration = ' + JSON.stringify(s.drivingDuration) + ' (type: ' + typeof s.drivingDuration + ')\n' +
+            'Full keys: ' + Object.keys(s).join(', '));
         }
 
-        showBox('CALCULATING...',80);
-
-        var odom={},idle={};
-        odomData.forEach(function(s){
-          var did=s.device&&s.device.id; if(!did)return;
-          var v=parseFloat(s.data); if(isNaN(v))return;
-          if(!odom[did])odom[did]={mn:v,mx:v};
-          if(v<odom[did].mn)odom[did].mn=v;
-          if(v>odom[did].mx)odom[did].mx=v;
-        });
-        idleData.forEach(function(s){
-          var did=s.device&&s.device.id; if(!did)return;
-          var v=parseFloat(s.data); if(isNaN(v))return;
-          if(!idle[did])idle[did]={mn:v,mx:v};
-          if(v<idle[did].mn)idle[did].mn=v;
-          if(v>idle[did].mx)idle[did].mx=v;
+        // Now fetch all trips
+        var cap = Math.min(devices.length, 100);
+        var calls = devices.slice(0,cap).map(function(d){
+          return ['Get',{typeName:'Trip',search:{deviceSearch:{id:d.id},fromDate:fromStr,toDate:toStr},resultsLimit:2000}];
         });
 
-        var seen={};
-        Object.keys(odom).forEach(function(k){seen[k]=1;});
-        Object.keys(idle).forEach(function(k){seen[k]=1;});
-
-        var rows=[];
-        Object.keys(seen).forEach(function(did){
-          var miles=odom[did]?Math.max(0,(odom[did].mx-odom[did].mn)/1609.344):0;
-          var idleH=idle[did]?Math.max(0,(idle[did].mx-idle[did].mn)):0;
-          if(miles===0&&idleH===0)return;
-          rows.push({name:devMap[did]||did,miles:miles,idleH:idleH});
+        _api.multiCall(calls, function(results){
+          var rows=[];
+          devices.slice(0,cap).forEach(function(d,i){
+            var trips=(results&&results[i])||[];
+            var miles=0, idleH=0;
+            trips.forEach(function(t){
+              miles += parseMiles(t.distance);
+              idleH += parseIdleHours(t.idlingDuration || t.stopDuration);
+            });
+            if(miles===0&&idleH===0) return;
+            rows.push({name:devMap[d.id]||d.id, miles:miles, idleH:idleH});
+          });
+          rows.sort(function(a,b){return b.miles-a.miles;});
+          _rows=rows;
+          if(!rows.length){showBox('No trip data found for the last 30 days.');return;}
+          renderKPIs(rows);
+          renderTable(rows);
+        }, function(err){
+          var msg=err&&err.message?err.message:JSON.stringify(err);
+          showBox('');
+          showErr('Trip fetch failed: '+msg);
         });
-
-        if(!rows.length){
-          showErr('Diagnostics returned data but no movement detected — trying trip method.');
-          fetchViaTrips(devices,devMap,fromStr,toStr);
-          return;
-        }
-
-        rows.sort(function(a,b){return b.miles-a.miles;});
-        _rows=rows;
-        renderKPIs(rows);
-        renderTable(rows);
-      },
-      function(err){
-        var msg=err&&err.message?err.message:JSON.stringify(err);
-        showErr('Diagnostic query failed ('+msg+') — trying trip fallback.');
-        fetchViaTrips(devices,devMap,fromStr,toStr);
+      }, function(err) {
+        showErr('Sample fetch failed: ' + JSON.stringify(err));
       });
     },
     function(err){
@@ -233,37 +275,6 @@ var fleetDash = (function() {
     });
   }
 
-  function fetchViaTrips(devices,devMap,fromStr,toStr){
-    showBox('FETCHING TRIPS (may take 30–60 sec)...',10);
-    var cap=Math.min(devices.length,100);
-    var calls=devices.slice(0,cap).map(function(d){
-      return ['Get',{typeName:'Trip',search:{deviceSearch:{id:d.id},fromDate:fromStr,toDate:toStr},resultsLimit:2000}];
-    });
-    _api.multiCall(calls,function(results){
-      var rows=[];
-      devices.slice(0,cap).forEach(function(d,i){
-        var trips=(results&&results[i])||[];
-        var miles=0,idleH=0;
-        trips.forEach(function(t){
-          miles+=(t.distance||0)/1609.344;
-          idleH+=(t.idlingDuration||t.stopDuration||0)/3600;
-        });
-        if(miles===0&&idleH===0)return;
-        rows.push({name:devMap[d.id]||d.id,miles:miles,idleH:idleH});
-      });
-      rows.sort(function(a,b){return b.miles-a.miles;});
-      _rows=rows;
-      if(!rows.length){showBox('No trip data found for the last 30 days.');return;}
-      renderKPIs(rows);
-      renderTable(rows);
-    },function(err){
-      var msg=err&&err.message?err.message:JSON.stringify(err);
-      showBox('');
-      showErr('Trip fallback also failed: '+msg);
-    });
-  }
-
-  // Public interface
   return {
     init: function(api) {
       _api = api;
@@ -279,8 +290,6 @@ var fleetDash = (function() {
   };
 })();
 
-// ── GEOTAB ENTRY POINT ───────────────────────────────────────────────────────
-// Safely extend the existing geotab object — do NOT reassign it
 geotab.addin = geotab.addin || {};
 geotab.addin.fleetdashboard = function() {
   return {
