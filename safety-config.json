@@ -1,0 +1,16 @@
+{
+  "name": "safetyscorecard",
+  "supportEmail": "support@yourcompany.com",
+  "version": "1.0.0",
+  "items": [
+    {
+      "url": "https://marksmith9192-afk.github.io/Geotab/safety.html",
+      "path": "ActivityLink",
+      "menuName": {
+        "en": "Safety Scorecard"
+      },
+      "category": "SafetyId"
+    }
+  ],
+  "isSigned": false
+}
