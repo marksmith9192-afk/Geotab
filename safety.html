@@ -167,6 +167,36 @@
   .weight-item.is-saved .saved-tag{display:block;}
   .btn-save-def{background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.35);color:#10b981;}
   .btn-save-def:hover{background:rgba(16,185,129,0.22);border-color:#10b981;}
+  /* RULE PICKER */
+  .rules-panel{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:24px;display:none;box-shadow:var(--shadow);}
+  .rules-panel.open{display:block;}
+  .rules-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:10px;}
+  .rules-title{font-size:0.9rem;font-weight:700;color:var(--text);}
+  .rules-desc{font-size:0.75rem;color:var(--text3);margin-bottom:18px;font-family:'Courier New',monospace;}
+  .rules-cats{display:flex;flex-direction:column;gap:18px;}
+  .rule-cat-block{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;}
+  .rule-cat-title{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;font-family:'Courier New',monospace;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+  .rule-cat-dot{width:8px;height:8px;border-radius:50%;}
+  .rules-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;}
+  .rule-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);cursor:pointer;transition:border-color 0.15s,background 0.15s;}
+  .rule-row:hover{border-color:#f59e0b;}
+  .rule-row.rule-on{border-color:rgba(16,185,129,0.4);background:rgba(16,185,129,0.05);}
+  .rule-chk{width:16px;height:16px;border-radius:4px;border:2px solid var(--border);background:transparent;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+  .rule-row.rule-on .rule-chk{background:#10b981;border-color:#10b981;}
+  .rule-chk-tick{color:#fff;font-size:11px;font-weight:900;display:none;}
+  .rule-row.rule-on .rule-chk-tick{display:block;}
+  .rule-info{flex:1;min-width:0;}
+  .rule-name{font-size:0.8rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .rule-row.rule-on .rule-name{color:#10b981;}
+  .rule-type{font-size:0.68rem;color:var(--text3);font-family:'Courier New',monospace;}
+  .rule-weight-sel{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:3px 6px;font-size:0.72rem;font-family:'Courier New',monospace;cursor:pointer;outline:none;}
+  .rule-weight-sel:focus{border-color:#f59e0b;}
+  .rules-footer{display:flex;gap:10px;margin-top:20px;justify-content:space-between;align-items:center;flex-wrap:wrap;}
+  .rules-count{font-size:0.75rem;color:var(--text3);font-family:'Courier New',monospace;}
+  .rules-footer-btns{display:flex;gap:10px;}
+  .btn-rules{background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.35);color:#a78bfa;}
+  .btn-rules:hover{background:rgba(167,139,250,0.22);border-color:#a78bfa;}
+  .no-rules{font-family:'Courier New',monospace;font-size:0.78rem;color:var(--text3);padding:12px 0;}
   @keyframes spin{to{transform:rotate(360deg)}}
 </style>
 
@@ -188,6 +218,10 @@
       <button class="btn" id="btnSettings" onclick="safetyDash.toggleSettings()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         Weights
+      </button>
+      <button class="btn btn-rules" id="btnRules" onclick="safetyDash.toggleRules()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Rules
       </button>
       <button class="btn" id="btnRefresh">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
@@ -255,6 +289,26 @@
     </div>
   </div>
 
+  <!-- RULES PANEL -->
+  <div class="rules-panel" id="rulesPanel">
+    <div class="rules-header">
+      <div class="rules-title">&#10003; Rule Configuration</div>
+      <span class="rules-count" id="rulesCount"></span>
+    </div>
+    <div class="rules-desc">Select which exception rules count toward driver scores. Each enabled rule can be assigned a penalty weight (pts deducted per incident). Rules are grouped by detected safety category. Custom rules appear under "Uncategorized" — assign them a category manually.</div>
+    <div id="rulesCatList"><div style="padding:20px;text-align:center;font-family:'Courier New',monospace;font-size:0.78rem;color:var(--text3);">Load data first to see available rules.</div></div>
+    <div class="rules-footer">
+      <span class="rules-count" id="rulesEnabledCount"></span>
+      <div class="rules-footer-btns">
+        <button class="btn btn-reset-w" onclick="safetyDash.resetRules()">Reset Rules</button>
+        <button class="btn btn-save-def" onclick="safetyDash.saveRules()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save & Recalculate
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- TABLE -->
   <div class="sec-hdr">
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
@@ -280,113 +334,122 @@
 
 <script>
 var safetyDash = (function() {
-  var _api       = null;
-  var _rows      = [];
-  var _rawData   = [];
-  var _days      = 30;
-  var _sortKey   = 'score';
-  var _sortDir   = 1;
-  var _groupFilter = null; // 'top' | 'risk' | null
-  var _isLight   = false;
+  var _api          = null;
+  var _rows         = [];
+  var _rawData      = [];
+  var _allRules     = [];   // all Rule objects from Geotab
+  var _ruleConfig   = {};   // ruleId -> {enabled:bool, category:str, perEvent:number}
+  var _days         = 30;
+  var _sortKey      = 'score';
+  var _sortDir      = 1;
+  var _groupFilter  = null;
+  var _isLight      = false;
 
-  var _weights = {
-    speeding:     {max:25,perEvent:3},
-    braking:      {max:20,perEvent:4},
-    acceleration: {max:20,perEvent:4},
-    cornering:    {max:20,perEvent:4},
-    seatbelt:     {max:15,perEvent:5}
+  var FACTORY_WEIGHTS = {
+    speeding:{max:25,perEvent:3}, braking:{max:20,perEvent:4},
+    acceleration:{max:20,perEvent:4}, cornering:{max:20,perEvent:4}, seatbelt:{max:15,perEvent:5}
   };
+  var CATS = ['speeding','braking','acceleration','cornering','seatbelt','other'];
+  var CAT_LABELS = {speeding:'Speeding',braking:'Hard Braking',acceleration:'Hard Acceleration',cornering:'Harsh Cornering',seatbelt:'Seatbelt',other:'Uncategorized / Custom'};
+  var CAT_COLORS = {speeding:'#ef4444',braking:'#f59e0b',acceleration:'#fb923c',cornering:'#a78bfa',seatbelt:'#00e5ff',other:'#64748b'};
+  var RULE_KEYWORDS = {speeding:['speed'],braking:['brak'],acceleration:['accel'],cornering:['corner'],seatbelt:['seat','belt']};
 
-  var RULE_KEYWORDS = {
-    speeding:     ['speed'],
-    braking:      ['brak'],
-    acceleration: ['accel'],
-    cornering:    ['corner'],
-    seatbelt:     ['seat','belt']
-  };
-
-  function setDateRange() {
+  // ── HELPERS ────────────────────────────────────────────────────────────────
+  function setDateRange(){
     var now=new Date(),from=new Date(now);
     from.setDate(from.getDate()-_days);
     var fmt=function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});};
     document.getElementById('dateRange').textContent=fmt(from)+' \u2192 '+fmt(now);
   }
-
-  function showErr(msg){document.getElementById('errBox').innerHTML='<div class="err-box">&#9888; '+msg+'</div>';}
-  function showWarn(msg){document.getElementById('warnBox').innerHTML='<div class="warn-box">&#9432; '+msg+'</div>';}
+  function showErr(m){document.getElementById('errBox').innerHTML='<div class="err-box">&#9888; '+m+'</div>';}
+  function showWarn(m){document.getElementById('warnBox').innerHTML='<div class="warn-box">&#9432; '+m+'</div>';}
   function clearMessages(){document.getElementById('errBox').innerHTML='';document.getElementById('warnBox').innerHTML='';}
   function showBox(label,pct){
-    document.getElementById('tbl').innerHTML='<div class="box"><div class="spinner"></div><div class="msg">'+label+'</div>'+(pct!==undefined?'<div class="pbar-bg"><div class="pbar-fill" style="width:'+pct+'%"></div></div>':'')+'</div>';
+    document.getElementById('tbl').innerHTML='<div class="box"><div class="spinner"></div><div class="msg">'+label+'</div>'+(pct!==undefined?'<div class="pbar-bg"><div class="pbar-fill" style="width:'+pct+'%"></div></div>':'')+' </div>';
   }
   function resetKPIs(){['k1','k2','k3','k4','k5','k6'].forEach(function(id){document.getElementById(id).textContent='—';});}
+  function showToast(msg,color){
+    var t=document.getElementById('toast');
+    t.style.background=color||'#10b981';
+    t.textContent=msg;
+    t.classList.add('show');
+    setTimeout(function(){t.classList.remove('show');},3000);
+  }
 
-  function categorizeRule(ruleName){
+  // ── RULE CATEGORIZATION ───────────────────────────────────────────────────
+  function guessCategory(ruleName){
     var lower=(ruleName||'').toLowerCase();
     var cats=Object.keys(RULE_KEYWORDS);
     for(var i=0;i<cats.length;i++){
       var kws=RULE_KEYWORDS[cats[i]];
       for(var j=0;j<kws.length;j++){if(lower.indexOf(kws[j])!==-1)return cats[i];}
     }
-    return null;
+    return 'other';
   }
 
-  function calcScore(events,trips){
-    if(!trips)return 100;
-    var score=100,scale=Math.max(1,trips/10);
-    Object.keys(_weights).forEach(function(cat){
-      score-=Math.min(_weights[cat].max,((events[cat]||0)/scale)*_weights[cat].perEvent);
+  // ── SCORING ───────────────────────────────────────────────────────────────
+  function calcScore(eventCounts, trips){
+    if(!trips) return 100;
+    var score=100, scale=Math.max(1,trips/10);
+    // sum deductions across all enabled rules
+    Object.keys(_ruleConfig).forEach(function(rid){
+      var cfg=_ruleConfig[rid];
+      if(!cfg.enabled) return;
+      var cnt=eventCounts[rid]||0;
+      var maxDed=FACTORY_WEIGHTS[cfg.category]?FACTORY_WEIGHTS[cfg.category].max:10;
+      score-=Math.min(maxDed,(cnt/scale)*cfg.perEvent);
     });
     return Math.max(0,Math.round(score));
   }
 
   function scoreClass(s){return s>=80?'score-hi':s>=60?'score-med':'score-low';}
   function gradeFromScore(s){
-    if(s>=90)return{letter:'A',cls:'grade-a'};
-    if(s>=80)return{letter:'B',cls:'grade-b'};
-    if(s>=70)return{letter:'C',cls:'grade-c'};
-    if(s>=60)return{letter:'D',cls:'grade-d'};
+    if(s>=90)return{letter:'A',cls:'grade-a'};if(s>=80)return{letter:'B',cls:'grade-b'};
+    if(s>=70)return{letter:'C',cls:'grade-c'};if(s>=60)return{letter:'D',cls:'grade-d'};
     return{letter:'F',cls:'grade-f'};
   }
   function evClass(n){return n===0?'ev-0':n<=5?'ev-few':n<=20?'ev-mid':'ev-many';}
 
+  // ── KPI / TABLE RENDER ─────────────────────────────────────────────────────
   function renderKPIs(rows){
     var avg=rows.length?Math.round(rows.reduce(function(s,r){return s+r.score;},0)/rows.length):0;
+    // count speeding + braking events across enabled rules for those categories
+    var spd=0,brk=0;
+    rows.forEach(function(r){
+      Object.keys(_ruleConfig).forEach(function(rid){
+        var cfg=_ruleConfig[rid];
+        if(!cfg.enabled) return;
+        if(cfg.category==='speeding') spd+=(r.eventsByRule[rid]||0);
+        if(cfg.category==='braking')  brk+=(r.eventsByRule[rid]||0);
+      });
+    });
     document.getElementById('k1').textContent=avg;
     document.getElementById('k2').textContent=rows.filter(function(r){return r.score>=80;}).length;
     document.getElementById('k3').textContent=rows.filter(function(r){return r.score<60;}).length;
-    document.getElementById('k4').textContent=rows.reduce(function(s,r){return s+(r.events.speeding||0);},0).toLocaleString();
-    document.getElementById('k5').textContent=rows.reduce(function(s,r){return s+(r.events.braking||0);},0).toLocaleString();
+    document.getElementById('k4').textContent=spd.toLocaleString();
+    document.getElementById('k5').textContent=brk.toLocaleString();
     document.getElementById('k6').textContent=rows.length;
     document.getElementById('foot').textContent='Last refreshed: '+new Date().toLocaleString()+'  |  Last '+_days+' days  |  Score = 100 minus weighted deductions (normalized by trips)';
   }
 
   function updateFilterBadge(){
     var badge=document.getElementById('filterBadge');
-    var topCard=document.getElementById('kpi-top');
-    var riskCard=document.getElementById('kpi-risk');
-    topCard.classList.remove('kpi-active');
-    riskCard.classList.remove('kpi-active');
-
-    if(!_groupFilter){
-      badge.style.display='none';
-      return;
-    }
+    document.getElementById('kpi-top').classList.remove('kpi-active');
+    document.getElementById('kpi-risk').classList.remove('kpi-active');
+    if(!_groupFilter){badge.style.display='none';return;}
     var isTop=_groupFilter==='top';
     var color=isTop?'#10b981':'#ef4444';
-    var label=isTop?'Top Performers (score ≥ 80)':'At-Risk Drivers (score < 60)';
-    if(isTop) topCard.classList.add('kpi-active');
-    else riskCard.classList.add('kpi-active');
-
+    var label=isTop?'Top Performers (score \u2265 80)':'At-Risk Drivers (score < 60)';
+    if(isTop)document.getElementById('kpi-top').classList.add('kpi-active');
+    else document.getElementById('kpi-risk').classList.add('kpi-active');
     badge.style.display='inline-flex';
-    badge.innerHTML='<span class="filter-badge"><span class="filter-badge-dot" style="background:'+color+'"></span>Filtered: '+label+'<span class="filter-badge-x" onclick="safetyDash.clearGroupFilter()" title="Clear filter">&#x2715;</span></span>';
+    badge.innerHTML='<span class="filter-badge"><span class="filter-badge-dot" style="background:'+color+'"></span>Filtered: '+label+'<span class="filter-badge-x" onclick="safetyDash.clearGroupFilter()" title="Clear filter">\u2715</span></span>';
   }
 
   function getDisplayRows(){
     var rows=_rows;
-    // Apply group filter
-    if(_groupFilter==='top')   rows=rows.filter(function(r){return r.score>=80;});
-    if(_groupFilter==='risk')  rows=rows.filter(function(r){return r.score<60;});
-    // Apply search
+    if(_groupFilter==='top') rows=rows.filter(function(r){return r.score>=80;});
+    if(_groupFilter==='risk') rows=rows.filter(function(r){return r.score<60;});
     var q=document.getElementById('srch').value.toLowerCase();
     if(q) rows=rows.filter(function(r){return r.name.toLowerCase().indexOf(q)!==-1;});
     return rows;
@@ -394,36 +457,112 @@ var safetyDash = (function() {
 
   function renderTable(rows){
     if(!rows||!rows.length){
-      var emptyMsg=_groupFilter?'No drivers match this filter.':'No driver data found for the selected period.';
-      document.getElementById('tbl').innerHTML='<div class="box"><div class="msg">'+emptyMsg+'</div></div>';
+      document.getElementById('tbl').innerHTML='<div class="box"><div class="msg">'+(_groupFilter?'No drivers match this filter.':'No driver data found for the selected period.')+'</div></div>';
       return;
     }
+    // Build dynamic columns from enabled rules (group by category for display)
+    var enabledRules=Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid].enabled;});
+    // Group enabled rules by category for column headers
+    var catRules={};
+    enabledRules.forEach(function(rid){
+      var cat=_ruleConfig[rid].category;
+      if(!catRules[cat]) catRules[cat]=[];
+      catRules[cat].push(rid);
+    });
+    // Column order: known cats first, then other
+    var colCats=CATS.filter(function(c){return catRules[c]&&catRules[c].length;});
+
     function thCls(k){return _sortKey===k?(_sortDir===1?' class="sort-asc"':' class="sort-desc"'):'';}
     var h='<table><thead><tr>'+
-      '<th onclick="safetyDash.sort(\'name\')"'+thCls('name')+'>Driver</th>'+
-      '<th onclick="safetyDash.sort(\'score\')"'+thCls('score')+'>Score (0–100)</th>'+
+      '<th onclick="safetyDash.sort('name')"'+thCls('name')+'>Driver</th>'+
+      '<th onclick="safetyDash.sort('score')"'+thCls('score')+'>Score</th>'+
       '<th>Grade</th>'+
-      '<th onclick="safetyDash.sort(\'trips\')"'+thCls('trips')+'>Trips</th>'+
-      '<th onclick="safetyDash.sort(\'speeding\')"'+thCls('speeding')+'>Speeding</th>'+
-      '<th onclick="safetyDash.sort(\'braking\')"'+thCls('braking')+'>Hard Braking</th>'+
-      '<th onclick="safetyDash.sort(\'acceleration\')"'+thCls('acceleration')+'>Hard Accel</th>'+
-      '<th onclick="safetyDash.sort(\'cornering\')"'+thCls('cornering')+'>Cornering</th>'+
-      '<th onclick="safetyDash.sort(\'seatbelt\')"'+thCls('seatbelt')+'>Seatbelt</th>'+
-      '</tr></thead><tbody>';
+      '<th onclick="safetyDash.sort('trips')"'+thCls('trips')+'>Trips</th>';
+
+    // One column per enabled rule (if ≤8 rules), else one column per category
+    var useCatCols = enabledRules.length > 8;
+    if(useCatCols){
+      colCats.forEach(function(cat){
+        h+='<th onclick="safetyDash.sort('cat_'+cat+'')"'+thCls('cat_'+cat)+'>'+CAT_LABELS[cat]+'</th>';
+      });
+    } else {
+      enabledRules.forEach(function(rid){
+        var rule=_allRules.find(function(r){return r.id===rid;})||{name:rid};
+        var shortName=rule.name.length>18?rule.name.substring(0,16)+'…':rule.name;
+        h+='<th onclick="safetyDash.sort('rule_'+rid+'')"'+thCls('rule_'+rid)+' title="'+rule.name+'">'+shortName+'</th>';
+      });
+    }
+    h+='</tr></thead><tbody>';
+
     rows.forEach(function(r){
       var sc=scoreClass(r.score),gr=gradeFromScore(r.score);
-      function evCell(cat){var n=r.events[cat]||0,cls=evClass(n);return '<td><div class="ev-cell '+cls+'"><span class="ev-dot"></span>'+n+'</div></td>';}
-      h+='<tr>'+
-        '<td class="dname">'+r.name+'</td>'+
-        '<td><div class="score-wrap '+sc+'"><span class="score-num">'+r.score+'</span><div class="score-bar-bg"><div class="score-bar-fill" style="width:'+r.score+'%"></div></div></div></td>'+
+      h+='<tr><td class="dname">'+r.name+'</td>'+
+        '<td><div class="score-wrap '+sc+'"><span class="score-num">'+r.score+'</span>'+
+        '<div class="score-bar-bg"><div class="score-bar-fill" style="width:'+r.score+'%"></div></div></div></td>'+
         '<td><span class="grade '+gr.cls+'">'+gr.letter+'</span></td>'+
-        '<td style="font-family:\'Courier New\',monospace;color:var(--text2);">'+r.trips+'</td>'+
-        evCell('speeding')+evCell('braking')+evCell('acceleration')+evCell('cornering')+evCell('seatbelt')+
-        '</tr>';
+        '<td style="font-family:'Courier New',monospace;color:var(--text2);">'+r.trips+'</td>';
+      if(useCatCols){
+        colCats.forEach(function(cat){
+          var total=(catRules[cat]||[]).reduce(function(s,rid){return s+(r.eventsByRule[rid]||0);},0);
+          var cls=evClass(total);
+          h+='<td><div class="ev-cell '+cls+'"><span class="ev-dot"></span>'+total+'</div></td>';
+        });
+      } else {
+        enabledRules.forEach(function(rid){
+          var n=r.eventsByRule[rid]||0, cls=evClass(n);
+          h+='<td><div class="ev-cell '+cls+'"><span class="ev-dot"></span>'+n+'</div></td>';
+        });
+      }
+      h+='</tr>';
     });
     document.getElementById('tbl').innerHTML=h+'</tbody></table>';
   }
 
+  // ── RULES PANEL RENDER ────────────────────────────────────────────────────
+  function renderRulesPanel(){
+    if(!_allRules.length){return;}
+    // Group rules by category
+    var byCategory={};
+    CATS.forEach(function(c){byCategory[c]=[];});
+    _allRules.forEach(function(rule){
+      var cfg=_ruleConfig[rule.id];
+      var cat=cfg?cfg.category:guessCategory(rule.name);
+      if(!byCategory[cat]) byCategory[cat]=[];
+      byCategory[cat].push(rule);
+    });
+
+    var enabledCount=Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid]&&_ruleConfig[rid].enabled;}).length;
+    document.getElementById('rulesCount').textContent=_allRules.length+' rules available';
+    document.getElementById('rulesEnabledCount').textContent=enabledCount+' rules enabled in scoring';
+
+    var html='<div class="rules-cats">';
+    CATS.forEach(function(cat){
+      var rules=byCategory[cat]||[];
+      if(!rules.length) return;
+      html+='<div class="rule-cat-block">'+
+        '<div class="rule-cat-title"><span class="rule-cat-dot" style="background:'+CAT_COLORS[cat]+'"></span>'+CAT_LABELS[cat]+' ('+rules.length+')</div>'+
+        '<div class="rules-grid">';
+      rules.forEach(function(rule){
+        var cfg=_ruleConfig[rule.id]||{enabled:false,category:cat,perEvent:3};
+        var isOn=cfg.enabled;
+        html+='<div class="rule-row'+(isOn?' rule-on':'')+'" id="rrow_'+rule.id+'" onclick="safetyDash.toggleRule(''+rule.id+'')">'+
+          '<div class="rule-chk"><span class="rule-chk-tick">\u2713</span></div>'+
+          '<div class="rule-info">'+
+            '<div class="rule-name" title="'+rule.name+'">'+rule.name+'</div>'+
+            '<div class="rule-type">'+CAT_LABELS[cat]+' &bull; '+rule.id+'</div>'+
+          '</div>'+
+          '<select class="rule-weight-sel" onclick="event.stopPropagation()" onchange="safetyDash.setRuleWeight(''+rule.id+'',this.value)" title="Penalty pts per incident">'+
+          [1,2,3,4,5,7,10].map(function(v){return '<option value="'+v+'"'+(cfg.perEvent===v?' selected':'')+'>'+v+' pt'+(v!==1?'s':'')+'</option>';}).join('')+
+          '</select>'+
+        '</div>';
+      });
+      html+='</div></div>';
+    });
+    html+='</div>';
+    document.getElementById('rulesCatList').innerHTML=html;
+  }
+
+  // ── DATA FETCH ────────────────────────────────────────────────────────────
   function buildName(u){
     if(!u)return null;
     var fn=(u.firstName||'').trim(),ln=(u.lastName||'').trim();
@@ -434,16 +573,53 @@ var safetyDash = (function() {
 
   function rebuildRows(){
     _rows=_rawData.map(function(d){
-      var score=calcScore(d.events,d.trips);
-      return{name:d.name,score:score,trips:d.trips,events:d.events,
-        speeding:d.events.speeding,braking:d.events.braking,
-        acceleration:d.events.acceleration,cornering:d.events.cornering,seatbelt:d.events.seatbelt};
+      var score=calcScore(d.eventsByRule,d.trips);
+      // build category totals for sort
+      var catTotals={};
+      CATS.forEach(function(cat){catTotals['cat_'+cat]=0;});
+      Object.keys(_ruleConfig).forEach(function(rid){
+        var cfg=_ruleConfig[rid];
+        if(!cfg.enabled) return;
+        var n=d.eventsByRule[rid]||0;
+        catTotals['cat_'+cfg.category]=(catTotals['cat_'+cfg.category]||0)+n;
+      });
+      var row={name:d.name,score:score,trips:d.trips,eventsByRule:d.eventsByRule};
+      Object.keys(catTotals).forEach(function(k){row[k]=catTotals[k];});
+      // rule-level sort keys
+      Object.keys(d.eventsByRule).forEach(function(rid){row['rule_'+rid]=d.eventsByRule[rid];});
+      return row;
     });
     _rows.sort(function(a,b){return a.score-b.score;});
     _sortKey='score';_sortDir=1;
     renderKPIs(_rows);
     updateFilterBadge();
     renderTable(getDisplayRows());
+    renderRulesPanel();
+  }
+
+  function initRuleConfig(rules){
+    // Load saved rule config from localStorage
+    var savedStr=null;
+    try{savedStr=localStorage.getItem('safetyRuleConfig');}catch(e){}
+    var saved=null;
+    if(savedStr){try{saved=JSON.parse(savedStr);}catch(e){}}
+
+    _allRules=rules;
+    _ruleConfig={};
+    rules.forEach(function(rule){
+      var cat=guessCategory(rule.name);
+      if(saved&&saved[rule.id]){
+        _ruleConfig[rule.id]={
+          enabled: saved[rule.id].enabled===true,
+          category: saved[rule.id].category||cat,
+          perEvent: saved[rule.id].perEvent||3
+        };
+      } else {
+        // Default: enable rules that match a known safety category
+        var isKnown = cat !== 'other';
+        _ruleConfig[rule.id]={enabled:isKnown, category:cat, perEvent:3};
+      }
+    });
   }
 
   function fetchData(){
@@ -455,30 +631,28 @@ var safetyDash = (function() {
     var fromStr=from.toISOString(),toStr=now.toISOString();
 
     _api.multiCall([
-      ['Get',{typeName:'Rule',resultsLimit:500}],
+      ['Get',{typeName:'Rule',resultsLimit:1000}],
       ['Get',{typeName:'User',search:{isDriver:true},resultsLimit:1000}]
     ],function(res){
       var rules=(res&&res[0])||[];
       var users=(res&&res[1])||[];
-      var ruleMap={},matchedCats={};
-      rules.forEach(function(rule){var cat=categorizeRule(rule.name);if(cat){ruleMap[rule.id]=cat;matchedCats[cat]=true;}});
+      initRuleConfig(rules);
+
       var nameMap={};
       users.forEach(function(u){var name=buildName(u);if(name&&u.id)nameMap[u.id]=name;});
-      var unmatched=['speeding','braking','acceleration','cornering','seatbelt'].filter(function(c){return !matchedCats[c];});
-      if(unmatched.length)showWarn('Rules not found for: '+unmatched.join(', ')+'. These show 0. Your Geotab rule names may differ.');
-      fetchEventsAndTrips(ruleMap,nameMap,fromStr,toStr);
-    },function(err){
-      // Retry without isDriver filter
-      _api.call('Get',{typeName:'Rule',resultsLimit:500},function(rules){
+
+      fetchEventsAndTrips(nameMap,fromStr,toStr);
+    },function(){
+      // Fallback: fetch rules only
+      _api.call('Get',{typeName:'Rule',resultsLimit:1000},function(rules){
         rules=rules||[];
-        var ruleMap={};
-        rules.forEach(function(rule){var cat=categorizeRule(rule.name);if(cat)ruleMap[rule.id]=cat;});
-        fetchEventsAndTrips(ruleMap,{},fromStr,toStr);
+        initRuleConfig(rules);
+        fetchEventsAndTrips({},fromStr,toStr);
       },function(e){showBox('');showErr('Error: '+(e&&e.message?e.message:JSON.stringify(e)));});
     });
   }
 
-  function fetchEventsAndTrips(ruleMap,nameMap,fromStr,toStr){
+  function fetchEventsAndTrips(nameMap,fromStr,toStr){
     showBox('FETCHING EXCEPTIONS & TRIPS...',35);
     _api.multiCall([
       ['Get',{typeName:'ExceptionEvent',search:{fromDate:fromStr,toDate:toStr},resultsLimit:100000}],
@@ -487,60 +661,78 @@ var safetyDash = (function() {
       var exceptions=(res2&&res2[0])||[];
       var trips=(res2&&res2[1])||[];
       showBox('BUILDING SCORECARDS...',80);
-      trips.forEach(function(t){var d=t.driver;if(!d||!d.id||d.id==='UnknownDriverId')return;if(!nameMap[d.id]){var name=buildName(d);if(name)nameMap[d.id]=name;}});
+
+      trips.forEach(function(t){
+        var d=t.driver;
+        if(!d||!d.id||d.id==='UnknownDriverId')return;
+        if(!nameMap[d.id]){var name=buildName(d);if(name)nameMap[d.id]=name;}
+      });
       var tripCount={};
-      trips.forEach(function(t){var did=t.driver&&t.driver.id;if(!did||did==='UnknownDriverId')return;tripCount[did]=(tripCount[did]||0)+1;});
-      var eventsByDriver={};
+      trips.forEach(function(t){
+        var did=t.driver&&t.driver.id;
+        if(!did||did==='UnknownDriverId')return;
+        tripCount[did]=(tripCount[did]||0)+1;
+      });
+
+      // Count events per driver per RULE ID (not category)
+      var eventsByDriverByRule={};
       exceptions.forEach(function(e){
-        var did=e.driver&&e.driver.id;if(!did||did==='UnknownDriverId')return;
-        var cat=ruleMap[e.rule&&e.rule.id];if(!cat)return;
-        if(!eventsByDriver[did])eventsByDriver[did]={speeding:0,braking:0,acceleration:0,cornering:0,seatbelt:0};
-        eventsByDriver[did][cat]++;
+        var did=e.driver&&e.driver.id;
+        if(!did||did==='UnknownDriverId')return;
+        var rid=e.rule&&e.rule.id;
+        if(!rid)return;
+        if(!eventsByDriverByRule[did]) eventsByDriverByRule[did]={};
+        eventsByDriverByRule[did][rid]=(eventsByDriverByRule[did][rid]||0)+1;
         if(!nameMap[did]&&e.driver){var name=buildName(e.driver);if(name)nameMap[did]=name;}
       });
+
       var seen={};
       Object.keys(tripCount).forEach(function(k){seen[k]=1;});
-      Object.keys(eventsByDriver).forEach(function(k){seen[k]=1;});
+      Object.keys(eventsByDriverByRule).forEach(function(k){seen[k]=1;});
+
       _rawData=[];
       Object.keys(seen).forEach(function(did){
         var name=nameMap[did]||('Driver '+did);
-        var events=eventsByDriver[did]||{speeding:0,braking:0,acceleration:0,cornering:0,seatbelt:0};
         var tc=tripCount[did]||0;
-        _rawData.push({name:name,trips:tc,events:events});
+        var ebr=eventsByDriverByRule[did]||{};
+        _rawData.push({name:name,trips:tc,eventsByRule:ebr});
       });
-      if(!_rawData.length){showBox('');showErr('No driver data found. Ensure drivers are assigned to vehicles and have trips in this period.');return;}
+
+      if(!_rawData.length){
+        showBox('');
+        showErr('No driver data found. Ensure drivers are assigned to vehicles and have trips in this period.');
+        return;
+      }
       rebuildRows();
     },function(err){showBox('');showErr('Error: '+(err&&err.message?err.message:JSON.stringify(err)));});
   }
 
+  // ── PUBLIC API ─────────────────────────────────────────────────────────────
   return {
     init:function(api){
-      _api=api;
-      setDateRange();
+      _api=api; setDateRange();
       document.getElementById('btnRefresh').onclick=fetchData;
-      // Restore saved weights from localStorage on every page load
+      // Load saved weights
       try{
-        var saved=localStorage.getItem('safetyWeights');
-        if(saved){
-          var parsed=JSON.parse(saved);
-          var cats=['speeding','braking','acceleration','cornering','seatbelt'];
-          if(cats.every(function(c){return parsed[c]&&typeof parsed[c].max==='number';})){
-            cats.forEach(function(cat){
-              _weights[cat]={max:parsed[cat].max,perEvent:Math.max(1,Math.round(parsed[cat].max/5))};
-              document.getElementById('w_'+cat).value=parsed[cat].max;
-              document.getElementById('wv_'+cat).textContent=parsed[cat].max;
-              document.getElementById('wd_'+cat).textContent='Max '+parsed[cat].max+' pts \u2022 ~'+Math.max(1,Math.round(parsed[cat].max/5))+' pts per incident';
-            });
-          }
+        var sw=localStorage.getItem('safetyWeights');
+        if(sw){
+          var pw=JSON.parse(sw);
+          Object.keys(FACTORY_WEIGHTS).forEach(function(cat){
+            if(pw[cat]&&typeof pw[cat].max==='number'){
+              FACTORY_WEIGHTS[cat]={max:pw[cat].max,perEvent:Math.max(1,Math.round(pw[cat].max/5))};
+              var el=document.getElementById('w_'+cat);
+              if(el){el.value=pw[cat].max;document.getElementById('wv_'+cat).textContent=pw[cat].max;document.getElementById('wd_'+cat).textContent='Max '+pw[cat].max+' pts \u2022 ~'+Math.max(1,Math.round(pw[cat].max/5))+' pts per incident';}
+            }
+          });
         }
       }catch(e){}
     },
-    fetch:fetchData,
+    fetch: fetchData,
 
     setRange:function(days){
       _days=days;
       document.querySelectorAll('.range-btn').forEach(function(btn){btn.classList.toggle('active',btn.textContent===days+'D');});
-      setDateRange();fetchData();
+      setDateRange(); fetchData();
     },
 
     toggleTheme:function(){
@@ -550,25 +742,56 @@ var safetyDash = (function() {
     },
 
     toggleSettings:function(){
-      var panel=document.getElementById('settingsPanel');
-      var btn=document.getElementById('btnSettings');
-      var open=panel.classList.toggle('open');
-      btn.classList.toggle('active-btn',open);
+      var p=document.getElementById('settingsPanel'),b=document.getElementById('btnSettings');
+      var open=p.classList.toggle('open'); b.classList.toggle('active-btn',open);
+      if(open) document.getElementById('rulesPanel').classList.remove('open'),document.getElementById('btnRules').classList.remove('active-btn');
+    },
+
+    toggleRules:function(){
+      var p=document.getElementById('rulesPanel'),b=document.getElementById('btnRules');
+      var open=p.classList.toggle('open'); b.classList.toggle('active-btn',open);
+      if(open) document.getElementById('settingsPanel').classList.remove('open'),document.getElementById('btnSettings').classList.remove('active-btn');
+      if(open && _allRules.length) renderRulesPanel();
+      else if(open) document.getElementById('rulesCatList').innerHTML='<div style="padding:20px;text-align:center;font-family:\'Courier New\',monospace;font-size:0.78rem;color:var(--text3);">Click Refresh first to load available rules.</div>';
+    },
+
+    toggleRule:function(rid){
+      if(!_ruleConfig[rid]) return;
+      _ruleConfig[rid].enabled=!_ruleConfig[rid].enabled;
+      var row=document.getElementById('rrow_'+rid);
+      if(row) row.classList.toggle('rule-on',_ruleConfig[rid].enabled);
+      var enabledCount=Object.keys(_ruleConfig).filter(function(r){return _ruleConfig[r]&&_ruleConfig[r].enabled;}).length;
+      var el=document.getElementById('rulesEnabledCount');
+      if(el) el.textContent=enabledCount+' rules enabled in scoring';
+    },
+
+    setRuleWeight:function(rid,val){
+      if(_ruleConfig[rid]) _ruleConfig[rid].perEvent=parseInt(val,10)||1;
+    },
+
+    saveRules:function(){
+      try{
+        localStorage.setItem('safetyRuleConfig',JSON.stringify(_ruleConfig));
+        showToast('\u2713 Rule config saved & scores recalculated','#10b981');
+      }catch(e){showToast('Could not save: '+e.message,'#ef4444');}
+      if(_rawData.length) rebuildRows();
+    },
+
+    resetRules:function(){
+      try{localStorage.removeItem('safetyRuleConfig');}catch(e){}
+      if(_allRules.length){
+        initRuleConfig(_allRules);
+        renderRulesPanel();
+        if(_rawData.length) rebuildRows();
+      }
+      showToast('Rules reset to auto-detected defaults','#64748b');
     },
 
     filterByGroup:function(group){
-      // Toggle off if already active
-      if(_groupFilter===group){_groupFilter=null;}
-      else{_groupFilter=group;}
-      updateFilterBadge();
-      renderTable(getDisplayRows());
+      _groupFilter=(_groupFilter===group)?null:group;
+      updateFilterBadge(); renderTable(getDisplayRows());
     },
-
-    clearGroupFilter:function(){
-      _groupFilter=null;
-      updateFilterBadge();
-      renderTable(getDisplayRows());
-    },
+    clearGroupFilter:function(){_groupFilter=null;updateFilterBadge();renderTable(getDisplayRows());},
 
     updateWeightLabel:function(cat){
       var val=parseInt(document.getElementById('w_'+cat).value,10);
@@ -577,56 +800,45 @@ var safetyDash = (function() {
     },
 
     applyWeights:function(){
-      ['speeding','braking','acceleration','cornering','seatbelt'].forEach(function(cat){
+      Object.keys(FACTORY_WEIGHTS).forEach(function(cat){
         var max=parseInt(document.getElementById('w_'+cat).value,10);
-        _weights[cat]={max:max,perEvent:Math.max(1,Math.round(max/5))};
+        FACTORY_WEIGHTS[cat]={max:max,perEvent:Math.max(1,Math.round(max/5))};
       });
-      if(_rawData.length)rebuildRows();
-      safetyDash._showToast('Scores recalculated','#f59e0b');
+      if(_rawData.length) rebuildRows();
+      showToast('Scores recalculated','#f59e0b');
     },
 
     saveAsDefault:function(){
-      ['speeding','braking','acceleration','cornering','seatbelt'].forEach(function(cat){
+      Object.keys(FACTORY_WEIGHTS).forEach(function(cat){
         var max=parseInt(document.getElementById('w_'+cat).value,10);
-        _weights[cat]={max:max,perEvent:Math.max(1,Math.round(max/5))};
+        FACTORY_WEIGHTS[cat]={max:max,perEvent:Math.max(1,Math.round(max/5))};
       });
       try{
-        localStorage.setItem('safetyWeights',JSON.stringify(_weights));
-        safetyDash._showToast('\u2713 Saved as default \u2014 will load automatically next visit','#10b981');
-      }catch(e){
-        safetyDash._showToast('Could not save: '+e.message,'#ef4444');
-      }
-      if(_rawData.length)rebuildRows();
-    },
-
-    _showToast:function(msg,color){
-      var t=document.getElementById('toast');
-      t.style.background=color||'#10b981';
-      t.textContent=msg;
-      t.classList.add('show');
-      setTimeout(function(){t.classList.remove('show');},3000);
+        localStorage.setItem('safetyWeights',JSON.stringify(FACTORY_WEIGHTS));
+        showToast('\u2713 Weights saved as default','#10b981');
+      }catch(e){showToast('Could not save: '+e.message,'#ef4444');}
+      if(_rawData.length) rebuildRows();
     },
 
     resetWeights:function(){
-      // Clear saved weights and restore factory defaults
       try{localStorage.removeItem('safetyWeights');}catch(e){}
       var defs={speeding:{max:25,perEvent:3},braking:{max:20,perEvent:4},acceleration:{max:20,perEvent:4},cornering:{max:20,perEvent:4},seatbelt:{max:15,perEvent:5}};
       Object.keys(defs).forEach(function(cat){
-        _weights[cat]=Object.assign({},defs[cat]);
-        document.getElementById('w_'+cat).value=defs[cat].max;
-        document.getElementById('wv_'+cat).textContent=defs[cat].max;
-        document.getElementById('wd_'+cat).textContent='Max '+defs[cat].max+' pts \u2022 '+defs[cat].perEvent+' pts per incident';
+        FACTORY_WEIGHTS[cat]=Object.assign({},defs[cat]);
+        var el=document.getElementById('w_'+cat);
+        if(el){el.value=defs[cat].max;document.getElementById('wv_'+cat).textContent=defs[cat].max;document.getElementById('wd_'+cat).textContent='Max '+defs[cat].max+' pts \u2022 '+defs[cat].perEvent+' pts per incident';}
       });
-      if(_rawData.length)rebuildRows();
-      safetyDash._showToast('Reset to factory defaults','#64748b');
+      if(_rawData.length) rebuildRows();
+      showToast('Reset to factory defaults','#64748b');
     },
 
+    _showToast: showToast,
+
     sort:function(k){
-      if(_sortKey===k){_sortDir*=-1;}else{_sortKey=k;_sortDir=k==='name'?1:(k==='score'?1:-1);}
+      if(_sortKey===k){_sortDir*=-1;}else{_sortKey=k;_sortDir=(k==='name'||k==='score')?1:-1;}
       _rows.sort(function(a,b){
-        var av=a[k]!==undefined?a[k]:(a.events&&a.events[k])||0;
-        var bv=b[k]!==undefined?b[k]:(b.events&&b.events[k])||0;
-        if(typeof av==='string')return _sortDir*av.localeCompare(bv);
+        var av=a[k]!==undefined?a[k]:0, bv=b[k]!==undefined?b[k]:0;
+        if(typeof av==='string') return _sortDir*av.localeCompare(bv);
         return _sortDir*(av-bv);
       });
       renderTable(getDisplayRows());
@@ -640,11 +852,14 @@ var safetyDash = (function() {
       from.setDate(from.getDate()-_days);
       var fmt=function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});};
       var exportRows=getDisplayRows();
-      var filterNote=_groupFilter?(' — Filtered: '+(_groupFilter==='top'?'Top Performers':'At-Risk Drivers')):'';
-      var lines=['Driver Safety Scorecard'+filterNote,'Period: '+fmt(from)+' to '+fmt(now),'','Driver,Score,Grade,Trips,Speeding,Hard Braking,Hard Acceleration,Harsh Cornering,Seatbelt'];
+      var filterNote=_groupFilter?(' — '+(_groupFilter==='top'?'Top Performers':'At-Risk Drivers')):'';
+      var enabledRules=Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid].enabled;});
+      var ruleNames=enabledRules.map(function(rid){var r=_allRules.find(function(x){return x.id===rid;})||{name:rid};return r.name;});
+      var lines=['Driver Safety Scorecard'+filterNote,'Period: '+fmt(from)+' to '+fmt(now),'','Driver,Score,Grade,Trips,'+ruleNames.join(',')];
       exportRows.forEach(function(r){
         var gr=gradeFromScore(r.score);
-        lines.push('"'+r.name.replace(/"/g,'""')+'",'+r.score+','+gr.letter+','+r.trips+','+(r.events.speeding||0)+','+(r.events.braking||0)+','+(r.events.acceleration||0)+','+(r.events.cornering||0)+','+(r.events.seatbelt||0));
+        var evCols=enabledRules.map(function(rid){return r.eventsByRule[rid]||0;});
+        lines.push('"'+r.name.replace(/"/g,'""')+'",'+r.score+','+gr.letter+','+r.trips+','+evCols.join(','));
       });
       var csv=lines.join('\r\n');
       var blob=new Blob([csv],{type:'text/csv'});
