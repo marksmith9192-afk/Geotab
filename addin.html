@@ -6,36 +6,13 @@
   <title>Fleet Dashboard</title>
   <style>
     :root {
-      --bg: #0b0f1a;
-      --surface: #121929;
-      --surface2: #1a2540;
-      --border: #1e2e4a;
-      --accent: #00e5ff;
-      --accent2: #ff6b35;
-      --text: #e2e8f0;
-      --muted: #64748b;
-      --success: #10b981;
-      --purple: #a78bfa;
+      --bg: #0b0f1a; --surface: #121929; --surface2: #1a2540; --border: #1e2e4a;
+      --accent: #00e5ff; --accent2: #ff6b35; --text: #e2e8f0; --muted: #64748b;
+      --success: #10b981; --purple: #a78bfa;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 0;
-    }
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
-      z-index: 0;
-    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
     .wrapper { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 28px 24px; }
     header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 16px; }
     h1 { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.03em; background: linear-gradient(90deg, var(--accent), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
@@ -47,30 +24,22 @@
     .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
     .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; position: relative; overflow: hidden; }
     .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
-    .kpi-card.blue::before   { background: var(--accent); }
-    .kpi-card.orange::before { background: var(--accent2); }
-    .kpi-card.purple::before { background: var(--purple); }
-    .kpi-card.green::before  { background: var(--success); }
+    .kpi-card.blue::before { background: var(--accent); } .kpi-card.orange::before { background: var(--accent2); } .kpi-card.purple::before { background: var(--purple); } .kpi-card.green::before { background: var(--success); }
     .kpi-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; font-family: 'Courier New', monospace; margin-bottom: 10px; }
     .kpi-value { font-size: 1.9rem; font-weight: 800; line-height: 1; }
-    .kpi-card.blue .kpi-value   { color: var(--accent); }
-    .kpi-card.orange .kpi-value { color: var(--accent2); }
-    .kpi-card.purple .kpi-value { color: var(--purple); }
-    .kpi-card.green .kpi-value  { color: var(--success); }
+    .kpi-card.blue .kpi-value { color: var(--accent); } .kpi-card.orange .kpi-value { color: var(--accent2); } .kpi-card.purple .kpi-value { color: var(--purple); } .kpi-card.green .kpi-value { color: var(--success); }
     .kpi-sub { font-size: 0.78rem; color: var(--muted); margin-top: 6px; }
     .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
     .section-title { font-size: 1rem; font-weight: 700; }
     .search-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; color: var(--text); font-size: 0.875rem; width: 200px; outline: none; transition: border-color 0.2s; }
-    .search-box:focus { border-color: var(--accent); }
-    .search-box::placeholder { color: var(--muted); }
+    .search-box:focus { border-color: var(--accent); } .search-box::placeholder { color: var(--muted); }
     .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 20px; }
     table { width: 100%; border-collapse: collapse; }
     thead tr { background: var(--surface2); border-bottom: 1px solid var(--border); }
     th { font-family: 'Courier New', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); padding: 13px 18px; text-align: left; cursor: pointer; user-select: none; white-space: nowrap; }
     th:hover { color: var(--accent); }
     tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
-    tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: var(--surface2); }
+    tbody tr:last-child { border-bottom: none; } tbody tr:hover { background: var(--surface2); }
     td { padding: 13px 18px; font-size: 0.88rem; }
     td.vehicle-name { font-family: 'Courier New', monospace; font-size: 0.82rem; color: var(--accent); font-weight: 500; }
     .miles-val { font-family: 'Courier New', monospace; font-weight: 500; }
@@ -79,12 +48,14 @@
     .idle-bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--accent2), #ff9a5c); }
     .idle-val { font-family: 'Courier New', monospace; font-size: 0.82rem; min-width: 50px; text-align: right; }
     .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 0.7rem; font-family: 'Courier New', monospace; }
-    .badge-high { background: rgba(239,68,68,0.15);  color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
+    .badge-high { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
     .badge-med  { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); }
     .badge-low  { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.25); }
-    .loading-overlay { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; gap: 16px; }
-    .spinner { width: 34px; height: 34px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
-    .loading-text { font-family: 'Courier New', monospace; font-size: 0.78rem; color: var(--muted); }
+    .progress-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 40px 24px; text-align: center; }
+    .progress-label { font-family: 'Courier New', monospace; font-size: 0.78rem; color: var(--muted); margin-bottom: 16px; }
+    .progress-bar-bg { background: var(--border); border-radius: 99px; height: 8px; overflow: hidden; margin: 0 auto; max-width: 400px; }
+    .progress-bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--accent), var(--purple)); transition: width 0.3s ease; }
+    .progress-count { font-family: 'Courier New', monospace; font-size: 0.75rem; color: var(--muted); margin-top: 10px; }
     .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
     .footer-note { font-family: 'Courier New', monospace; font-size: 0.7rem; color: var(--muted); text-align: center; padding-top: 4px; }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -104,26 +75,10 @@
   </header>
 
   <div class="kpi-row">
-    <div class="kpi-card blue">
-      <div class="kpi-label">Total Fleet Mileage</div>
-      <div class="kpi-value" id="kpiTotalMiles">—</div>
-      <div class="kpi-sub">miles in last 30 days</div>
-    </div>
-    <div class="kpi-card orange">
-      <div class="kpi-label">Total Idle Time</div>
-      <div class="kpi-value" id="kpiTotalIdle">—</div>
-      <div class="kpi-sub">hours across all vehicles</div>
-    </div>
-    <div class="kpi-card purple">
-      <div class="kpi-label">Avg Mileage / Vehicle</div>
-      <div class="kpi-value" id="kpiAvgMiles">—</div>
-      <div class="kpi-sub">miles per vehicle</div>
-    </div>
-    <div class="kpi-card green">
-      <div class="kpi-label">Vehicles Tracked</div>
-      <div class="kpi-value" id="kpiVehicles">—</div>
-      <div class="kpi-sub">active in period</div>
-    </div>
+    <div class="kpi-card blue">  <div class="kpi-label">Total Fleet Mileage</div><div class="kpi-value" id="kpiTotalMiles">—</div><div class="kpi-sub">miles in last 30 days</div></div>
+    <div class="kpi-card orange"><div class="kpi-label">Total Idle Time</div>   <div class="kpi-value" id="kpiTotalIdle">—</div> <div class="kpi-sub">hours across all vehicles</div></div>
+    <div class="kpi-card purple"><div class="kpi-label">Avg Mileage / Vehicle</div><div class="kpi-value" id="kpiAvgMiles">—</div><div class="kpi-sub">miles per vehicle</div></div>
+    <div class="kpi-card green"> <div class="kpi-label">Vehicles Tracked</div> <div class="kpi-value" id="kpiVehicles">—</div><div class="kpi-sub">active in period</div></div>
   </div>
 
   <div class="section-header">
@@ -133,9 +88,10 @@
 
   <div class="table-wrap">
     <div id="tableContainer">
-      <div class="loading-overlay">
-        <div class="spinner"></div>
-        <div class="loading-text">WAITING FOR GEOTAB...</div>
+      <div class="progress-wrap">
+        <div class="progress-label">WAITING FOR GEOTAB...</div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
+        <div class="progress-count" id="progressCount"></div>
       </div>
     </div>
   </div>
@@ -143,26 +99,27 @@
 </div>
 
 <script>
-// ─── All state ────────────────────────────────────────────────────────────────
 var _api     = null;
 var _allRows = [];
 
 function setDateRange() {
-  var now  = new Date();
-  var from = new Date(now);
+  var now = new Date(), from = new Date(now);
   from.setDate(from.getDate() - 30);
-  var fmt = function(d) { return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }); };
+  var fmt = function(d) { return d.toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}); };
   document.getElementById('dateRange').textContent = fmt(from) + ' \u2192 ' + fmt(now);
 }
 
-function showLoading(msg) {
+function showProgress(label, pct, count) {
   document.getElementById('tableContainer').innerHTML =
-    '<div class="loading-overlay"><div class="spinner"></div><div class="loading-text">' + (msg||'LOADING...') + '</div></div>';
+    '<div class="progress-wrap">' +
+    '<div class="progress-label">' + label + '</div>' +
+    '<div class="progress-bar-bg"><div class="progress-bar-fill" style="width:' + pct + '%"></div></div>' +
+    '<div class="progress-count">' + (count || '') + '</div>' +
+    '</div>';
 }
 
 function showEmpty(msg) {
-  document.getElementById('tableContainer').innerHTML =
-    '<div class="empty-state"><p>' + msg + '</p></div>';
+  document.getElementById('tableContainer').innerHTML = '<div class="empty-state"><p>' + msg + '</p></div>';
 }
 
 function resetKPIs() {
@@ -171,71 +128,36 @@ function resetKPIs() {
   });
 }
 
-function processData(devices, trips, exceptions) {
-  var deviceMap = {};
-  devices.forEach(function(d) { deviceMap[d.id] = d.name || d.id; });
-
-  var stats = {};
-  trips.forEach(function(t) {
-    var did = t.device && t.device.id;
-    if (!did) return;
-    if (!stats[did]) stats[did] = { name: deviceMap[did] || did, miles: 0, idleSec: 0, trips: 0 };
-    stats[did].miles   += (t.distance || 0) / 1609.344;
-    stats[did].idleSec += (t.stopDuration || 0);
-    stats[did].trips++;
-  });
-
-  exceptions.forEach(function(e) {
-    var did = e.device && e.device.id;
-    if (!did) return;
-    if (!stats[did]) stats[did] = { name: deviceMap[did] || did, miles: 0, idleSec: 0, trips: 0 };
-    var dur = e.duration || 0;
-    if (dur > 1000000) dur = dur / 10000000;
-    stats[did].idleSec += dur;
-  });
-
-  var rows = Object.keys(stats).map(function(k) { return stats[k]; });
-  rows = rows.filter(function(r) { return r.miles > 0 || r.idleSec > 0; });
-  rows.sort(function(a,b) { return b.miles - a.miles; });
-
-  _allRows = rows;
-  renderKPIs(rows);
-  renderTable(rows);
-}
-
 function renderKPIs(rows) {
-  var totalMiles = rows.reduce(function(s,r) { return s + r.miles; }, 0);
-  var totalIdleH = rows.reduce(function(s,r) { return s + r.idleSec / 3600; }, 0);
-  var avgMiles   = rows.length ? totalMiles / rows.length : 0;
+  var totalMiles = rows.reduce(function(s,r){return s+r.miles;},0);
+  var totalIdleH = rows.reduce(function(s,r){return s+r.idleHours;},0);
+  var avgMiles   = rows.length ? totalMiles/rows.length : 0;
   document.getElementById('kpiTotalMiles').textContent = Math.round(totalMiles).toLocaleString();
-  document.getElementById('kpiTotalIdle').textContent  = totalIdleH.toFixed(1) + 'h';
+  document.getElementById('kpiTotalIdle').textContent  = totalIdleH.toFixed(1)+'h';
   document.getElementById('kpiAvgMiles').textContent   = Math.round(avgMiles).toLocaleString();
   document.getElementById('kpiVehicles').textContent   = rows.length;
   document.getElementById('footerNote').textContent    = 'Last refreshed: ' + new Date().toLocaleString();
 }
 
 function renderTable(rows) {
-  if (!rows || rows.length === 0) { showEmpty('No trip data found for the last 30 days.'); return; }
-  var maxIdle = Math.max.apply(null, rows.map(function(r) { return r.idleSec; })) || 1;
+  if (!rows || rows.length === 0) { showEmpty('No data found for the last 30 days.'); return; }
+  var maxIdle = Math.max.apply(null, rows.map(function(r){return r.idleHours;})) || 1;
   var html = '<table><thead><tr>' +
     '<th onclick="sortTable(\'name\')">Vehicle &#8597;</th>' +
     '<th onclick="sortTable(\'miles\')">Mileage (mi) &#8597;</th>' +
-    '<th onclick="sortTable(\'trips\')">Trips &#8597;</th>' +
-    '<th onclick="sortTable(\'idleSec\')">Idle Time &#8597;</th>' +
+    '<th onclick="sortTable(\'idleHours\')">Idle Time &#8597;</th>' +
     '<th>Idle Level</th>' +
     '</tr></thead><tbody>';
   rows.forEach(function(r) {
-    var idleH     = r.idleSec / 3600;
-    var idlePct   = (r.idleSec / maxIdle) * 100;
+    var idlePct   = (r.idleHours / maxIdle) * 100;
     var idleLabel = idlePct > 66 ? 'HIGH' : idlePct > 33 ? 'MED' : 'LOW';
     var idleClass = idlePct > 66 ? 'badge-high' : idlePct > 33 ? 'badge-med' : 'badge-low';
     html += '<tr>' +
       '<td class="vehicle-name">' + r.name + '</td>' +
       '<td class="miles-val">' + Math.round(r.miles).toLocaleString() + '</td>' +
-      '<td>' + r.trips + '</td>' +
       '<td><div class="idle-bar-wrap">' +
         '<div class="idle-bar-bg"><div class="idle-bar-fill" style="width:' + idlePct.toFixed(1) + '%"></div></div>' +
-        '<span class="idle-val">' + idleH.toFixed(1) + 'h</span>' +
+        '<span class="idle-val">' + r.idleHours.toFixed(1) + 'h</span>' +
       '</div></td>' +
       '<td><span class="badge ' + idleClass + '">' + idleLabel + '</span></td>' +
       '</tr>';
@@ -245,27 +167,25 @@ function renderTable(rows) {
 }
 
 function sortTable(key) {
-  _allRows.sort(function(a,b) {
-    if (typeof a[key] === 'string') return a[key].localeCompare(b[key]);
-    return b[key] - a[key];
-  });
+  _allRows.sort(function(a,b){ return typeof a[key]==='string' ? a[key].localeCompare(b[key]) : b[key]-a[key]; });
   renderTable(filterRows(document.getElementById('searchBox').value));
 }
-
-function filterTable() {
-  renderTable(filterRows(document.getElementById('searchBox').value));
-}
-
+function filterTable() { renderTable(filterRows(document.getElementById('searchBox').value)); }
 function filterRows(q) {
   if (!q) return _allRows;
   var lower = q.toLowerCase();
-  return _allRows.filter(function(r) { return r.name.toLowerCase().indexOf(lower) !== -1; });
+  return _allRows.filter(function(r){return r.name.toLowerCase().indexOf(lower)!==-1;});
 }
 
+// ─── MAIN FETCH — uses StatusData with odometer + idle diagnostics ────────────
+// This approach is MUCH faster than fetching all Trips:
+//   • DiagnosticOdometerAdjustmentId  — GPS/ECM odometer in metres
+//   • DiagnosticTotalIdleHoursId      — cumulative idle hours from engine ECU
+// We get two readings per vehicle (start-of-period and end-of-period) and diff them.
 function fetchData() {
-  if (!_api) { showEmpty('Geotab API not ready. Please refresh the page.'); return; }
-  showLoading('FETCHING FLEET DATA...');
+  if (!_api) { showEmpty('Geotab API not available. Please refresh.'); return; }
   resetKPIs();
+  showProgress('FETCHING VEHICLES...', 5, '');
 
   var toDate   = new Date();
   var fromDate = new Date();
@@ -273,34 +193,151 @@ function fetchData() {
   var fromStr = fromDate.toISOString();
   var toStr   = toDate.toISOString();
 
+  // Step 1 — get all devices
   _api.call('Get', { typeName: 'Device', resultsLimit: 1000 },
-    function(devices) {
-      if (!devices || devices.length === 0) { showEmpty('No vehicles found in this account.'); return; }
-      _api.call('Get', {
-        typeName: 'Trip',
-        search: { fromDate: fromStr, toDate: toStr },
-        resultsLimit: 50000
-      }, function(trips) {
-        _api.call('Get', {
-          typeName: 'ExceptionEvent',
-          search: { fromDate: fromStr, toDate: toStr, ruleSearch: { name: 'Idling' } },
-          resultsLimit: 50000
-        }, function(exceptions) {
-          processData(devices, trips || [], exceptions || []);
-        }, function() {
-          processData(devices, trips || [], []);
-        });
-      }, function(err) {
-        showEmpty('Error fetching trips: ' + (err && err.message ? err.message : String(err)));
+  function(devices) {
+    if (!devices || devices.length === 0) { showEmpty('No vehicles found in this account.'); return; }
+
+    showProgress('FETCHING ODOMETER DATA...', 20, devices.length + ' vehicles found');
+
+    // Step 2 — get odometer StatusData for all devices across date range
+    // Geotab records odometer at ignition-off, so we want the FIRST and LAST reading in the window
+    _api.multiCall([
+      ['Get', {
+        typeName: 'StatusData',
+        search: {
+          diagnosticSearch: { id: 'DiagnosticOdometerAdjustmentId' },
+          fromDate: fromStr,
+          toDate:   toStr
+        },
+        resultsLimit: 100000
+      }],
+      ['Get', {
+        typeName: 'StatusData',
+        search: {
+          diagnosticSearch: { id: 'DiagnosticTotalIdleHoursId' },
+          fromDate: fromStr,
+          toDate:   toStr
+        },
+        resultsLimit: 100000
+      }]
+    ],
+    function(results) {
+      var odometerData = (results && results[0]) ? results[0] : [];
+      var idleData     = (results && results[1]) ? results[1] : [];
+
+      showProgress('CALCULATING...', 80, odometerData.length + ' odometer records, ' + idleData.length + ' idle records');
+
+      // Build device name map
+      var deviceMap = {};
+      devices.forEach(function(d) { deviceMap[d.id] = d.name || d.id; });
+
+      // For each device, calculate delta odometer (last - first reading in window)
+      var odomByDevice = {};
+      odometerData.forEach(function(s) {
+        var did = s.device && s.device.id;
+        if (!did || s.data === undefined) return;
+        var val = parseFloat(s.data); // metres
+        if (isNaN(val)) return;
+        if (!odomByDevice[did]) odomByDevice[did] = { min: val, max: val };
+        if (val < odomByDevice[did].min) odomByDevice[did].min = val;
+        if (val > odomByDevice[did].max) odomByDevice[did].max = val;
       });
-    }, function(err) {
-      showEmpty('Error fetching devices: ' + (err && err.message ? err.message : String(err)));
-    }
-  );
+
+      // For each device, calculate delta idle hours (last - first reading in window)
+      var idleByDevice = {};
+      idleData.forEach(function(s) {
+        var did = s.device && s.device.id;
+        if (!did || s.data === undefined) return;
+        var val = parseFloat(s.data); // hours
+        if (isNaN(val)) return;
+        if (!idleByDevice[did]) idleByDevice[did] = { min: val, max: val };
+        if (val < idleByDevice[did].min) idleByDevice[did].min = val;
+        if (val > idleByDevice[did].max) idleByDevice[did].max = val;
+      });
+
+      // Combine into rows
+      var allDeviceIds = {};
+      Object.keys(odomByDevice).forEach(function(id){ allDeviceIds[id]=true; });
+      Object.keys(idleByDevice).forEach(function(id){ allDeviceIds[id]=true; });
+
+      var rows = [];
+      Object.keys(allDeviceIds).forEach(function(did) {
+        var odom  = odomByDevice[did];
+        var idle  = idleByDevice[did];
+        var miles = odom ? (odom.max - odom.min) / 1609.344 : 0;
+        var idleH = idle ? (idle.max - idle.min) : 0;
+        if (miles < 0) miles = 0;
+        if (idleH < 0) idleH = 0;
+        if (miles === 0 && idleH === 0) return; // skip inactive
+        rows.push({
+          name:      deviceMap[did] || did,
+          miles:     miles,
+          idleHours: idleH
+        });
+      });
+
+      rows.sort(function(a,b){ return b.miles - a.miles; });
+      _allRows = rows;
+
+      if (rows.length === 0) {
+        // Fallback: if StatusData returned nothing, try Trips (smaller limit)
+        fetchDataViaTrips(devices, fromStr, toStr);
+        return;
+      }
+
+      renderKPIs(rows);
+      renderTable(rows);
+    },
+    function(err) {
+      // multiCall failed — fall back to trips approach
+      showProgress('RETRYING WITH TRIP DATA...', 10, '');
+      fetchDataViaTrips(devices, fromStr, toStr);
+    });
+  },
+  function(err) {
+    showEmpty('Error fetching vehicles: ' + (err && err.message ? err.message : String(err)));
+  });
 }
 
-// ─── GEOTAB ADD-IN ENTRY POINT ───────────────────────────────────────────────
-// IMPORTANT: The key "fleetdashboard" must exactly match "name" in config.json
+// ─── FALLBACK: per-device Trip queries (batched, small limit) ─────────────────
+function fetchDataViaTrips(devices, fromStr, toStr) {
+  showProgress('FETCHING TRIP DATA...', 15, 'Using trip-based method for ' + devices.length + ' vehicles');
+
+  var calls = devices.slice(0, 100).map(function(d) {  // cap at 100 vehicles
+    return ['Get', {
+      typeName: 'Trip',
+      search: { deviceSearch: { id: d.id }, fromDate: fromStr, toDate: toStr },
+      resultsLimit: 2000
+    }];
+  });
+
+  var deviceMap = {};
+  devices.forEach(function(d){ deviceMap[d.id] = d.name || d.id; });
+
+  _api.multiCall(calls, function(results) {
+    var rows = [];
+    devices.slice(0, 100).forEach(function(d, i) {
+      var trips = (results && results[i]) ? results[i] : [];
+      var miles = 0, idleSec = 0;
+      trips.forEach(function(t) {
+        miles   += (t.distance || 0) / 1609.344;
+        idleSec += (t.idlingDuration || t.stopDuration || 0);
+      });
+      if (miles === 0 && idleSec === 0) return;
+      rows.push({ name: deviceMap[d.id] || d.id, miles: miles, idleHours: idleSec / 3600 });
+    });
+    rows.sort(function(a,b){ return b.miles - a.miles; });
+    _allRows = rows;
+    if (rows.length === 0) { showEmpty('No trip data found for the last 30 days.'); return; }
+    renderKPIs(rows);
+    renderTable(rows);
+  }, function(err) {
+    showEmpty('Error fetching trip data: ' + (err && err.message ? err.message : String(err)));
+  });
+}
+
+// ─── GEOTAB ADD-IN ENTRY POINT ────────────────────────────────────────────────
 geotab = {
   addin: {
     fleetdashboard: function() {
@@ -311,16 +348,13 @@ geotab = {
           document.getElementById('btnRefresh').onclick = fetchData;
           if (typeof callback === 'function') callback();
         },
-        focus: function() {
-          fetchData();
-        },
-        blur: function() {}
+        focus: function() { fetchData(); },
+        blur:  function() {}
       };
     }
   }
 };
 
-// Run date range label on page load
 setDateRange();
 </script>
 </body>
