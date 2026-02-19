@@ -1,352 +1,303 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Fleet Dashboard</title>
-  <style>
-    :root {
-      --bg: #0b0f1a; --surface: #121929; --surface2: #1a2540; --border: #1e2e4a;
-      --accent: #00e5ff; --accent2: #ff6b35; --text: #e2e8f0; --muted: #64748b;
-      --success: #10b981; --purple: #a78bfa;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-    body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
-    .wrapper { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 28px 24px; }
-    header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 16px; }
-    h1 { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.03em; background: linear-gradient(90deg, var(--accent), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    #dateRange { font-size: 0.82rem; color: var(--muted); margin-top: 4px; font-family: 'Courier New', monospace; }
-    .header-right { display: flex; align-items: center; gap: 12px; }
-    .date-badge { font-family: 'Courier New', monospace; font-size: 0.72rem; color: var(--accent); background: rgba(0,229,255,0.08); border: 1px solid rgba(0,229,255,0.2); border-radius: 6px; padding: 6px 14px; }
-    .btn-refresh { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 0.875rem; transition: all 0.2s; }
-    .btn-refresh:hover { border-color: var(--accent); color: var(--accent); }
-    .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
-    .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; position: relative; overflow: hidden; }
-    .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
-    .kpi-card.blue::before { background: var(--accent); } .kpi-card.orange::before { background: var(--accent2); } .kpi-card.purple::before { background: var(--purple); } .kpi-card.green::before { background: var(--success); }
-    .kpi-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; font-family: 'Courier New', monospace; margin-bottom: 10px; }
-    .kpi-value { font-size: 1.9rem; font-weight: 800; line-height: 1; }
-    .kpi-card.blue .kpi-value { color: var(--accent); } .kpi-card.orange .kpi-value { color: var(--accent2); } .kpi-card.purple .kpi-value { color: var(--purple); } .kpi-card.green .kpi-value { color: var(--success); }
-    .kpi-sub { font-size: 0.78rem; color: var(--muted); margin-top: 6px; }
-    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
-    .section-title { font-size: 1rem; font-weight: 700; }
-    .search-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; color: var(--text); font-size: 0.875rem; width: 200px; outline: none; transition: border-color 0.2s; }
-    .search-box:focus { border-color: var(--accent); } .search-box::placeholder { color: var(--muted); }
-    .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 20px; }
-    table { width: 100%; border-collapse: collapse; }
-    thead tr { background: var(--surface2); border-bottom: 1px solid var(--border); }
-    th { font-family: 'Courier New', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); padding: 13px 18px; text-align: left; cursor: pointer; user-select: none; white-space: nowrap; }
-    th:hover { color: var(--accent); }
-    tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
-    tbody tr:last-child { border-bottom: none; } tbody tr:hover { background: var(--surface2); }
-    td { padding: 13px 18px; font-size: 0.88rem; }
-    td.vehicle-name { font-family: 'Courier New', monospace; font-size: 0.82rem; color: var(--accent); font-weight: 500; }
-    .miles-val { font-family: 'Courier New', monospace; font-weight: 500; }
-    .idle-bar-wrap { display: flex; align-items: center; gap: 10px; }
-    .idle-bar-bg { flex: 1; height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; min-width: 60px; }
-    .idle-bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--accent2), #ff9a5c); }
-    .idle-val { font-family: 'Courier New', monospace; font-size: 0.82rem; min-width: 50px; text-align: right; }
-    .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 0.7rem; font-family: 'Courier New', monospace; }
-    .badge-high { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
-    .badge-med  { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); }
-    .badge-low  { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.25); }
-    .progress-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 40px 24px; text-align: center; }
-    .progress-label { font-family: 'Courier New', monospace; font-size: 0.78rem; color: var(--muted); margin-bottom: 16px; }
-    .progress-bar-bg { background: var(--border); border-radius: 99px; height: 8px; overflow: hidden; margin: 0 auto; max-width: 400px; }
-    .progress-bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--accent), var(--purple)); transition: width 0.3s ease; }
-    .progress-count { font-family: 'Courier New', monospace; font-size: 0.75rem; color: var(--muted); margin-top: 10px; }
-    .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
-    .footer-note { font-family: 'Courier New', monospace; font-size: 0.7rem; color: var(--muted); text-align: center; padding-top: 4px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Fleet Dashboard</title>
 </head>
 <body>
-<div class="wrapper">
-  <header>
+<style>
+  html,body{margin:0;padding:0;background:#0b0f1a;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;min-height:100vh;}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+  *{box-sizing:border-box;}
+  #app{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:28px 24px;}
+  .hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:16px;}
+  h1{font-size:1.8rem;font-weight:800;letter-spacing:-0.03em;background:linear-gradient(90deg,#00e5ff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  #dateRange{font-size:0.82rem;color:#64748b;margin-top:4px;font-family:'Courier New',monospace;}
+  .hdr-right{display:flex;align-items:center;gap:12px;}
+  .badge-30{font-family:'Courier New',monospace;font-size:0.72rem;color:#00e5ff;background:rgba(0,229,255,0.08);border:1px solid rgba(0,229,255,0.2);border-radius:6px;padding:6px 14px;}
+  .btn{background:#1a2540;border:1px solid #1e2e4a;color:#e2e8f0;padding:8px 18px;border-radius:8px;cursor:pointer;font-size:0.875rem;transition:all 0.2s;}
+  .btn:hover{border-color:#00e5ff;color:#00e5ff;}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px;}
+  .kpi{background:#121929;border:1px solid #1e2e4a;border-radius:14px;padding:22px;position:relative;overflow:hidden;}
+  .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+  .kpi.b::before{background:#00e5ff;} .kpi.o::before{background:#ff6b35;} .kpi.p::before{background:#a78bfa;} .kpi.g::before{background:#10b981;}
+  .kpi-lbl{font-size:0.7rem;color:#64748b;text-transform:uppercase;letter-spacing:0.1em;font-family:'Courier New',monospace;margin-bottom:10px;}
+  .kpi-val{font-size:1.9rem;font-weight:800;line-height:1;}
+  .kpi.b .kpi-val{color:#00e5ff;} .kpi.o .kpi-val{color:#ff6b35;} .kpi.p .kpi-val{color:#a78bfa;} .kpi.g .kpi-val{color:#10b981;}
+  .kpi-sub{font-size:0.78rem;color:#64748b;margin-top:6px;}
+  .sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
+  .sec-ttl{font-size:1rem;font-weight:700;}
+  .srch{background:#121929;border:1px solid #1e2e4a;border-radius:8px;padding:8px 14px;color:#e2e8f0;font-size:0.875rem;width:200px;outline:none;transition:border-color 0.2s;}
+  .srch:focus{border-color:#00e5ff;} .srch::placeholder{color:#64748b;}
+  .tbl-wrap{background:#121929;border:1px solid #1e2e4a;border-radius:14px;overflow:hidden;margin-bottom:20px;}
+  table{width:100%;border-collapse:collapse;}
+  thead tr{background:#1a2540;border-bottom:1px solid #1e2e4a;}
+  th{font-family:'Courier New',monospace;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;padding:13px 18px;text-align:left;cursor:pointer;user-select:none;white-space:nowrap;}
+  th:hover{color:#00e5ff;}
+  tbody tr{border-bottom:1px solid #1e2e4a;transition:background 0.15s;}
+  tbody tr:last-child{border-bottom:none;} tbody tr:hover{background:#1a2540;}
+  td{padding:13px 18px;font-size:0.88rem;}
+  .vname{font-family:'Courier New',monospace;font-size:0.82rem;color:#00e5ff;font-weight:500;}
+  .mval{font-family:'Courier New',monospace;font-weight:500;}
+  .ibar-wrap{display:flex;align-items:center;gap:10px;}
+  .ibar-bg{flex:1;height:6px;background:#1e2e4a;border-radius:99px;overflow:hidden;min-width:60px;}
+  .ibar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#ff6b35,#ff9a5c);}
+  .ival{font-family:'Courier New',monospace;font-size:0.82rem;min-width:50px;text-align:right;}
+  .bdg{display:inline-block;padding:3px 10px;border-radius:99px;font-size:0.7rem;font-family:'Courier New',monospace;}
+  .bh{background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.25);}
+  .bm{background:rgba(245,158,11,0.15);color:#fbbf24;border:1px solid rgba(245,158,11,0.25);}
+  .bl{background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.25);}
+  .box{padding:40px 24px;text-align:center;}
+  .spinner{width:34px;height:34px;border:3px solid #1e2e4a;border-top-color:#00e5ff;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px;}
+  .pbar-bg{background:#1e2e4a;border-radius:99px;height:8px;overflow:hidden;max-width:400px;margin:12px auto 0;}
+  .pbar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#00e5ff,#a78bfa);transition:width 0.3s ease;}
+  .msg{font-family:'Courier New',monospace;font-size:0.78rem;color:#64748b;margin-top:8px;}
+  .err-box{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:16px 20px;margin:16px 0;font-family:'Courier New',monospace;font-size:0.78rem;color:#f87171;word-break:break-all;}
+  .foot{font-family:'Courier New',monospace;font-size:0.7rem;color:#64748b;text-align:center;padding-top:4px;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+
+<div id="app">
+  <div class="hdr">
     <div>
       <h1>Fleet Dashboard</h1>
-      <p id="dateRange">Calculating date range...</p>
+      <p id="dateRange"></p>
     </div>
-    <div class="header-right">
-      <span class="date-badge">LAST 30 DAYS</span>
-      <button class="btn-refresh" id="btnRefresh">&#8635; Refresh</button>
-    </div>
-  </header>
-
-  <div class="kpi-row">
-    <div class="kpi-card blue">  <div class="kpi-label">Total Fleet Mileage</div><div class="kpi-value" id="kpiTotalMiles">—</div><div class="kpi-sub">miles in last 30 days</div></div>
-    <div class="kpi-card orange"><div class="kpi-label">Total Idle Time</div>   <div class="kpi-value" id="kpiTotalIdle">—</div> <div class="kpi-sub">hours across all vehicles</div></div>
-    <div class="kpi-card purple"><div class="kpi-label">Avg Mileage / Vehicle</div><div class="kpi-value" id="kpiAvgMiles">—</div><div class="kpi-sub">miles per vehicle</div></div>
-    <div class="kpi-card green"> <div class="kpi-label">Vehicles Tracked</div> <div class="kpi-value" id="kpiVehicles">—</div><div class="kpi-sub">active in period</div></div>
-  </div>
-
-  <div class="section-header">
-    <span class="section-title">Vehicle Breakdown</span>
-    <input type="text" class="search-box" id="searchBox" placeholder="Search vehicle..." oninput="filterTable()"/>
-  </div>
-
-  <div class="table-wrap">
-    <div id="tableContainer">
-      <div class="progress-wrap">
-        <div class="progress-label">WAITING FOR GEOTAB...</div>
-        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
-        <div class="progress-count" id="progressCount"></div>
-      </div>
+    <div class="hdr-right">
+      <span class="badge-30">LAST 30 DAYS</span>
+      <button class="btn" id="btnRefresh">&#8635; Refresh</button>
     </div>
   </div>
-  <div class="footer-note" id="footerNote"></div>
+
+  <div class="kpis">
+    <div class="kpi b"><div class="kpi-lbl">Total Fleet Mileage</div><div class="kpi-val" id="k1">—</div><div class="kpi-sub">miles in last 30 days</div></div>
+    <div class="kpi o"><div class="kpi-lbl">Total Idle Time</div><div class="kpi-val" id="k2">—</div><div class="kpi-sub">hours across all vehicles</div></div>
+    <div class="kpi p"><div class="kpi-lbl">Avg Mileage / Vehicle</div><div class="kpi-val" id="k3">—</div><div class="kpi-sub">miles per vehicle</div></div>
+    <div class="kpi g"><div class="kpi-lbl">Vehicles Tracked</div><div class="kpi-val" id="k4">—</div><div class="kpi-sub">active in period</div></div>
+  </div>
+
+  <div class="sec-hdr">
+    <span class="sec-ttl">Vehicle Breakdown</span>
+    <input type="text" class="srch" id="srch" placeholder="Search vehicle..." oninput="filterTable()"/>
+  </div>
+
+  <div id="errContainer"></div>
+
+  <div class="tbl-wrap"><div id="tbl"><div class="box"><div class="spinner"></div><div class="msg">WAITING FOR GEOTAB...</div></div></div></div>
+  <div class="foot" id="foot"></div>
 </div>
 
 <script>
-var _api     = null;
-var _allRows = [];
+var _api = null;
+var _rows = [];
 
 function setDateRange() {
   var now = new Date(), from = new Date(now);
   from.setDate(from.getDate() - 30);
-  var fmt = function(d) { return d.toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}); };
+  var fmt = function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});};
   document.getElementById('dateRange').textContent = fmt(from) + ' \u2192 ' + fmt(now);
 }
 
-function showProgress(label, pct, count) {
-  document.getElementById('tableContainer').innerHTML =
-    '<div class="progress-wrap">' +
-    '<div class="progress-label">' + label + '</div>' +
-    '<div class="progress-bar-bg"><div class="progress-bar-fill" style="width:' + pct + '%"></div></div>' +
-    '<div class="progress-count">' + (count || '') + '</div>' +
+function showErr(msg) {
+  document.getElementById('errContainer').innerHTML =
+    '<div class="err-box">&#9888; ' + msg + '</div>';
+}
+
+function clearErr() {
+  document.getElementById('errContainer').innerHTML = '';
+}
+
+function showBox(spinner, label, pct) {
+  document.getElementById('tbl').innerHTML =
+    '<div class="box">' +
+    (spinner ? '<div class="spinner"></div>' : '') +
+    '<div class="msg">' + label + '</div>' +
+    (pct !== undefined ? '<div class="pbar-bg"><div class="pbar-fill" style="width:'+pct+'%"></div></div>' : '') +
     '</div>';
 }
 
-function showEmpty(msg) {
-  document.getElementById('tableContainer').innerHTML = '<div class="empty-state"><p>' + msg + '</p></div>';
-}
-
 function resetKPIs() {
-  ['kpiTotalMiles','kpiTotalIdle','kpiAvgMiles','kpiVehicles'].forEach(function(id) {
-    document.getElementById(id).textContent = '—';
-  });
+  ['k1','k2','k3','k4'].forEach(function(id){document.getElementById(id).textContent='—';});
 }
 
 function renderKPIs(rows) {
-  var totalMiles = rows.reduce(function(s,r){return s+r.miles;},0);
-  var totalIdleH = rows.reduce(function(s,r){return s+r.idleHours;},0);
-  var avgMiles   = rows.length ? totalMiles/rows.length : 0;
-  document.getElementById('kpiTotalMiles').textContent = Math.round(totalMiles).toLocaleString();
-  document.getElementById('kpiTotalIdle').textContent  = totalIdleH.toFixed(1)+'h';
-  document.getElementById('kpiAvgMiles').textContent   = Math.round(avgMiles).toLocaleString();
-  document.getElementById('kpiVehicles').textContent   = rows.length;
-  document.getElementById('footerNote').textContent    = 'Last refreshed: ' + new Date().toLocaleString();
+  var tm = rows.reduce(function(s,r){return s+r.miles;},0);
+  var ti = rows.reduce(function(s,r){return s+r.idleH;},0);
+  document.getElementById('k1').textContent = Math.round(tm).toLocaleString();
+  document.getElementById('k2').textContent = ti.toFixed(1)+'h';
+  document.getElementById('k3').textContent = rows.length ? Math.round(tm/rows.length).toLocaleString() : '0';
+  document.getElementById('k4').textContent = rows.length;
+  document.getElementById('foot').textContent = 'Last refreshed: ' + new Date().toLocaleString();
 }
 
 function renderTable(rows) {
-  if (!rows || rows.length === 0) { showEmpty('No data found for the last 30 days.'); return; }
-  var maxIdle = Math.max.apply(null, rows.map(function(r){return r.idleHours;})) || 1;
-  var html = '<table><thead><tr>' +
-    '<th onclick="sortTable(\'name\')">Vehicle &#8597;</th>' +
-    '<th onclick="sortTable(\'miles\')">Mileage (mi) &#8597;</th>' +
-    '<th onclick="sortTable(\'idleHours\')">Idle Time &#8597;</th>' +
-    '<th>Idle Level</th>' +
-    '</tr></thead><tbody>';
-  rows.forEach(function(r) {
-    var idlePct   = (r.idleHours / maxIdle) * 100;
-    var idleLabel = idlePct > 66 ? 'HIGH' : idlePct > 33 ? 'MED' : 'LOW';
-    var idleClass = idlePct > 66 ? 'badge-high' : idlePct > 33 ? 'badge-med' : 'badge-low';
-    html += '<tr>' +
-      '<td class="vehicle-name">' + r.name + '</td>' +
-      '<td class="miles-val">' + Math.round(r.miles).toLocaleString() + '</td>' +
-      '<td><div class="idle-bar-wrap">' +
-        '<div class="idle-bar-bg"><div class="idle-bar-fill" style="width:' + idlePct.toFixed(1) + '%"></div></div>' +
-        '<span class="idle-val">' + r.idleHours.toFixed(1) + 'h</span>' +
-      '</div></td>' +
-      '<td><span class="badge ' + idleClass + '">' + idleLabel + '</span></td>' +
-      '</tr>';
+  if (!rows || !rows.length) { showBox(false, 'No data found for the last 30 days.'); return; }
+  var mx = Math.max.apply(null, rows.map(function(r){return r.idleH;})) || 1;
+  var h = '<table><thead><tr>'+
+    '<th onclick="sortBy(\'name\')">Vehicle &#8597;</th>'+
+    '<th onclick="sortBy(\'miles\')">Mileage (mi) &#8597;</th>'+
+    '<th onclick="sortBy(\'idleH\')">Idle Time &#8597;</th>'+
+    '<th>Idle Level</th></tr></thead><tbody>';
+  rows.forEach(function(r){
+    var pct = (r.idleH/mx)*100;
+    var lbl = pct>66?'HIGH':pct>33?'MED':'LOW';
+    var cls = pct>66?'bh':pct>33?'bm':'bl';
+    h+='<tr>'+
+      '<td class="vname">'+r.name+'</td>'+
+      '<td class="mval">'+Math.round(r.miles).toLocaleString()+'</td>'+
+      '<td><div class="ibar-wrap">'+
+        '<div class="ibar-bg"><div class="ibar-fill" style="width:'+pct.toFixed(1)+'%"></div></div>'+
+        '<span class="ival">'+r.idleH.toFixed(1)+'h</span>'+
+      '</div></td>'+
+      '<td><span class="bdg '+cls+'">'+lbl+'</span></td></tr>';
   });
-  html += '</tbody></table>';
-  document.getElementById('tableContainer').innerHTML = html;
+  h+='</tbody></table>';
+  document.getElementById('tbl').innerHTML = h;
 }
 
-function sortTable(key) {
-  _allRows.sort(function(a,b){ return typeof a[key]==='string' ? a[key].localeCompare(b[key]) : b[key]-a[key]; });
-  renderTable(filterRows(document.getElementById('searchBox').value));
+function sortBy(k){
+  _rows.sort(function(a,b){return typeof a[k]==='string'?a[k].localeCompare(b[k]):b[k]-a[k];});
+  renderTable(filterRows(document.getElementById('srch').value));
 }
-function filterTable() { renderTable(filterRows(document.getElementById('searchBox').value)); }
-function filterRows(q) {
-  if (!q) return _allRows;
-  var lower = q.toLowerCase();
-  return _allRows.filter(function(r){return r.name.toLowerCase().indexOf(lower)!==-1;});
+function filterTable(){renderTable(filterRows(document.getElementById('srch').value));}
+function filterRows(q){
+  if(!q) return _rows;
+  var l=q.toLowerCase();
+  return _rows.filter(function(r){return r.name.toLowerCase().indexOf(l)!==-1;});
 }
 
-// ─── MAIN FETCH — uses StatusData with odometer + idle diagnostics ────────────
-// This approach is MUCH faster than fetching all Trips:
-//   • DiagnosticOdometerAdjustmentId  — GPS/ECM odometer in metres
-//   • DiagnosticTotalIdleHoursId      — cumulative idle hours from engine ECU
-// We get two readings per vehicle (start-of-period and end-of-period) and diff them.
+// ── FETCH ────────────────────────────────────────────────────────────────────
 function fetchData() {
-  if (!_api) { showEmpty('Geotab API not available. Please refresh.'); return; }
+  if (!_api) { showBox(false,'API not ready — please refresh the page.'); return; }
+  clearErr();
   resetKPIs();
-  showProgress('FETCHING VEHICLES...', 5, '');
+  showBox(true, 'FETCHING VEHICLES...', 5);
 
-  var toDate   = new Date();
-  var fromDate = new Date();
-  fromDate.setDate(fromDate.getDate() - 30);
-  var fromStr = fromDate.toISOString();
-  var toStr   = toDate.toISOString();
+  var now = new Date(), from = new Date(now);
+  from.setDate(from.getDate() - 30);
+  var fromStr = from.toISOString();
+  var toStr   = now.toISOString();
 
-  // Step 1 — get all devices
-  _api.call('Get', { typeName: 'Device', resultsLimit: 1000 },
+  // Step 1: get devices
+  _api.call('Get', {typeName:'Device', resultsLimit:1000},
   function(devices) {
-    if (!devices || devices.length === 0) { showEmpty('No vehicles found in this account.'); return; }
+    if (!devices || !devices.length) { showBox(false,'No vehicles found.'); return; }
+    showBox(true, 'FETCHING DATA FOR ' + devices.length + ' VEHICLES...', 20);
 
-    showProgress('FETCHING ODOMETER DATA...', 20, devices.length + ' vehicles found');
+    var devMap = {};
+    devices.forEach(function(d){ devMap[d.id] = d.name || d.id; });
 
-    // Step 2 — get odometer StatusData for all devices across date range
-    // Geotab records odometer at ignition-off, so we want the FIRST and LAST reading in the window
+    // Step 2: StatusData multiCall — odometer + idle hours
     _api.multiCall([
-      ['Get', {
-        typeName: 'StatusData',
-        search: {
-          diagnosticSearch: { id: 'DiagnosticOdometerAdjustmentId' },
-          fromDate: fromStr,
-          toDate:   toStr
-        },
-        resultsLimit: 100000
-      }],
-      ['Get', {
-        typeName: 'StatusData',
-        search: {
-          diagnosticSearch: { id: 'DiagnosticTotalIdleHoursId' },
-          fromDate: fromStr,
-          toDate:   toStr
-        },
-        resultsLimit: 100000
-      }]
+      ['Get',{typeName:'StatusData',search:{diagnosticSearch:{id:'DiagnosticOdometerAdjustmentId'},fromDate:fromStr,toDate:toStr},resultsLimit:100000}],
+      ['Get',{typeName:'StatusData',search:{diagnosticSearch:{id:'DiagnosticTotalIdleHoursId'},fromDate:fromStr,toDate:toStr},resultsLimit:100000}]
     ],
-    function(results) {
-      var odometerData = (results && results[0]) ? results[0] : [];
-      var idleData     = (results && results[1]) ? results[1] : [];
+    function(res) {
+      var odomData = (res && res[0]) || [];
+      var idleData = (res && res[1]) || [];
 
-      showProgress('CALCULATING...', 80, odometerData.length + ' odometer records, ' + idleData.length + ' idle records');
+      showBox(true,'CALCULATING — '+odomData.length+' odometer + '+idleData.length+' idle records...',70);
 
-      // Build device name map
-      var deviceMap = {};
-      devices.forEach(function(d) { deviceMap[d.id] = d.name || d.id; });
-
-      // For each device, calculate delta odometer (last - first reading in window)
-      var odomByDevice = {};
-      odometerData.forEach(function(s) {
-        var did = s.device && s.device.id;
-        if (!did || s.data === undefined) return;
-        var val = parseFloat(s.data); // metres
-        if (isNaN(val)) return;
-        if (!odomByDevice[did]) odomByDevice[did] = { min: val, max: val };
-        if (val < odomByDevice[did].min) odomByDevice[did].min = val;
-        if (val > odomByDevice[did].max) odomByDevice[did].max = val;
-      });
-
-      // For each device, calculate delta idle hours (last - first reading in window)
-      var idleByDevice = {};
-      idleData.forEach(function(s) {
-        var did = s.device && s.device.id;
-        if (!did || s.data === undefined) return;
-        var val = parseFloat(s.data); // hours
-        if (isNaN(val)) return;
-        if (!idleByDevice[did]) idleByDevice[did] = { min: val, max: val };
-        if (val < idleByDevice[did].min) idleByDevice[did].min = val;
-        if (val > idleByDevice[did].max) idleByDevice[did].max = val;
-      });
-
-      // Combine into rows
-      var allDeviceIds = {};
-      Object.keys(odomByDevice).forEach(function(id){ allDeviceIds[id]=true; });
-      Object.keys(idleByDevice).forEach(function(id){ allDeviceIds[id]=true; });
-
-      var rows = [];
-      Object.keys(allDeviceIds).forEach(function(did) {
-        var odom  = odomByDevice[did];
-        var idle  = idleByDevice[did];
-        var miles = odom ? (odom.max - odom.min) / 1609.344 : 0;
-        var idleH = idle ? (idle.max - idle.min) : 0;
-        if (miles < 0) miles = 0;
-        if (idleH < 0) idleH = 0;
-        if (miles === 0 && idleH === 0) return; // skip inactive
-        rows.push({
-          name:      deviceMap[did] || did,
-          miles:     miles,
-          idleHours: idleH
-        });
-      });
-
-      rows.sort(function(a,b){ return b.miles - a.miles; });
-      _allRows = rows;
-
-      if (rows.length === 0) {
-        // Fallback: if StatusData returned nothing, try Trips (smaller limit)
-        fetchDataViaTrips(devices, fromStr, toStr);
+      // If BOTH came back empty, fall back to trips
+      if (odomData.length === 0 && idleData.length === 0) {
+        showErr('StatusData returned no records — falling back to trip data. This may take longer.');
+        fetchViaTrips(devices, devMap, fromStr, toStr);
         return;
       }
 
+      var odom = {}, idle = {};
+      odomData.forEach(function(s){
+        var did = s.device && s.device.id; if(!did) return;
+        var v = parseFloat(s.data); if(isNaN(v)) return;
+        if(!odom[did]) odom[did]={mn:v,mx:v};
+        if(v<odom[did].mn) odom[did].mn=v;
+        if(v>odom[did].mx) odom[did].mx=v;
+      });
+      idleData.forEach(function(s){
+        var did = s.device && s.device.id; if(!did) return;
+        var v = parseFloat(s.data); if(isNaN(v)) return;
+        if(!idle[did]) idle[did]={mn:v,mx:v};
+        if(v<idle[did].mn) idle[did].mn=v;
+        if(v>idle[did].mx) idle[did].mx=v;
+      });
+
+      var seen = {};
+      Object.keys(odom).forEach(function(k){seen[k]=1;});
+      Object.keys(idle).forEach(function(k){seen[k]=1;});
+
+      var rows = [];
+      Object.keys(seen).forEach(function(did){
+        var miles = odom[did] ? Math.max(0,(odom[did].mx-odom[did].mn)/1609.344) : 0;
+        var idleH = idle[did] ? Math.max(0,(idle[did].mx-idle[did].mn)) : 0;
+        if(miles===0 && idleH===0) return;
+        rows.push({name: devMap[did]||did, miles:miles, idleH:idleH});
+      });
+
+      if (rows.length === 0) {
+        showErr('Odometer/idle diagnostics found but no delta calculated — falling back to trip data.');
+        fetchViaTrips(devices, devMap, fromStr, toStr);
+        return;
+      }
+
+      rows.sort(function(a,b){return b.miles-a.miles;});
+      _rows = rows;
       renderKPIs(rows);
       renderTable(rows);
     },
     function(err) {
-      // multiCall failed — fall back to trips approach
-      showProgress('RETRYING WITH TRIP DATA...', 10, '');
-      fetchDataViaTrips(devices, fromStr, toStr);
+      var msg = err && err.message ? err.message : JSON.stringify(err);
+      showErr('StatusData query failed: ' + msg + ' — trying trip fallback.');
+      fetchViaTrips(devices, devMap, fromStr, toStr);
     });
   },
-  function(err) {
-    showEmpty('Error fetching vehicles: ' + (err && err.message ? err.message : String(err)));
+  function(err){
+    var msg = err && err.message ? err.message : JSON.stringify(err);
+    showBox(false,'');
+    showErr('Failed to fetch vehicles: ' + msg);
   });
 }
 
-// ─── FALLBACK: per-device Trip queries (batched, small limit) ─────────────────
-function fetchDataViaTrips(devices, fromStr, toStr) {
-  showProgress('FETCHING TRIP DATA...', 15, 'Using trip-based method for ' + devices.length + ' vehicles');
-
-  var calls = devices.slice(0, 100).map(function(d) {  // cap at 100 vehicles
-    return ['Get', {
-      typeName: 'Trip',
-      search: { deviceSearch: { id: d.id }, fromDate: fromStr, toDate: toStr },
-      resultsLimit: 2000
-    }];
+function fetchViaTrips(devices, devMap, fromStr, toStr) {
+  showBox(true,'FETCHING TRIPS (this may take 30–60 seconds)...',10);
+  var cap = Math.min(devices.length, 100);
+  var calls = devices.slice(0,cap).map(function(d){
+    return ['Get',{typeName:'Trip',search:{deviceSearch:{id:d.id},fromDate:fromStr,toDate:toStr},resultsLimit:2000}];
   });
-
-  var deviceMap = {};
-  devices.forEach(function(d){ deviceMap[d.id] = d.name || d.id; });
-
-  _api.multiCall(calls, function(results) {
+  _api.multiCall(calls, function(results){
     var rows = [];
-    devices.slice(0, 100).forEach(function(d, i) {
-      var trips = (results && results[i]) ? results[i] : [];
-      var miles = 0, idleSec = 0;
-      trips.forEach(function(t) {
-        miles   += (t.distance || 0) / 1609.344;
-        idleSec += (t.idlingDuration || t.stopDuration || 0);
+    devices.slice(0,cap).forEach(function(d,i){
+      var trips = (results && results[i]) || [];
+      var miles=0, idleH=0;
+      trips.forEach(function(t){
+        miles += (t.distance||0)/1609.344;
+        idleH += (t.idlingDuration||t.stopDuration||0)/3600;
       });
-      if (miles === 0 && idleSec === 0) return;
-      rows.push({ name: deviceMap[d.id] || d.id, miles: miles, idleHours: idleSec / 3600 });
+      if(miles===0&&idleH===0) return;
+      rows.push({name:devMap[d.id]||d.id, miles:miles, idleH:idleH});
     });
-    rows.sort(function(a,b){ return b.miles - a.miles; });
-    _allRows = rows;
-    if (rows.length === 0) { showEmpty('No trip data found for the last 30 days.'); return; }
+    rows.sort(function(a,b){return b.miles-a.miles;});
+    _rows = rows;
+    if(!rows.length){showBox(false,'No trip data found for the last 30 days.');return;}
     renderKPIs(rows);
     renderTable(rows);
-  }, function(err) {
-    showEmpty('Error fetching trip data: ' + (err && err.message ? err.message : String(err)));
+  }, function(err){
+    var msg = err&&err.message?err.message:JSON.stringify(err);
+    showBox(false,'');
+    showErr('Trip fallback also failed: ' + msg);
   });
 }
 
-// ─── GEOTAB ADD-IN ENTRY POINT ────────────────────────────────────────────────
+// ── GEOTAB ENTRY POINT ───────────────────────────────────────────────────────
 geotab = {
   addin: {
     fleetdashboard: function() {
       return {
-        initialize: function(freshApi, freshState, callback) {
-          _api = freshApi;
+        initialize: function(api, state, cb) {
+          _api = api;
           setDateRange();
           document.getElementById('btnRefresh').onclick = fetchData;
-          if (typeof callback === 'function') callback();
+          if (typeof cb === 'function') cb();
         },
         focus: function() { fetchData(); },
         blur:  function() {}
