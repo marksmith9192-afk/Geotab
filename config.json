@@ -1,0 +1,20 @@
+{
+  "name": "Fleet Mileage & Idle Dashboard",
+  "supportEmail": "support@yourcompany.com",
+  "version": "1.0.0",
+  "defaultPage": "map",
+  "isSigned": false,
+  "items": [
+    {
+      "url": "addin.html",
+      "path": "ActivityLink",
+      "menuName": {
+        "en": "Fleet Dashboard"
+      },
+      "icon": "images/icon.svg"
+    }
+  ],
+  "files": {
+    "addin.html": "addin.html"
+  }
+}
