@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Fleet Dashboard</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap');
-
     :root {
       --bg: #0b0f1a;
       --surface: #121929;
@@ -14,21 +12,19 @@
       --border: #1e2e4a;
       --accent: #00e5ff;
       --accent2: #ff6b35;
-      --accent3: #7c3aed;
       --text: #e2e8f0;
       --muted: #64748b;
       --success: #10b981;
+      --purple: #a78bfa;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
-      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
+      padding: 0;
     }
-
     body::before {
       content: '';
       position: fixed;
@@ -40,290 +36,70 @@
       pointer-events: none;
       z-index: 0;
     }
-
-    .wrapper {
-      position: relative;
-      z-index: 1;
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 28px 24px;
-    }
-
-    header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 28px;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-
-    .header-left h1 {
-      font-family: 'Syne', 'Arial Black', sans-serif;
-      font-size: 1.8rem;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      background: linear-gradient(90deg, var(--accent), #a78bfa);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .header-left p {
-      font-size: 0.82rem;
-      color: var(--muted);
-      margin-top: 4px;
-      font-family: 'DM Mono', 'Courier New', monospace;
-    }
-
-    .header-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-
-    .date-badge {
-      font-family: 'DM Mono', 'Courier New', monospace;
-      font-size: 0.72rem;
-      color: var(--accent);
-      background: rgba(0,229,255,0.08);
-      border: 1px solid rgba(0,229,255,0.2);
-      border-radius: 6px;
-      padding: 6px 14px;
-      letter-spacing: 0.05em;
-    }
-
-    .btn-refresh {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 8px 18px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 0.875rem;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    .wrapper { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 28px 24px; }
+    header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 16px; }
+    h1 { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.03em; background: linear-gradient(90deg, var(--accent), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    #dateRange { font-size: 0.82rem; color: var(--muted); margin-top: 4px; font-family: 'Courier New', monospace; }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .date-badge { font-family: 'Courier New', monospace; font-size: 0.72rem; color: var(--accent); background: rgba(0,229,255,0.08); border: 1px solid rgba(0,229,255,0.2); border-radius: 6px; padding: 6px 14px; }
+    .btn-refresh { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 0.875rem; transition: all 0.2s; }
     .btn-refresh:hover { border-color: var(--accent); color: var(--accent); }
-    .btn-refresh svg { width:15px; height:15px; }
-
-    .kpi-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-      margin-bottom: 28px;
-    }
-
-    .kpi-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 22px;
-      position: relative;
-      overflow: hidden;
-      animation: fadeUp 0.5s ease both;
-    }
-    .kpi-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-    }
+    .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; position: relative; overflow: hidden; }
+    .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
     .kpi-card.blue::before   { background: var(--accent); }
     .kpi-card.orange::before { background: var(--accent2); }
-    .kpi-card.purple::before { background: #a78bfa; }
+    .kpi-card.purple::before { background: var(--purple); }
     .kpi-card.green::before  { background: var(--success); }
-
-    .kpi-label {
-      font-size: 0.7rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      font-family: 'DM Mono', 'Courier New', monospace;
-      margin-bottom: 10px;
-    }
-
-    .kpi-value {
-      font-family: 'Syne', 'Arial Black', sans-serif;
-      font-size: 1.9rem;
-      font-weight: 800;
-      line-height: 1;
-    }
+    .kpi-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; font-family: 'Courier New', monospace; margin-bottom: 10px; }
+    .kpi-value { font-size: 1.9rem; font-weight: 800; line-height: 1; }
     .kpi-card.blue .kpi-value   { color: var(--accent); }
     .kpi-card.orange .kpi-value { color: var(--accent2); }
-    .kpi-card.purple .kpi-value { color: #a78bfa; }
+    .kpi-card.purple .kpi-value { color: var(--purple); }
     .kpi-card.green .kpi-value  { color: var(--success); }
-
     .kpi-sub { font-size: 0.78rem; color: var(--muted); margin-top: 6px; }
-
-    .section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .section-title {
-      font-family: 'Syne', 'Arial Black', sans-serif;
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .search-box {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 14px;
-      color: var(--text);
-      font-size: 0.875rem;
-      font-family: inherit;
-      width: 200px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+    .section-title { font-size: 1rem; font-weight: 700; }
+    .search-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; color: var(--text); font-size: 0.875rem; width: 200px; outline: none; transition: border-color 0.2s; }
     .search-box:focus { border-color: var(--accent); }
     .search-box::placeholder { color: var(--muted); }
-
-    .table-wrap {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      overflow: hidden;
-      margin-bottom: 20px;
-    }
-
+    .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 20px; }
     table { width: 100%; border-collapse: collapse; }
-
     thead tr { background: var(--surface2); border-bottom: 1px solid var(--border); }
-
-    th {
-      font-family: 'DM Mono', 'Courier New', monospace;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-      padding: 13px 18px;
-      text-align: left;
-      cursor: pointer;
-      user-select: none;
-      white-space: nowrap;
-    }
+    th { font-family: 'Courier New', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); padding: 13px 18px; text-align: left; cursor: pointer; user-select: none; white-space: nowrap; }
     th:hover { color: var(--accent); }
-
-    tbody tr {
-      border-bottom: 1px solid var(--border);
-      transition: background 0.15s;
-    }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
     tbody tr:last-child { border-bottom: none; }
     tbody tr:hover { background: var(--surface2); }
-
     td { padding: 13px 18px; font-size: 0.88rem; }
-
-    td.vehicle-name {
-      font-family: 'DM Mono', 'Courier New', monospace;
-      font-size: 0.82rem;
-      color: var(--accent);
-      font-weight: 500;
-    }
-
-    .miles-val {
-      font-family: 'DM Mono', 'Courier New', monospace;
-      font-weight: 500;
-    }
-
+    td.vehicle-name { font-family: 'Courier New', monospace; font-size: 0.82rem; color: var(--accent); font-weight: 500; }
+    .miles-val { font-family: 'Courier New', monospace; font-weight: 500; }
     .idle-bar-wrap { display: flex; align-items: center; gap: 10px; }
-    .idle-bar-bg {
-      flex: 1;
-      height: 6px;
-      background: var(--border);
-      border-radius: 99px;
-      overflow: hidden;
-      min-width: 60px;
-    }
-    .idle-bar-fill {
-      height: 100%;
-      border-radius: 99px;
-      background: linear-gradient(90deg, var(--accent2), #ff9a5c);
-      transition: width 0.8s cubic-bezier(0.34,1.56,0.64,1);
-    }
-    .idle-val {
-      font-family: 'DM Mono', 'Courier New', monospace;
-      font-size: 0.82rem;
-      min-width: 50px;
-      text-align: right;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 3px 10px;
-      border-radius: 99px;
-      font-size: 0.7rem;
-      font-family: 'DM Mono', 'Courier New', monospace;
-      letter-spacing: 0.04em;
-    }
+    .idle-bar-bg { flex: 1; height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; min-width: 60px; }
+    .idle-bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--accent2), #ff9a5c); }
+    .idle-val { font-family: 'Courier New', monospace; font-size: 0.82rem; min-width: 50px; text-align: right; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 0.7rem; font-family: 'Courier New', monospace; }
     .badge-high { background: rgba(239,68,68,0.15);  color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
     .badge-med  { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); }
     .badge-low  { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.25); }
-
-    .loading-overlay {
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      padding: 60px 20px; gap: 16px;
-    }
-    .spinner {
-      width: 34px; height: 34px;
-      border: 3px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-    .loading-text {
-      font-family: 'DM Mono', 'Courier New', monospace;
-      font-size: 0.78rem;
-      color: var(--muted);
-      letter-spacing: 0.05em;
-    }
-
+    .loading-overlay { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; gap: 16px; }
+    .spinner { width: 34px; height: 34px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    .loading-text { font-family: 'Courier New', monospace; font-size: 0.78rem; color: var(--muted); }
     .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
-    .empty-state p { font-size: 0.9rem; margin-top: 12px; }
-
-    .footer-note {
-      font-family: 'DM Mono', 'Courier New', monospace;
-      font-size: 0.7rem;
-      color: var(--muted);
-      text-align: center;
-      padding-top: 4px;
-      letter-spacing: 0.04em;
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+    .footer-note { font-family: 'Courier New', monospace; font-size: 0.7rem; color: var(--muted); text-align: center; padding-top: 4px; }
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
 <div class="wrapper">
-
   <header>
-    <div class="header-left">
+    <div>
       <h1>Fleet Dashboard</h1>
       <p id="dateRange">Calculating date range...</p>
     </div>
     <div class="header-right">
       <span class="date-badge">LAST 30 DAYS</span>
-      <button class="btn-refresh" id="btnRefresh">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
-          <path d="M21 3v5h-5"/>
-          <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
-          <path d="M8 16H3v5"/>
-        </svg>
-        Refresh
-      </button>
+      <button class="btn-refresh" id="btnRefresh">&#8635; Refresh</button>
     </div>
   </header>
 
@@ -359,43 +135,34 @@
     <div id="tableContainer">
       <div class="loading-overlay">
         <div class="spinner"></div>
-        <div class="loading-text">CONNECTING TO GEOTAB...</div>
+        <div class="loading-text">WAITING FOR GEOTAB...</div>
       </div>
     </div>
   </div>
-
   <div class="footer-note" id="footerNote"></div>
 </div>
 
 <script>
-// ─── STATE ───────────────────────────────────────────────────────────────────
-var _api   = null;
-var _state = null;
+// ─── All state ────────────────────────────────────────────────────────────────
+var _api     = null;
 var _allRows = [];
 
-// ─── HELPERS ─────────────────────────────────────────────────────────────────
 function setDateRange() {
   var now  = new Date();
   var from = new Date(now);
   from.setDate(from.getDate() - 30);
-  var fmt = function(d) {
-    return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
-  };
+  var fmt = function(d) { return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }); };
   document.getElementById('dateRange').textContent = fmt(from) + ' \u2192 ' + fmt(now);
 }
 
 function showLoading(msg) {
   document.getElementById('tableContainer').innerHTML =
-    '<div class="loading-overlay"><div class="spinner"></div>' +
-    '<div class="loading-text">' + (msg || 'LOADING...') + '</div></div>';
+    '<div class="loading-overlay"><div class="spinner"></div><div class="loading-text">' + (msg||'LOADING...') + '</div></div>';
 }
 
 function showEmpty(msg) {
   document.getElementById('tableContainer').innerHTML =
-    '<div class="empty-state">' +
-    '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">' +
-    '<circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>' +
-    '<p>' + msg + '</p></div>';
+    '<div class="empty-state"><p>' + msg + '</p></div>';
 }
 
 function resetKPIs() {
@@ -404,7 +171,6 @@ function resetKPIs() {
   });
 }
 
-// ─── DATA PROCESSING ─────────────────────────────────────────────────────────
 function processData(devices, trips, exceptions) {
   var deviceMap = {};
   devices.forEach(function(d) { deviceMap[d.id] = d.name || d.id; });
@@ -414,8 +180,8 @@ function processData(devices, trips, exceptions) {
     var did = t.device && t.device.id;
     if (!did) return;
     if (!stats[did]) stats[did] = { name: deviceMap[did] || did, miles: 0, idleSec: 0, trips: 0 };
-    stats[did].miles    += (t.distance || 0) / 1609.344;
-    stats[did].idleSec  += (t.stopDuration || 0);
+    stats[did].miles   += (t.distance || 0) / 1609.344;
+    stats[did].idleSec += (t.stopDuration || 0);
     stats[did].trips++;
   });
 
@@ -441,7 +207,6 @@ function renderKPIs(rows) {
   var totalMiles = rows.reduce(function(s,r) { return s + r.miles; }, 0);
   var totalIdleH = rows.reduce(function(s,r) { return s + r.idleSec / 3600; }, 0);
   var avgMiles   = rows.length ? totalMiles / rows.length : 0;
-
   document.getElementById('kpiTotalMiles').textContent = Math.round(totalMiles).toLocaleString();
   document.getElementById('kpiTotalIdle').textContent  = totalIdleH.toFixed(1) + 'h';
   document.getElementById('kpiAvgMiles').textContent   = Math.round(avgMiles).toLocaleString();
@@ -450,13 +215,8 @@ function renderKPIs(rows) {
 }
 
 function renderTable(rows) {
-  if (!rows || rows.length === 0) {
-    showEmpty('No trip data found for the last 30 days.');
-    return;
-  }
-
+  if (!rows || rows.length === 0) { showEmpty('No trip data found for the last 30 days.'); return; }
   var maxIdle = Math.max.apply(null, rows.map(function(r) { return r.idleSec; })) || 1;
-
   var html = '<table><thead><tr>' +
     '<th onclick="sortTable(\'name\')">Vehicle &#8597;</th>' +
     '<th onclick="sortTable(\'miles\')">Mileage (mi) &#8597;</th>' +
@@ -464,32 +224,26 @@ function renderTable(rows) {
     '<th onclick="sortTable(\'idleSec\')">Idle Time &#8597;</th>' +
     '<th>Idle Level</th>' +
     '</tr></thead><tbody>';
-
   rows.forEach(function(r) {
     var idleH     = r.idleSec / 3600;
     var idlePct   = (r.idleSec / maxIdle) * 100;
     var idleLabel = idlePct > 66 ? 'HIGH' : idlePct > 33 ? 'MED' : 'LOW';
     var idleClass = idlePct > 66 ? 'badge-high' : idlePct > 33 ? 'badge-med' : 'badge-low';
-
     html += '<tr>' +
       '<td class="vehicle-name">' + r.name + '</td>' +
       '<td class="miles-val">' + Math.round(r.miles).toLocaleString() + '</td>' +
       '<td>' + r.trips + '</td>' +
-      '<td>' +
-        '<div class="idle-bar-wrap">' +
-          '<div class="idle-bar-bg"><div class="idle-bar-fill" style="width:' + idlePct.toFixed(1) + '%"></div></div>' +
-          '<span class="idle-val">' + idleH.toFixed(1) + 'h</span>' +
-        '</div>' +
-      '</td>' +
+      '<td><div class="idle-bar-wrap">' +
+        '<div class="idle-bar-bg"><div class="idle-bar-fill" style="width:' + idlePct.toFixed(1) + '%"></div></div>' +
+        '<span class="idle-val">' + idleH.toFixed(1) + 'h</span>' +
+      '</div></td>' +
       '<td><span class="badge ' + idleClass + '">' + idleLabel + '</span></td>' +
       '</tr>';
   });
-
   html += '</tbody></table>';
   document.getElementById('tableContainer').innerHTML = html;
 }
 
-// ─── SORT & FILTER ────────────────────────────────────────────────────────────
 function sortTable(key) {
   _allRows.sort(function(a,b) {
     if (typeof a[key] === 'string') return a[key].localeCompare(b[key]);
@@ -508,71 +262,54 @@ function filterRows(q) {
   return _allRows.filter(function(r) { return r.name.toLowerCase().indexOf(lower) !== -1; });
 }
 
-// ─── MAIN DATA FETCH ──────────────────────────────────────────────────────────
 function fetchData() {
-  if (!_api) { showEmpty('Geotab API not available.'); return; }
-
+  if (!_api) { showEmpty('Geotab API not ready. Please refresh the page.'); return; }
   showLoading('FETCHING FLEET DATA...');
   resetKPIs();
 
   var toDate   = new Date();
   var fromDate = new Date();
   fromDate.setDate(fromDate.getDate() - 30);
-  var fromStr  = fromDate.toISOString();
-  var toStr    = toDate.toISOString();
+  var fromStr = fromDate.toISOString();
+  var toStr   = toDate.toISOString();
 
   _api.call('Get', { typeName: 'Device', resultsLimit: 1000 },
     function(devices) {
-      if (!devices || devices.length === 0) {
-        showEmpty('No vehicles found in this account.');
-        return;
-      }
-
+      if (!devices || devices.length === 0) { showEmpty('No vehicles found in this account.'); return; }
       _api.call('Get', {
         typeName: 'Trip',
         search: { fromDate: fromStr, toDate: toStr },
         resultsLimit: 50000
-      },
-      function(trips) {
+      }, function(trips) {
         _api.call('Get', {
           typeName: 'ExceptionEvent',
-          search: {
-            fromDate: fromStr,
-            toDate: toStr,
-            ruleSearch: { name: 'Idling' }
-          },
+          search: { fromDate: fromStr, toDate: toStr, ruleSearch: { name: 'Idling' } },
           resultsLimit: 50000
-        },
-        function(exceptions) {
+        }, function(exceptions) {
           processData(devices, trips || [], exceptions || []);
-        },
-        function() {
-          // Idling rule not found — still show mileage data
+        }, function() {
           processData(devices, trips || [], []);
         });
-      },
-      function(err) {
+      }, function(err) {
         showEmpty('Error fetching trips: ' + (err && err.message ? err.message : String(err)));
       });
-    },
-    function(err) {
+    }, function(err) {
       showEmpty('Error fetching devices: ' + (err && err.message ? err.message : String(err)));
     }
   );
 }
 
-// ─── GEOTAB ADD-IN REGISTRATION ───────────────────────────────────────────────
-// The object key "FleetMileageAndIdleDashboard" MUST match "name" in config.json
+// ─── GEOTAB ADD-IN ENTRY POINT ───────────────────────────────────────────────
+// IMPORTANT: The key "fleetdashboard" must exactly match "name" in config.json
 geotab = {
   addin: {
-    FleetMileageAndIdleDashboard: function() {
+    fleetdashboard: function() {
       return {
         initialize: function(freshApi, freshState, callback) {
-          _api   = freshApi;
-          _state = freshState;
+          _api = freshApi;
           setDateRange();
           document.getElementById('btnRefresh').onclick = fetchData;
-          if (callback) callback();
+          if (typeof callback === 'function') callback();
         },
         focus: function() {
           fetchData();
@@ -583,7 +320,7 @@ geotab = {
   }
 };
 
-// Init date range label immediately on load
+// Run date range label on page load
 setDateRange();
 </script>
 </body>
