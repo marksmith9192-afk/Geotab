@@ -992,65 +992,80 @@ var battDash = (function() {
           showBox(''); showMsg('<div class="err-box">No vehicles found.</div>'); return;
         }
 
-        // PRIMARY STRATEGY: fetch ALL StatusData for this diagnostic (no deviceSearch filter).
-        // Split into 2x 30-day chunks to avoid hitting result limits.
-        // Device matching is done in post-processing using the device.id on each record.
-        var chunks = [];
-        for (var ci = 0; ci < 60; ci += 30) {
-          var cTo   = new Date(now); cTo.setDate(cTo.getDate() - ci);
-          var cFrom = new Date(now); cFrom.setDate(cFrom.getDate() - Math.min(ci + 30, 60));
-          chunks.push({from: cFrom.toISOString(), to: cTo.toISOString(), label: ci === 0 ? 'last 30 days' : 'days 31-60'});
-        }
-
+        // Always use per-device batching with a timeout guard.
+        // Diagnostic-only queries hang indefinitely for system diagnostic IDs.
+        var BATCH_SIZE = 10;
         var allData = [];
-        var ci2 = 0;
+        var batchIdx = 0;
+        var totalBatches = Math.ceil(devices.length / BATCH_SIZE);
 
-        function runChunk() {
-          if (ci2 >= chunks.length) {
-            showBox('PROCESSING DATA...', 90);
+        function runBatch() {
+          if (batchIdx >= totalBatches) {
+            showBox('PROCESSING DATA...', 92);
             if (!allData.length) {
-              // Fallback: try per-device fetches with all candidate diagnostic IDs
-              showBox('TRYING ALTERNATE DIAGNOSTICS...', 72);
-              tryNextDiagnostic(devices, fromStr, toStr, 0, function(data) {
-                if (!data || !data.length) {
-                  showBox('');
-                  showMsg('<div class="info-box">&#9432; The Cranking voltage diagnostic was found in your account but returned no data for the selected period. This can happen if the diagnostic only has recent data. The Measurements page in Geotab confirms data exists — if the issue persists, check that your account has access to pull StatusData for this diagnostic via the API.</div>');
-                  return;
-                }
-                processAndRender(data, devices);
-              });
+              showBox('');
+              showMsg('<div class="info-box">&#9432; The diagnostic <strong>' + diagId + '</strong> was found but returned no data for the last 60 days via the API, even though data appears in the Measurements page. This may be a permissions issue with StatusData API access for this diagnostic type. Try refreshing or contact your Geotab administrator to confirm API access to StatusData for this diagnostic.</div>');
               return;
             }
             processAndRender(allData, devices);
             return;
           }
 
-          var chunk = chunks[ci2];
-          showBox('FETCHING VOLTAGE DATA (' + chunk.label + ')...', 35 + ci2 * 25);
+          var batch = devices.slice(batchIdx * BATCH_SIZE, (batchIdx + 1) * BATCH_SIZE);
+          var pct = 20 + Math.round((batchIdx / totalBatches) * 70);
+          showBox('FETCHING BATCH ' + (batchIdx + 1) + ' / ' + totalBatches + ' (' + batch.length + ' vehicles)...', pct);
 
-          _api.call('Get', {
-            typeName: 'StatusData',
-            search: {
-              fromDate: chunk.from,
-              toDate: chunk.to,
-              diagnosticSearch: {id: diagId}
-            },
-            resultsLimit: 50000
-          }, function(results) {
-            (results || []).forEach(function(r) { allData.push(r); });
-            ci2++;
-            runChunk();
+          var calls = batch.map(function(d) {
+            return ['Get', {
+              typeName: 'StatusData',
+              search: {
+                fromDate: fromStr,
+                toDate: toStr,
+                deviceSearch: {id: d.id},
+                diagnosticSearch: {id: diagId}
+              },
+              resultsLimit: 5000
+            }];
+          });
+
+          // 30-second timeout per batch to prevent hangs
+          var batchDone = false;
+          var timer = setTimeout(function() {
+            if (!batchDone) {
+              batchDone = true;
+              batchIdx++;
+              runBatch();
+            }
+          }, 30000);
+
+          _api.multiCall(calls, function(results) {
+            if (batchDone) return;
+            batchDone = true;
+            clearTimeout(timer);
+            batch.forEach(function(d, i) {
+              var recs = (results && results[i]) || [];
+              recs.forEach(function(r) {
+                if (!r.device) r.device = {id: d.id};
+                else r.device.id = d.id;
+                allData.push(r);
+              });
+            });
+            batchIdx++;
+            runBatch();
           }, function() {
-            ci2++;
-            runChunk();
+            if (batchDone) return;
+            batchDone = true;
+            clearTimeout(timer);
+            batchIdx++;
+            runBatch();
           });
         }
 
-        runChunk();
+        runBatch();
 
       }, function(err) {
         showBox('');
-        showMsg('<div class="err-box">Error fetching devices: '+(err&&err.message?err.message:JSON.stringify(err))+'</div>');
+        showMsg('<div class="err-box">Error fetching devices: ' + (err && err.message ? err.message : JSON.stringify(err)) + '</div>');
       });
     });
   }
