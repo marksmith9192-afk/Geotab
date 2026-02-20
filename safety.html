@@ -188,15 +188,12 @@
 
   <!-- WEIGHTS PANEL -->
   <div class="panel" id="panelWeights">
-    <div class="panel-title">&#9881; Score Weight Configuration</div>
-    <div class="panel-desc">Max points deducted per category. Higher = bigger penalty per incident. Saves persist across sessions.</div>
-    <div class="weight-grid">
-      <div class="weight-item"><div class="weight-label">Speeding</div><div class="weight-row"><input type="range" class="weight-slider" id="w_speeding" min="0" max="40" step="1" value="25" oninput="safetyDash.updateWLabel('speeding')"/><span class="weight-val" id="wv_speeding">25</span></div><div class="weight-sub" id="wd_speeding">Max 25 pts &bull; ~3 pts/incident</div></div>
-      <div class="weight-item"><div class="weight-label">Hard Braking</div><div class="weight-row"><input type="range" class="weight-slider" id="w_braking" min="0" max="40" step="1" value="20" oninput="safetyDash.updateWLabel('braking')"/><span class="weight-val" id="wv_braking">20</span></div><div class="weight-sub" id="wd_braking">Max 20 pts &bull; ~4 pts/incident</div></div>
-      <div class="weight-item"><div class="weight-label">Hard Acceleration</div><div class="weight-row"><input type="range" class="weight-slider" id="w_acceleration" min="0" max="40" step="1" value="20" oninput="safetyDash.updateWLabel('acceleration')"/><span class="weight-val" id="wv_acceleration">20</span></div><div class="weight-sub" id="wd_acceleration">Max 20 pts &bull; ~4 pts/incident</div></div>
-      <div class="weight-item"><div class="weight-label">Harsh Cornering</div><div class="weight-row"><input type="range" class="weight-slider" id="w_cornering" min="0" max="40" step="1" value="20" oninput="safetyDash.updateWLabel('cornering')"/><span class="weight-val" id="wv_cornering">20</span></div><div class="weight-sub" id="wd_cornering">Max 20 pts &bull; ~4 pts/incident</div></div>
-      <div class="weight-item"><div class="weight-label">Seatbelt</div><div class="weight-row"><input type="range" class="weight-slider" id="w_seatbelt" min="0" max="40" step="1" value="15" oninput="safetyDash.updateWLabel('seatbelt')"/><span class="weight-val" id="wv_seatbelt">15</span></div><div class="weight-sub" id="wd_seatbelt">Max 15 pts &bull; ~5 pts/incident</div></div>
+    <div class="rules-header">
+      <div class="panel-title">&#9881; Score Weight Configuration</div>
+      <span class="rules-count" id="weightsCount"></span>
     </div>
+    <div class="panel-desc">Max points deducted per rule. Higher = bigger penalty per incident. Open the Rules panel to enable/disable rules. Weights save persists across sessions.</div>
+    <div class="weight-grid" id="weightGrid"><div class="box"><div class="msg">Load data first to see weights.</div></div></div>
     <div class="panel-footer">
       <button class="btn" onclick="safetyDash.resetWeights()">Reset to Factory</button>
       <button class="btn btn-save" onclick="safetyDash.saveWeights()">
@@ -302,6 +299,22 @@ var safetyDash = (function() {
   function evClass(n){return n===0?'ev-0':n<=5?'ev-few':n<=20?'ev-mid':'ev-many';}
 
   // ── scoring ────────────────────────────────────────────────────────────────
+  // Per-rule saved weights: rid -> {maxDeduction, perEvent}
+  var _ruleWeights = {};
+
+  function getRuleWeight(rid) {
+    if(_ruleWeights[rid]) return _ruleWeights[rid];
+    var cat = _ruleConfig[rid] ? _ruleConfig[rid].category : 'other';
+    return {maxDeduction: WMAX[cat]||10, perEvent: _ruleConfig[rid]?_ruleConfig[rid].perEvent:3};
+  }
+
+  function loadSavedRuleWeights() {
+    try{
+      var s=localStorage.getItem('safetyRuleWeights');
+      if(s) _ruleWeights=JSON.parse(s);
+    }catch(e){}
+  }
+
   function calcScore(ebr, trips) {
     if(!trips) return 100;
     var score=100, scale=Math.max(1,trips/10);
@@ -309,8 +322,8 @@ var safetyDash = (function() {
       var cfg=_ruleConfig[rid];
       if(!cfg.enabled) return;
       var cnt=ebr[rid]||0;
-      var maxD=WMAX[cfg.category]||10;
-      score -= Math.min(maxD, (cnt/scale)*cfg.perEvent);
+      var wt=getRuleWeight(rid);
+      score -= Math.min(wt.maxDeduction, (cnt/scale)*wt.perEvent);
     });
     return Math.max(0,Math.round(score));
   }
@@ -349,6 +362,7 @@ var safetyDash = (function() {
     updateBadge();
     renderTable(getDisplayRows());
     renderRulesPanel();
+    renderWeightsPanel();
   }
 
   // ── render KPIs ────────────────────────────────────────────────────────────
@@ -494,6 +508,39 @@ var safetyDash = (function() {
     document.getElementById('rulesList').innerHTML=html;
   }
 
+  // ── render weights panel ──────────────────────────────────────────────────
+  function renderWeightsPanel() {
+    var enabled = Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid]&&_ruleConfig[rid].enabled;});
+    var wc = document.getElementById('weightsCount');
+    if(wc) wc.textContent = enabled.length + ' rules with weights';
+    var grid = document.getElementById('weightGrid');
+    if(!grid) return;
+    if(!enabled.length) {
+      grid.innerHTML='<div style="padding:16px;font-family:'Courier New',monospace;font-size:.78rem;color:var(--text3);">No rules enabled. Enable rules in the Rules panel first.</div>';
+      return;
+    }
+    var html='';
+    enabled.forEach(function(rid){
+      var rule=null;
+      for(var i=0;i<_allRules.length;i++){if(_allRules[i].id===rid){rule=_allRules[i];break;}}
+      var rname = rule ? rule.name : rid;
+      var wt = getRuleWeight(rid);
+      var maxD = wt.maxDeduction;
+      var perE = wt.perEvent;
+      var safeId = rid.replace(/[^a-zA-Z0-9]/g,'_');
+      html += '<div class="weight-item">' +
+        '<div class="weight-label" title="'+rname+'">'+rname+'</div>' +
+        '<div class="weight-row">' +
+          '<input type="range" class="weight-slider" id="wslider_'+safeId+'" min="0" max="40" step="1" value="'+maxD+'" ' +
+            'oninput="safetyDash.updateRuleWLabel(''+rid+'',''+safeId+'')"/>' +
+          '<span class="weight-val" id="wval_'+safeId+'">'+maxD+'</span>' +
+        '</div>' +
+        '<div class="weight-sub" id="wsub_'+safeId+'">Max '+maxD+' pts &bull; ~'+perE+' pts/incident</div>' +
+        '</div>';
+    });
+    grid.innerHTML = html;
+  }
+
   // ── fetch ──────────────────────────────────────────────────────────────────
   function fetchData(){
     if(!_api){showBox('API not ready.');return;}
@@ -561,33 +608,14 @@ var safetyDash = (function() {
     },function(err){showBox('');showErr('Error: '+(err&&err.message?err.message:JSON.stringify(err)));});
   }
 
-  // ── load saved weights on init ─────────────────────────────────────────────
-  function loadSavedWeights(){
-    try{
-      var sw=localStorage.getItem('safetyWeights');
-      if(!sw) return;
-      var pw=JSON.parse(sw);
-      WCATS.forEach(function(cat){
-        if(pw[cat]&&typeof pw[cat].max==='number'){
-          _wmax[cat]=pw[cat].max;
-          _wper[cat]=Math.max(1,Math.round(pw[cat].max/5));
-          var el=document.getElementById('w_'+cat);
-          if(el){
-            el.value=pw[cat].max;
-            document.getElementById('wv_'+cat).textContent=pw[cat].max;
-            document.getElementById('wd_'+cat).textContent='Max '+pw[cat].max+' pts \u2022 ~'+Math.max(1,Math.round(pw[cat].max/5))+' pts/incident';
-          }
-        }
-      });
-    }catch(e){}
-  }
+  // loadSavedWeights removed — now using per-rule weights via loadSavedRuleWeights
 
   // ── public ─────────────────────────────────────────────────────────────────
   return {
     init: function(api){
       _api=api; setDateRange();
       document.getElementById('btnRefresh').onclick=fetchData;
-      loadSavedWeights();
+      loadSavedRuleWeights();
     },
     fetch: fetchData,
 
@@ -613,6 +641,9 @@ var safetyDash = (function() {
       });
       if(which==='rules' && document.getElementById('panelRules').classList.contains('open') && _allRules.length){
         renderRulesPanel();
+      }
+      if(which==='weights' && document.getElementById('panelWeights').classList.contains('open')){
+        renderWeightsPanel();
       }
     },
 
@@ -653,38 +684,60 @@ var safetyDash = (function() {
     updateWLabel: function(cat){
       var v=parseInt(document.getElementById('w_'+cat).value,10);
       document.getElementById('wv_'+cat).textContent=v;
-      document.getElementById('wd_'+cat).textContent='Max '+v+' pts \u2022 ~'+Math.max(1,Math.round(v/5))+' pts/incident';
+      document.getElementById('wd_'+cat).textContent='Max '+v+' pts • ~'+Math.max(1,Math.round(v/5))+' pts/incident';
+    },
+
+    updateRuleWLabel: function(rid, safeId){
+      var v=parseInt(document.getElementById('wslider_'+safeId).value,10);
+      document.getElementById('wval_'+safeId).textContent=v;
+      document.getElementById('wsub_'+safeId).textContent='Max '+v+' pts • ~'+Math.max(1,Math.round(v/5))+' pts/incident';
+      // Update live in _ruleWeights so scoring reflects slider immediately
+      if(!_ruleWeights[rid]) _ruleWeights[rid]={};
+      _ruleWeights[rid].maxDeduction=v;
+      _ruleWeights[rid].perEvent=Math.max(1,Math.round(v/5));
     },
 
     applyWeights: function(){
-      WCATS.forEach(function(cat){
-        var v=parseInt(document.getElementById('w_'+cat).value,10);
-        _wmax[cat]=v; _wper[cat]=Math.max(1,Math.round(v/5));
+      // Read current slider values from the dynamic weight grid
+      var enabled=Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid]&&_ruleConfig[rid].enabled;});
+      enabled.forEach(function(rid){
+        var safeId=rid.replace(/[^a-zA-Z0-9]/g,'_');
+        var el=document.getElementById('wslider_'+safeId);
+        if(el){
+          var v=parseInt(el.value,10);
+          if(!_ruleWeights[rid]) _ruleWeights[rid]={};
+          _ruleWeights[rid].maxDeduction=v;
+          _ruleWeights[rid].perEvent=Math.max(1,Math.round(v/5));
+        }
       });
       if(_rawData.length) rebuildRows();
       toast('Scores recalculated','#f59e0b');
     },
 
     saveWeights: function(){
-      WCATS.forEach(function(cat){
-        var v=parseInt(document.getElementById('w_'+cat).value,10);
-        _wmax[cat]=v; _wper[cat]=Math.max(1,Math.round(v/5));
+      // Read sliders, update _ruleWeights, then persist
+      var enabled=Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid]&&_ruleConfig[rid].enabled;});
+      enabled.forEach(function(rid){
+        var safeId=rid.replace(/[^a-zA-Z0-9]/g,'_');
+        var el=document.getElementById('wslider_'+safeId);
+        if(el){
+          var v=parseInt(el.value,10);
+          if(!_ruleWeights[rid]) _ruleWeights[rid]={};
+          _ruleWeights[rid].maxDeduction=v;
+          _ruleWeights[rid].perEvent=Math.max(1,Math.round(v/5));
+        }
       });
-      var toSave={};
-      WCATS.forEach(function(cat){toSave[cat]={max:_wmax[cat],perEvent:_wper[cat]};});
-      try{localStorage.setItem('safetyWeights',JSON.stringify(toSave));toast('\u2713 Weights saved as default','#10b981');}
-      catch(e){toast('Could not save: '+e.message,'#ef4444');}
+      try{
+        localStorage.setItem('safetyRuleWeights',JSON.stringify(_ruleWeights));
+        toast('✓ Weights saved as default','#10b981');
+      }catch(e){toast('Could not save: '+e.message,'#ef4444');}
       if(_rawData.length) rebuildRows();
     },
 
     resetWeights: function(){
-      try{localStorage.removeItem('safetyWeights');}catch(e){}
-      var defs={speeding:25,braking:20,acceleration:20,cornering:20,seatbelt:15};
-      WCATS.forEach(function(cat){
-        _wmax[cat]=defs[cat]; _wper[cat]=Math.max(1,Math.round(defs[cat]/5));
-        var el=document.getElementById('w_'+cat);
-        if(el){el.value=defs[cat];document.getElementById('wv_'+cat).textContent=defs[cat];document.getElementById('wd_'+cat).textContent='Max '+defs[cat]+' pts \u2022 ~'+Math.max(1,Math.round(defs[cat]/5))+' pts/incident';}
-      });
+      try{localStorage.removeItem('safetyRuleWeights');}catch(e){}
+      _ruleWeights={};
+      renderWeightsPanel(); // re-render sliders with factory defaults
       if(_rawData.length) rebuildRows();
       toast('Reset to factory defaults','#64748b');
     },
