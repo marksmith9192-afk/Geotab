@@ -7,82 +7,165 @@
 </head>
 <body>
 <style>
-  html,body{margin:0;padding:0;background:#0b0f1a;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;min-height:100vh;}
-  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+  :root{--bg:#0b0f1a;--bg2:#121929;--bg3:#1a2540;--border:#1e2e4a;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--accent:#00e5ff;--grid:rgba(0,229,255,0.03);--shadow:none;}
+  body.light{--bg:#f0f4f8;--bg2:#ffffff;--bg3:#e8edf4;--border:#d1dae6;--text:#0f172a;--text2:#475569;--text3:#64748b;--accent:#0891b2;--grid:rgba(8,145,178,0.04);--shadow:0 1px 3px rgba(0,0,0,0.07);}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif;min-height:100vh;transition:background .3s,color .3s;}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
   *{box-sizing:border-box;}
   #app{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:28px 24px;}
+
   .hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:16px;}
-  h1{font-size:1.8rem;font-weight:800;letter-spacing:-0.03em;background:linear-gradient(90deg,#00e5ff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-  #dateRange{font-size:0.82rem;color:#64748b;margin-top:4px;font-family:'Courier New',monospace;}
-  .hdr-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  h1{font-size:1.8rem;font-weight:800;letter-spacing:-0.03em;color:var(--accent);margin:0;}
+  #dateRange{font-size:0.82rem;color:var(--text3);margin-top:4px;}
+  .hdr-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 
-  /* DATE RANGE PILLS */
-  .range-group{display:flex;gap:6px;background:#121929;border:1px solid #1e2e4a;border-radius:10px;padding:4px;}
-  .range-btn{background:transparent;border:none;color:#64748b;padding:6px 14px;border-radius:7px;cursor:pointer;font-family:'Courier New',monospace;font-size:0.72rem;letter-spacing:0.05em;transition:all 0.2s;}
-  .range-btn:hover{color:#e2e8f0;}
-  .range-btn.active{background:#1a2540;color:#00e5ff;border:1px solid rgba(0,229,255,0.25);}
+  .range-group{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:4px;box-shadow:var(--shadow);}
+  .range-btn{background:transparent;border:none;color:var(--text3);padding:6px 12px;border-radius:7px;cursor:pointer;font-size:0.72rem;transition:all .2s;}
+  .range-btn:hover{color:var(--text);}
+  .range-btn.active{background:var(--bg3);color:var(--accent);border:1px solid rgba(0,229,255,.25);}
+  body.light .range-btn.active{border-color:rgba(8,145,178,.3);}
 
-  .btn{background:#1a2540;border:1px solid #1e2e4a;color:#e2e8f0;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:0.82rem;transition:all 0.2s;display:flex;align-items:center;gap:6px;white-space:nowrap;}
-  .btn:hover{border-color:#00e5ff;color:#00e5ff;}
+  .btn{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:0.82rem;transition:all .2s;display:flex;align-items:center;gap:6px;white-space:nowrap;box-shadow:var(--shadow);}
+  .btn:hover{border-color:var(--accent);color:var(--accent);}
   .btn svg{width:14px;height:14px;flex-shrink:0;}
 
+  /* THEME TOGGLE */
+  .toggle-wrap{display:flex;align-items:center;gap:8px;cursor:pointer;padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);box-shadow:var(--shadow);transition:all .2s;user-select:none;}
+  .toggle-wrap:hover{border-color:var(--accent);}
+  .toggle-track{width:34px;height:18px;border-radius:99px;background:var(--border);position:relative;transition:background .3s;flex-shrink:0;}
+  body.light .toggle-track{background:var(--accent);}
+  .toggle-thumb{width:12px;height:12px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:transform .3s;box-shadow:0 1px 2px rgba(0,0,0,.3);}
+  body.light .toggle-thumb{transform:translateX(16px);}
+  .toggle-lbl{font-size:0.72rem;color:var(--text2);}
+
+  /* CUSTOM DATE PICKER */
+  .dpick-wrap{position:relative;}
+  .dpick-btn{background:var(--bg2);border:1px solid var(--border);color:var(--text3);padding:8px 13px;border-radius:8px;cursor:pointer;font-size:0.79rem;transition:all .2s;display:flex;align-items:center;gap:6px;white-space:nowrap;box-shadow:var(--shadow);}
+  .dpick-btn:hover,.dpick-btn.is-open{border-color:var(--accent);color:var(--accent);}
+  .dpick-btn.has-custom{color:var(--accent);border-color:var(--accent);background:rgba(0,229,255,.06);}
+  body.light .dpick-btn.has-custom{background:rgba(8,145,178,.06);}
+  .dpick-btn svg{width:14px;height:14px;flex-shrink:0;}
+  .dpick-drop{position:absolute;top:calc(100% + 8px);right:0;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px 20px 16px;z-index:999;width:330px;box-shadow:0 10px 40px rgba(0,0,0,.35);display:none;}
+  body.light .dpick-drop{box-shadow:0 8px 30px rgba(0,0,0,.12);}
+  .dpick-drop.is-open{display:block;}
+  .dpick-title{font-size:0.7rem;text-transform:uppercase;letter-spacing:.09em;color:var(--text3);margin-bottom:14px;}
+  .dpick-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px;}
+  .dpick-field label{display:block;font-size:0.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;}
+  .dpick-selects{display:flex;gap:5px;}
+  .dsel{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 5px;font-size:0.79rem;outline:none;cursor:pointer;transition:border-color .2s;min-width:0;}
+  .dsel:focus{border-color:var(--accent);}
+  .dsel-mo{flex:2;}
+  .dsel-dy{flex:1;}
+  .dsel-yr{flex:1.3;}
+  .dpick-err{font-size:0.7rem;color:#f87171;min-height:15px;margin:8px 0 6px;}
+  .dpick-apply{width:100%;background:var(--accent);border:none;color:#000;padding:9px;border-radius:7px;cursor:pointer;font-size:0.82rem;font-weight:700;transition:opacity .2s;}
+  body.light .dpick-apply{color:#fff;}
+  .dpick-apply:hover{opacity:.85;}
+  .dpick-clear{background:none;border:none;color:var(--text3);font-size:0.72rem;cursor:pointer;padding:6px 0 0;display:block;width:100%;text-align:center;transition:color .2s;}
+  .dpick-clear:hover{color:var(--accent);}
+
   .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px;}
-  .kpi{background:#121929;border:1px solid #1e2e4a;border-radius:14px;padding:22px;position:relative;overflow:hidden;}
-  .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
-  .kpi.b::before{background:#00e5ff;}.kpi.o::before{background:#ff6b35;}.kpi.p::before{background:#a78bfa;}.kpi.g::before{background:#10b981;}.kpi.t::before{background:#f59e0b;}
-  .kpi-lbl{font-size:0.7rem;color:#64748b;text-transform:uppercase;letter-spacing:0.1em;font-family:'Courier New',monospace;margin-bottom:10px;}
+  .kpi{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px;position:relative;overflow:hidden;box-shadow:var(--shadow);transition:background .3s,border-color .3s;}
+  .kpi-bar{position:absolute;top:0;left:0;right:0;height:2px;}
+  .kpi-lbl{font-size:0.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;}
   .kpi-val{font-size:1.9rem;font-weight:800;line-height:1;}
-  .kpi.b .kpi-val{color:#00e5ff;}.kpi.o .kpi-val{color:#ff6b35;}.kpi.p .kpi-val{color:#a78bfa;}.kpi.g .kpi-val{color:#10b981;}.kpi.t .kpi-val{color:#f59e0b;}
-  .kpi-sub{font-size:0.78rem;color:#64748b;margin-top:6px;}
+  .kpi-sub{font-size:0.78rem;color:var(--text3);margin-top:6px;}
 
   .sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
-  .sec-ttl{font-size:1rem;font-weight:700;}
+  .sec-ttl{font-size:1rem;font-weight:700;color:var(--text);}
   .sec-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-  .srch{background:#121929;border:1px solid #1e2e4a;border-radius:8px;padding:8px 14px;color:#e2e8f0;font-size:0.875rem;width:200px;outline:none;transition:border-color 0.2s;}
-  .srch:focus{border-color:#00e5ff;}.srch::placeholder{color:#64748b;}
+  .srch{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--text);font-size:0.875rem;width:200px;outline:none;transition:border-color .2s;box-shadow:var(--shadow);}
+  .srch:focus{border-color:var(--accent);}
+  .srch::placeholder{color:var(--text3);}
 
-  .tbl-wrap{background:#121929;border:1px solid #1e2e4a;border-radius:14px;overflow:hidden;margin-bottom:20px;}
+  .tbl-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;box-shadow:var(--shadow);}
   table{width:100%;border-collapse:collapse;}
-  thead tr{background:#1a2540;border-bottom:1px solid #1e2e4a;}
-  th{font-family:'Courier New',monospace;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;padding:13px 18px;text-align:left;cursor:pointer;user-select:none;white-space:nowrap;}
-  th:hover{color:#00e5ff;}
-  th.sort-asc::after{content:' ↑';color:#00e5ff;}
-  th.sort-desc::after{content:' ↓';color:#00e5ff;}
-  tbody tr{border-bottom:1px solid #1e2e4a;transition:background 0.15s;}
-  tbody tr:last-child{border-bottom:none;}tbody tr:hover{background:#1a2540;}
+  thead tr{background:var(--bg3);border-bottom:1px solid var(--border);}
+  th{font-size:0.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);padding:13px 18px;text-align:left;cursor:pointer;user-select:none;white-space:nowrap;transition:color .15s;}
+  th:hover{color:var(--accent);}
+  th .sarr{color:var(--accent);font-style:normal;}
+  tbody tr{border-bottom:1px solid var(--border);transition:background .15s;}
+  tbody tr:last-child{border-bottom:none;}
+  tbody tr:hover{background:var(--bg3);}
   td{padding:13px 18px;font-size:0.88rem;}
-  .vname{font-family:'Courier New',monospace;font-size:0.82rem;color:#00e5ff;font-weight:500;}
-  .mval{font-family:'Courier New',monospace;font-weight:500;}
-  .tval{font-family:'Courier New',monospace;color:#94a3b8;}
+  .vname{font-size:0.82rem;color:var(--accent);font-weight:600;}
+  .mval{font-weight:500;color:var(--text);}
+  .tval{color:var(--text2);}
   .ibar-wrap{display:flex;align-items:center;gap:10px;}
-  .ibar-bg{flex:1;height:6px;background:#1e2e4a;border-radius:99px;overflow:hidden;min-width:60px;}
+  .ibar-bg{flex:1;height:6px;background:var(--border);border-radius:99px;overflow:hidden;min-width:60px;}
   .ibar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#ff6b35,#ff9a5c);}
-  .ival{font-family:'Courier New',monospace;font-size:0.82rem;min-width:50px;text-align:right;}
-  .bdg{display:inline-block;padding:3px 10px;border-radius:99px;font-size:0.7rem;font-family:'Courier New',monospace;}
-  .bh{background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.25);}
-  .bm{background:rgba(245,158,11,0.15);color:#fbbf24;border:1px solid rgba(245,158,11,0.25);}
-  .bl{background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.25);}
+  .ival{font-size:0.82rem;min-width:50px;text-align:right;color:var(--text2);}
+  .bdg{display:inline-block;padding:3px 10px;border-radius:99px;font-size:0.7rem;}
+  .bh{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.25);}
+  .bm{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.25);}
+  .bl{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.25);}
 
   .box{padding:40px 24px;text-align:center;}
-  .spinner{width:34px;height:34px;border:3px solid #1e2e4a;border-top-color:#00e5ff;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px;}
-  .pbar-bg{background:#1e2e4a;border-radius:99px;height:8px;overflow:hidden;max-width:400px;margin:12px auto 0;}
-  .pbar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#00e5ff,#a78bfa);transition:width 0.3s ease;}
-  .msg{font-family:'Courier New',monospace;font-size:0.78rem;color:#64748b;margin-top:8px;}
-  .err-box{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:16px 20px;margin:0 0 16px;font-family:'Courier New',monospace;font-size:0.75rem;color:#f87171;word-break:break-all;}
-  .foot{font-family:'Courier New',monospace;font-size:0.7rem;color:#64748b;text-align:center;padding-top:4px;}
+  .spinner{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;}
+  .pbar-bg{background:var(--border);border-radius:99px;height:8px;overflow:hidden;max-width:400px;margin:12px auto 0;}
+  .pbar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),#a78bfa);transition:width .3s ease;}
+  .msg{font-size:0.78rem;color:var(--text3);margin-top:8px;}
+  .err-box{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:16px 20px;margin:0 0 16px;font-size:0.75rem;color:#f87171;word-break:break-all;}
+  .foot{font-size:0.7rem;color:var(--text3);text-align:center;padding-top:4px;}
   @keyframes spin{to{transform:rotate(360deg)}}
 </style>
 
 <div id="app">
   <div class="hdr">
-    <div><h1>Fleet Dashboard</h1><p id="dateRange"></p></div>
+    <div>
+      <h1>Fleet Dashboard</h1>
+      <p id="dateRange"></p>
+    </div>
     <div class="hdr-right">
+
+      <!-- Range pills -->
       <div class="range-group">
         <button class="range-btn" onclick="fleetDash.setRange(7)">7D</button>
         <button class="range-btn active" onclick="fleetDash.setRange(30)">30D</button>
         <button class="range-btn" onclick="fleetDash.setRange(60)">60D</button>
         <button class="range-btn" onclick="fleetDash.setRange(90)">90D</button>
+        <button class="range-btn" onclick="fleetDash.setRange(180)">180D</button>
       </div>
+
+      <!-- Custom date picker -->
+      <div class="dpick-wrap" id="dpickWrap">
+        <button class="dpick-btn" id="dpickBtn" onclick="fleetDash.togglePicker()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span id="dpickLabel">Custom</span>
+        </button>
+        <div class="dpick-drop" id="dpickDrop">
+          <div class="dpick-title">Custom Date Range</div>
+          <div class="dpick-row">
+            <div class="dpick-field">
+              <label>Start Date</label>
+              <div class="dpick-selects">
+                <select class="dsel dsel-mo" id="sMo"></select>
+                <select class="dsel dsel-dy" id="sDy"></select>
+                <select class="dsel dsel-yr" id="sYr"></select>
+              </div>
+            </div>
+            <div class="dpick-field">
+              <label>End Date</label>
+              <div class="dpick-selects">
+                <select class="dsel dsel-mo" id="eMo"></select>
+                <select class="dsel dsel-dy" id="eDy"></select>
+                <select class="dsel dsel-yr" id="eYr"></select>
+              </div>
+            </div>
+          </div>
+          <div class="dpick-err" id="dpickErr"></div>
+          <button class="dpick-apply" onclick="fleetDash.applyCustom()">Apply Range</button>
+          <button class="dpick-clear" id="dpickClear" onclick="fleetDash.clearCustom()" style="display:none;">&#x2715; Clear custom range</button>
+        </div>
+      </div>
+
+      <!-- Dark/Light toggle -->
+      <div class="toggle-wrap" onclick="fleetDash.toggleTheme()">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+        <span class="toggle-lbl" id="themeLbl">DARK</span>
+      </div>
+
+      <!-- Refresh -->
       <button class="btn" id="btnRefresh">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
         Refresh
@@ -91,11 +174,11 @@
   </div>
 
   <div class="kpis">
-    <div class="kpi b"><div class="kpi-lbl">Total Fleet Mileage</div><div class="kpi-val" id="k1">—</div><div class="kpi-sub">miles in selected period</div></div>
-    <div class="kpi o"><div class="kpi-lbl">Total Idle Time</div><div class="kpi-val" id="k2">—</div><div class="kpi-sub">hours across all vehicles</div></div>
-    <div class="kpi p"><div class="kpi-lbl">Avg Mileage / Vehicle</div><div class="kpi-val" id="k3">—</div><div class="kpi-sub">miles per vehicle</div></div>
-    <div class="kpi g"><div class="kpi-lbl">Vehicles Tracked</div><div class="kpi-val" id="k4">—</div><div class="kpi-sub">active in period</div></div>
-    <div class="kpi t"><div class="kpi-lbl">Total Trips</div><div class="kpi-val" id="k5">—</div><div class="kpi-sub">across all vehicles</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:#00e5ff;"></div><div class="kpi-lbl">Total Fleet Mileage</div><div class="kpi-val" id="k1" style="color:#00e5ff;">&#8212;</div><div class="kpi-sub">miles in selected period</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:#ff6b35;"></div><div class="kpi-lbl">Total Idle Time</div><div class="kpi-val" id="k2" style="color:#ff6b35;">&#8212;</div><div class="kpi-sub">hours across all vehicles</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:#a78bfa;"></div><div class="kpi-lbl">Avg Mileage / Vehicle</div><div class="kpi-val" id="k3" style="color:#a78bfa;">&#8212;</div><div class="kpi-sub">miles per vehicle</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:#10b981;"></div><div class="kpi-lbl">Vehicles Tracked</div><div class="kpi-val" id="k4" style="color:#10b981;">&#8212;</div><div class="kpi-sub">active in period</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:#f59e0b;"></div><div class="kpi-lbl">Total Trips</div><div class="kpi-val" id="k5" style="color:#f59e0b;">&#8212;</div><div class="kpi-sub">across all vehicles</div></div>
   </div>
 
   <div class="sec-hdr">
@@ -116,195 +199,299 @@
 
 <script>
 var fleetDash = (function() {
-  var _api      = null;
-  var _rows     = [];
-  var _days     = 30;
-  var _sortKey  = 'miles';
-  var _sortDir  = -1; // -1 = desc, 1 = asc
+  var _api     = null;
+  var _rows    = [];
+  var _days    = 30;
+  var _sortKey = 'miles';
+  var _sortDir = -1;
+  var _isLight = false;
+  var _customFrom = null;
+  var _customTo   = null;
+  var _isCustom   = false;
+
+  var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var MONTHS_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  // ── DATE PICKER ────────────────────────────────────────────────────────────
+  function initPicker() {
+    var now = new Date();
+    var yr  = now.getFullYear();
+
+    // Populate month dropdowns
+    ['sMo','eMo'].forEach(function(id) {
+      var sel = document.getElementById(id);
+      MONTHS_FULL.forEach(function(m, i) {
+        var o = document.createElement('option');
+        o.value = i + 1; o.textContent = m;
+        sel.appendChild(o);
+      });
+    });
+
+    // Populate year dropdowns: current year back 5 years
+    ['sYr','eYr'].forEach(function(id) {
+      var sel = document.getElementById(id);
+      for (var y = yr; y >= yr - 5; y--) {
+        var o = document.createElement('option');
+        o.value = y; o.textContent = y;
+        sel.appendChild(o);
+      }
+    });
+
+    // Wire up month/year change to repopulate days
+    ['s','e'].forEach(function(p) {
+      buildDays(p);
+      document.getElementById(p+'Mo').addEventListener('change', function(){buildDays(p);});
+      document.getElementById(p+'Yr').addEventListener('change', function(){buildDays(p);});
+    });
+
+    // Default: start = 30 days ago, end = today
+    var from = new Date(now); from.setDate(from.getDate() - 30);
+    setPickerVal('s', from);
+    setPickerVal('e', now);
+
+    // Close on outside click
+    document.addEventListener('click', function(e) {
+      var wrap = document.getElementById('dpickWrap');
+      if (wrap && !wrap.contains(e.target)) closePicker();
+    });
+  }
+
+  function buildDays(p) {
+    var mo  = parseInt(document.getElementById(p+'Mo').value, 10) || 1;
+    var yr  = parseInt(document.getElementById(p+'Yr').value, 10) || new Date().getFullYear();
+    var max = new Date(yr, mo, 0).getDate();
+    var sel = document.getElementById(p+'Dy');
+    var cur = parseInt(sel.value, 10) || 1;
+    sel.innerHTML = '';
+    for (var d = 1; d <= max; d++) {
+      var o = document.createElement('option');
+      o.value = d; o.textContent = d;
+      sel.appendChild(o);
+    }
+    sel.value = Math.min(cur, max);
+  }
+
+  function setPickerVal(p, date) {
+    document.getElementById(p+'Mo').value = date.getMonth() + 1;
+    document.getElementById(p+'Yr').value = date.getFullYear();
+    buildDays(p);
+    document.getElementById(p+'Dy').value = date.getDate();
+  }
+
+  function getPickerDate(p) {
+    var mo = parseInt(document.getElementById(p+'Mo').value, 10);
+    var dy = parseInt(document.getElementById(p+'Dy').value, 10);
+    var yr = parseInt(document.getElementById(p+'Yr').value, 10);
+    return new Date(yr, mo - 1, dy);
+  }
+
+  function closePicker() {
+    document.getElementById('dpickDrop').classList.remove('is-open');
+    document.getElementById('dpickBtn').classList.remove('is-open');
+  }
+
+  // ── UTILS ──────────────────────────────────────────────────────────────────
+  function fmt(d) { return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
 
   function setDateRange() {
-    var now = new Date(), from = new Date(now);
-    from.setDate(from.getDate() - _days);
-    var fmt = function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});};
-    document.getElementById('dateRange').textContent = fmt(from) + ' \u2192 ' + fmt(now);
+    var el = document.getElementById('dateRange');
+    if (_isCustom && _customFrom && _customTo) {
+      el.textContent = fmt(_customFrom) + ' to ' + fmt(_customTo);
+    } else {
+      var now = new Date(), from = new Date(now);
+      from.setDate(from.getDate() - _days);
+      el.textContent = fmt(from) + ' to ' + fmt(now);
+    }
   }
 
-  function showErr(msg) {
-    document.getElementById('errBox').innerHTML = '<div class="err-box">&#9888; ' + msg + '</div>';
-  }
-  function clearErr() { document.getElementById('errBox').innerHTML = ''; }
-
+  function showErr(msg) { document.getElementById('errBox').innerHTML = '<div class="err-box">&#9888; ' + msg + '</div>'; }
+  function clearErr()   { document.getElementById('errBox').innerHTML = ''; }
   function showBox(label, pct) {
     document.getElementById('tbl').innerHTML =
-      '<div class="box"><div class="spinner"></div>' +
-      '<div class="msg">' + label + '</div>' +
+      '<div class="box"><div class="spinner"></div><div class="msg">' + label + '</div>' +
       (pct !== undefined ? '<div class="pbar-bg"><div class="pbar-fill" style="width:'+pct+'%"></div></div>' : '') +
       '</div>';
   }
-
-  function resetKPIs() {
-    ['k1','k2','k3','k4','k5'].forEach(function(id){document.getElementById(id).textContent='—';});
+  function resetKPIs() { ['k1','k2','k3','k4','k5'].forEach(function(id){document.getElementById(id).textContent='-';}); }
+  function kmToMiles(km) { var v=parseFloat(km); return isNaN(v)?0:v*0.621371; }
+  function durationToHours(val) {
+    if (!val) return 0;
+    if (typeof val === 'number') return val / 3600;
+    var s=String(val), days=0;
+    if (s.indexOf('.')!==-1&&s.indexOf(':')!==-1&&s.indexOf('.')<s.indexOf(':')) {
+      var dp=s.split('.'); days=parseInt(dp[0],10)||0; s=dp[1];
+    }
+    var parts=s.split(':');
+    if (parts.length<3) return 0;
+    return (days*24)+(parseInt(parts[0],10)||0)+((parseInt(parts[1],10)||0)/60)+((parseFloat(parts[2])||0)/3600);
   }
 
+  // ── RENDER ─────────────────────────────────────────────────────────────────
   function renderKPIs(rows) {
-    var tm = rows.reduce(function(s,r){return s+r.miles;},0);
-    var ti = rows.reduce(function(s,r){return s+r.idleH;},0);
-    var tt = rows.reduce(function(s,r){return s+r.trips;},0);
+    var tm=rows.reduce(function(s,r){return s+r.miles;},0);
+    var ti=rows.reduce(function(s,r){return s+r.idleH;},0);
+    var tt=rows.reduce(function(s,r){return s+r.trips;},0);
     document.getElementById('k1').textContent = Math.round(tm).toLocaleString();
     document.getElementById('k2').textContent = ti.toFixed(1)+'h';
     document.getElementById('k3').textContent = rows.length ? Math.round(tm/rows.length).toLocaleString() : '0';
     document.getElementById('k4').textContent = rows.length;
     document.getElementById('k5').textContent = tt.toLocaleString();
-    document.getElementById('foot').textContent = 'Last refreshed: ' + new Date().toLocaleString() + '  |  Last ' + _days + ' days';
+    var rangeLabel = _isCustom ? 'Custom range' : 'Last '+_days+' days';
+    document.getElementById('foot').textContent = 'Last refreshed: '+new Date().toLocaleString()+'  |  '+rangeLabel;
   }
 
   function renderTable(rows) {
-    if (!rows||!rows.length){showBox('No data found for the selected period.');return;}
+    if (!rows||!rows.length) { showBox('No data found for the selected period.'); return; }
     var mx = Math.max.apply(null, rows.map(function(r){return r.idleH||0;})) || 1;
 
-    // Build header with sort indicators
-    function thCls(k) {
-      if (_sortKey !== k) return '';
-      return _sortDir === -1 ? ' class="sort-desc"' : ' class="sort-asc"';
+    function th(k, label) {
+      var arrow = _sortKey===k ? (' <em class="sarr">'+(_sortDir===-1?'&#9660;':'&#9650;')+'</em>') : '';
+      return '<th onclick="fleetDash.sort(\''+k+'\')">'+label+arrow+'</th>';
     }
 
     var h = '<table><thead><tr>'+
-      '<th onclick="fleetDash.sort(\'name\');"'+thCls('name')+'>Vehicle</th>'+
-      '<th onclick="fleetDash.sort(\'miles\');"'+thCls('miles')+'>Mileage (mi)</th>'+
-      '<th onclick="fleetDash.sort(\'trips\');"'+thCls('trips')+'>Trips</th>'+
-      '<th onclick="fleetDash.sort(\'idleH\');"'+thCls('idleH')+'>Idle Time</th>'+
-      '<th>Idle Level</th>'+
+      th('name','Vehicle')+th('miles','Mileage (mi)')+
+      th('trips','Trips')+th('idleH','Idle Time')+'<th>Idle Level</th>'+
       '</tr></thead><tbody>';
 
-    rows.forEach(function(r){
-      var idleH = r.idleH || 0;
-      var pct   = (idleH / mx) * 100;
-      var lbl   = pct > 66 ? 'HIGH' : pct > 33 ? 'MED' : 'LOW';
-      var cls   = pct > 66 ? 'bh'   : pct > 33 ? 'bm'  : 'bl';
-      h += '<tr>'+
+    rows.forEach(function(r) {
+      var idleH=r.idleH||0, pct=(idleH/mx)*100;
+      var lbl=pct>66?'HIGH':pct>33?'MED':'LOW';
+      var cls=pct>66?'bh':pct>33?'bm':'bl';
+      h+='<tr>'+
         '<td class="vname">'+r.name+'</td>'+
         '<td class="mval">'+Math.round(r.miles).toLocaleString()+'</td>'+
         '<td class="tval">'+r.trips.toLocaleString()+'</td>'+
-        '<td><div class="ibar-wrap">'+
-          '<div class="ibar-bg"><div class="ibar-fill" style="width:'+pct.toFixed(1)+'%"></div></div>'+
-          '<span class="ival">'+idleH.toFixed(1)+'h</span>'+
-        '</div></td>'+
-        '<td><span class="bdg '+cls+'">'+lbl+'</span></td>'+
-        '</tr>';
+        '<td><div class="ibar-wrap"><div class="ibar-bg"><div class="ibar-fill" style="width:'+pct.toFixed(1)+'%"></div></div>'+
+        '<span class="ival">'+idleH.toFixed(1)+'h</span></div></td>'+
+        '<td><span class="bdg '+cls+'">'+lbl+'</span></td></tr>';
     });
     document.getElementById('tbl').innerHTML = h + '</tbody></table>';
   }
 
   function getFilteredRows() {
     var q = document.getElementById('srch').value.toLowerCase();
-    return q ? _rows.filter(function(r){return r.name.toLowerCase().indexOf(q) !== -1;}) : _rows;
+    return q ? _rows.filter(function(r){return r.name.toLowerCase().indexOf(q)!==-1;}) : _rows;
   }
 
-  function kmToMiles(km) {
-    var v = parseFloat(km);
-    return isNaN(v) ? 0 : v * 0.621371;
-  }
-
-  // Parse Geotab duration string "HH:MM:SS.fffffff" or "D.HH:MM:SS" → hours
-  function durationToHours(val) {
-    if (!val) return 0;
-    if (typeof val === 'number') return val / 3600;
-    var s = String(val), days = 0;
-    if (s.indexOf('.') !== -1 && s.indexOf(':') !== -1 && s.indexOf('.') < s.indexOf(':')) {
-      var dp = s.split('.');
-      days = parseInt(dp[0], 10) || 0;
-      s = dp[1];
-    }
-    var parts = s.split(':');
-    if (parts.length < 3) return 0;
-    return (days * 24) + (parseInt(parts[0],10)||0) + ((parseInt(parts[1],10)||0)/60) + ((parseFloat(parts[2])||0)/3600);
-  }
-
+  // ── FETCH ──────────────────────────────────────────────────────────────────
   function fetchData() {
-    if (!_api){showBox('API not ready — please refresh.');return;}
+    if (!_api){showBox('API not ready.');return;}
     clearErr(); resetKPIs();
     showBox('FETCHING VEHICLES...', 5);
 
-    var now = new Date(), from = new Date(now);
-    from.setDate(from.getDate() - _days);
-    var fromStr = from.toISOString(), toStr = now.toISOString();
+    var toDate, fromDate;
+    if (_isCustom && _customFrom && _customTo) {
+      fromDate = new Date(_customFrom); fromDate.setHours(0,0,0,0);
+      toDate   = new Date(_customTo);   toDate.setHours(23,59,59,999);
+    } else {
+      toDate   = new Date();
+      fromDate = new Date(toDate);
+      fromDate.setDate(fromDate.getDate() - _days);
+    }
+    var fromStr = fromDate.toISOString(), toStr = toDate.toISOString();
 
-    _api.call('Get', {typeName:'Device', resultsLimit:1000},
-    function(devices) {
+    _api.call('Get',{typeName:'Device',resultsLimit:1000},function(devices){
       if (!devices||!devices.length){showBox('No vehicles found.');return;}
-      showBox('FETCHING TRIPS FOR ' + devices.length + ' VEHICLES...', 20);
-
-      var devMap = {};
-      devices.forEach(function(d){devMap[d.id] = d.name || d.id;});
-
-      var cap   = Math.min(devices.length, 100);
-      var calls = devices.slice(0, cap).map(function(d){
+      showBox('FETCHING TRIPS FOR '+devices.length+' VEHICLES...', 20);
+      var devMap={};
+      devices.forEach(function(d){devMap[d.id]=d.name||d.id;});
+      var cap=Math.min(devices.length,100);
+      var calls=devices.slice(0,cap).map(function(d){
         return ['Get',{typeName:'Trip',search:{deviceSearch:{id:d.id},fromDate:fromStr,toDate:toStr},resultsLimit:5000}];
       });
-
-      _api.multiCall(calls, function(results){
-        var rows = [];
-        devices.slice(0, cap).forEach(function(d, i){
-          var trips = (results && results[i]) || [];
-          var miles = 0, idleH = 0;
-          trips.forEach(function(t){
-            miles += kmToMiles(t.distance);
-            idleH += durationToHours(t.idlingDuration);
-          });
-          if (miles === 0 && idleH === 0 && trips.length === 0) return;
-          rows.push({name: devMap[d.id]||d.id, miles: miles, idleH: idleH, trips: trips.length});
+      _api.multiCall(calls,function(results){
+        var rows=[];
+        devices.slice(0,cap).forEach(function(d,i){
+          var trips=(results&&results[i])||[];
+          var miles=0,idleH=0;
+          trips.forEach(function(t){miles+=kmToMiles(t.distance);idleH+=durationToHours(t.idlingDuration);});
+          if (miles===0&&idleH===0&&trips.length===0) return;
+          rows.push({name:devMap[d.id]||d.id,miles:miles,idleH:idleH,trips:trips.length});
         });
-
-        // Apply default sort
-        rows.sort(function(a,b){return b.miles - a.miles;});
-        _rows    = rows;
-        _sortKey = 'miles';
-        _sortDir = -1;
-
+        rows.sort(function(a,b){return b.miles-a.miles;});
+        _rows=rows; _sortKey='miles'; _sortDir=-1;
         if (!rows.length){showBox('No trip data found for the selected period.');return;}
         renderKPIs(rows);
         renderTable(rows);
-      }, function(err){
-        var msg = err&&err.message ? err.message : JSON.stringify(err);
-        showBox(''); showErr('Trip fetch failed: ' + msg);
-      });
-    },
-    function(err){
-      var msg = err&&err.message ? err.message : JSON.stringify(err);
-      showBox(''); showErr('Failed to fetch vehicles: ' + msg);
-    });
+      },function(err){showBox('');showErr('Trip fetch failed: '+(err&&err.message?err.message:JSON.stringify(err)));});
+    },function(err){showBox('');showErr('Device fetch failed: '+(err&&err.message?err.message:JSON.stringify(err)));});
   }
 
-  // ── PUBLIC ────────────────────────────────────────────────────────────────
+  // ── PUBLIC ─────────────────────────────────────────────────────────────────
   return {
     init: function(api) {
       _api = api;
       setDateRange();
       document.getElementById('btnRefresh').onclick = fetchData;
+      initPicker();
     },
-
     fetch: fetchData,
 
     setRange: function(days) {
-      _days = days;
-      // Update active pill
-      document.querySelectorAll('.range-btn').forEach(function(btn){
-        btn.classList.toggle('active', btn.textContent === days + 'D');
-      });
-      setDateRange();
-      fetchData();
+      _days = days; _isCustom = false; _customFrom = null; _customTo = null;
+      document.querySelectorAll('.range-btn').forEach(function(b){b.classList.toggle('active',b.textContent===days+'D');});
+      var btn = document.getElementById('dpickBtn');
+      btn.classList.remove('has-custom');
+      document.getElementById('dpickLabel').textContent = 'Custom';
+      document.getElementById('dpickClear').style.display = 'none';
+      setDateRange(); fetchData();
+    },
+
+    toggleTheme: function() {
+      _isLight = !_isLight;
+      document.body.classList.toggle('light', _isLight);
+      document.getElementById('themeLbl').textContent = _isLight ? 'LIGHT' : 'DARK';
+    },
+
+    togglePicker: function() {
+      var drop = document.getElementById('dpickDrop');
+      var btn  = document.getElementById('dpickBtn');
+      var open = drop.classList.toggle('is-open');
+      btn.classList.toggle('is-open', open);
+      document.getElementById('dpickErr').textContent = '';
+    },
+
+    applyCustom: function() {
+      var from = getPickerDate('s');
+      var to   = getPickerDate('e');
+      var errEl = document.getElementById('dpickErr');
+      errEl.textContent = '';
+      if (isNaN(from.getTime())||isNaN(to.getTime())) { errEl.textContent = 'Invalid date.'; return; }
+      if (from > to) { errEl.textContent = 'Start must be before end.'; return; }
+      var diff = Math.round((to - from) / 86400000);
+      if (diff > 365) { errEl.textContent = 'Range cannot exceed 365 days.'; return; }
+
+      _customFrom = from; _customTo = to; _isCustom = true;
+
+      // Deactivate pills, update button
+      document.querySelectorAll('.range-btn').forEach(function(b){b.classList.remove('active');});
+      var btn = document.getElementById('dpickBtn');
+      btn.classList.remove('is-open'); btn.classList.add('has-custom');
+      document.getElementById('dpickLabel').textContent =
+        MONTHS[from.getMonth()]+' '+from.getDate()+' - '+MONTHS[to.getMonth()]+' '+to.getDate()+', '+to.getFullYear();
+      document.getElementById('dpickDrop').classList.remove('is-open');
+      document.getElementById('dpickClear').style.display = 'block';
+
+      setDateRange(); fetchData();
+    },
+
+    clearCustom: function() {
+      _isCustom = false; _customFrom = null; _customTo = null;
+      var btn = document.getElementById('dpickBtn');
+      btn.classList.remove('has-custom');
+      document.getElementById('dpickLabel').textContent = 'Custom';
+      document.getElementById('dpickClear').style.display = 'none';
+      // Reactivate the last preset
+      document.querySelectorAll('.range-btn').forEach(function(b){b.classList.toggle('active',b.textContent===_days+'D');});
+      closePicker(); setDateRange(); fetchData();
     },
 
     sort: function(k) {
-      if (_sortKey === k) {
-        _sortDir *= -1; // toggle direction
-      } else {
-        _sortKey = k;
-        _sortDir = k === 'name' ? 1 : -1;
-      }
-      _rows.sort(function(a, b){
-        if (typeof a[k] === 'string') return _sortDir * a[k].localeCompare(b[k]);
-        return _sortDir * (b[k] - a[k]);
+      if (_sortKey===k){_sortDir*=-1;}else{_sortKey=k;_sortDir=k==='name'?1:-1;}
+      _rows.sort(function(a,b){
+        if(typeof a[k]==='string') return _sortDir*a[k].localeCompare(b[k]);
+        return _sortDir*(b[k]-a[k]);
       });
       renderTable(getFilteredRows());
     },
@@ -313,48 +500,25 @@ var fleetDash = (function() {
 
     exportCSV: function() {
       if (!_rows.length) return;
-      var now  = new Date(), from = new Date(now);
-      from.setDate(from.getDate() - _days);
-      var fmt  = function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});};
-      var period = fmt(from) + ' to ' + fmt(now);
-
-      var lines = [
-        'Fleet Dashboard Export',
-        'Period: ' + period,
-        '',
-        'Vehicle,Mileage (mi),Trips,Idle Time (h),Idle Level'
-      ];
-
-      var mx = Math.max.apply(null, _rows.map(function(r){return r.idleH||0;})) || 1;
+      var toDate, fromDate;
+      if (_isCustom&&_customFrom&&_customTo){fromDate=_customFrom;toDate=_customTo;}
+      else{toDate=new Date();fromDate=new Date(toDate);fromDate.setDate(fromDate.getDate()-_days);}
+      var period = fmt(fromDate)+' to '+fmt(toDate);
+      var lines=['Fleet Dashboard Export','Period: '+period,'','Vehicle,Mileage (mi),Trips,Idle Time (h),Idle Level'];
+      var mx=Math.max.apply(null,_rows.map(function(r){return r.idleH||0;}))||1;
       _rows.forEach(function(r){
-        var idleH = r.idleH || 0;
-        var pct   = (idleH / mx) * 100;
-        var lbl   = pct > 66 ? 'HIGH' : pct > 33 ? 'MED' : 'LOW';
-        lines.push(
-          '"' + r.name.replace(/"/g,'""') + '",' +
-          Math.round(r.miles) + ',' +
-          r.trips + ',' +
-          idleH.toFixed(2) + ',' +
-          lbl
-        );
+        var pct=(r.idleH||0)/mx*100;
+        lines.push('"'+r.name.replace(/"/g,'""')+'",'+Math.round(r.miles)+','+r.trips+','+(r.idleH||0).toFixed(2)+','+(pct>66?'HIGH':pct>33?'MED':'LOW'));
       });
-
-      // Totals row
-      var tm = _rows.reduce(function(s,r){return s+r.miles;},0);
-      var tt = _rows.reduce(function(s,r){return s+r.trips;},0);
-      var ti = _rows.reduce(function(s,r){return s+r.idleH;},0);
-      lines.push('"TOTAL",' + Math.round(tm) + ',' + tt + ',' + ti.toFixed(2) + ',');
-
-      var csv  = lines.join('\r\n');
-      var blob = new Blob([csv], {type:'text/csv'});
-      var url  = URL.createObjectURL(blob);
-      var a    = document.createElement('a');
-      a.href     = url;
-      a.download = 'fleet-dashboard-' + _days + 'd.csv';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      var tm=_rows.reduce(function(s,r){return s+r.miles;},0);
+      var tt=_rows.reduce(function(s,r){return s+r.trips;},0);
+      var ti=_rows.reduce(function(s,r){return s+r.idleH;},0);
+      lines.push('"TOTAL",'+Math.round(tm)+','+tt+','+ti.toFixed(2)+',');
+      var blob=new Blob([lines.join('\r\n')],{type:'text/csv'});
+      var url=URL.createObjectURL(blob);
+      var a=document.createElement('a');
+      a.href=url; a.download='fleet-dashboard.csv';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
     }
   };
 })();
@@ -362,12 +526,9 @@ var fleetDash = (function() {
 geotab.addin = geotab.addin || {};
 geotab.addin.fleetdashboard = function() {
   return {
-    initialize: function(api, state, cb) {
-      fleetDash.init(api);
-      if (typeof cb === 'function') cb();
-    },
-    focus: function() { fleetDash.fetch(); },
-    blur:  function() {}
+    initialize: function(api,state,cb){fleetDash.init(api);if(typeof cb==='function')cb();},
+    focus:      function(){fleetDash.fetch();},
+    blur:       function(){}
   };
 };
 </script>
