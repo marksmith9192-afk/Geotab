@@ -8,7 +8,8 @@
       "path": "ActivityLink",
       "menuName": {
         "en": "Fleet Dashboard"
-      }
+      },
+      "category": "ProductivityId"
     }
   ],
   "isSigned": false
