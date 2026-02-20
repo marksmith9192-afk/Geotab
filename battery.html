@@ -561,18 +561,80 @@ var battDash = (function() {
   // ── DATA PROCESSING ────────────────────────────────────────────────────────
   function processReadings(statusData, devices) {
     var byDevice = {};
-    // Index devices
-    devices.forEach(function(d) { byDevice[d.id] = {id: d.id, name: d.name || d.id, readings: {}}; });
+
+    // Build device lookup — index by every possible ID variant Geotab might return
+    // Geotab IDs can come back as strings like "b1", "b2" or full UUIDs
+    devices.forEach(function(d) {
+      var entry = {id: d.id, name: d.name || d.description || d.id, readings: {}};
+      byDevice[d.id] = entry;
+      // Also index by serialNumber and deviceIdentifier if present
+      if (d.serialNumber) byDevice[d.serialNumber] = entry;
+      if (d.deviceIdentifier) byDevice[d.deviceIdentifier] = entry;
+    });
+
+    // Track any unmatched device IDs so we can create stub entries
+    var unmatched = {};
 
     statusData.forEach(function(sd) {
-      var did = sd.device && sd.device.id;
-      if (!did || !byDevice[did]) return;
+      // Geotab StatusData device field can be {id:'b123'} or just a string
+      var did = null;
+      if (sd.device) {
+        did = typeof sd.device === 'string' ? sd.device : sd.device.id;
+      }
+      if (!did) return;
+
+      // Normalize: strip any prefix/suffix whitespace
+      did = String(did).trim();
+
       var v = parseFloat(sd.data);
       if (isNaN(v) || v < 6 || v > 18) return; // sanity range for voltage
+
       var dt = new Date(sd.dateTime);
+      if (isNaN(dt.getTime())) return;
       var key = fmtDateKey(dt);
-      if (!byDevice[did].readings[key]) byDevice[did].readings[key] = [];
-      byDevice[did].readings[key].push(v);
+
+      // Try direct match first
+      if (byDevice[did]) {
+        if (!byDevice[did].readings[key]) byDevice[did].readings[key] = [];
+        byDevice[did].readings[key].push(v);
+        return;
+      }
+
+      // Try case-insensitive match
+      var didLow = did.toLowerCase();
+      var matched = false;
+      var keys = Object.keys(byDevice);
+      for (var ki = 0; ki < keys.length; ki++) {
+        if (keys[ki].toLowerCase() === didLow) {
+          var entry = byDevice[keys[ki]];
+          if (!entry.readings[key]) entry.readings[key] = [];
+          entry.readings[key].push(v);
+          matched = true;
+          break;
+        }
+      }
+
+      // If still no match, create a stub using the device ID from StatusData
+      // (the vehicle exists and has data, we just don't have its name yet)
+      if (!matched) {
+        if (!unmatched[did]) {
+          unmatched[did] = {id: did, name: 'Vehicle ' + did, readings: {}};
+          byDevice[did] = unmatched[did];
+        }
+        if (!byDevice[did].readings[key]) byDevice[did].readings[key] = [];
+        byDevice[did].readings[key].push(v);
+      }
+    });
+
+    // For stub entries, try to look up their real names from the devices array
+    // by checking if the stub ID is a substring of any device ID or vice versa
+    Object.keys(unmatched).forEach(function(stubId) {
+      devices.forEach(function(d) {
+        var dId = String(d.id).trim();
+        if (dId.indexOf(stubId) !== -1 || stubId.indexOf(dId) !== -1) {
+          unmatched[stubId].name = d.name || d.description || unmatched[stubId].name;
+        }
+      });
     });
 
     // Build daily readings arrays and averages
@@ -783,44 +845,70 @@ var battDash = (function() {
           return;
         }
 
-        showBox('FETCHING 60 DAYS OF VOLTAGE DATA FOR ' + devices.length + ' VEHICLES...', 30);
+        showBox('FETCHING VOLTAGE DATA FOR ' + devices.length + ' VEHICLES...', 30);
 
-        _api.call('Get', {
-          typeName: 'StatusData',
-          search: {
-            fromDate: fromStr,
-            toDate: toStr,
-            diagnosticSearch: {id: diagId}
-          },
-          resultsLimit: 500000
-        }, function(statusData) {
-          showBox('PROCESSING DATA...', 85);
-          if (!statusData || !statusData.length) {
-            // Try alternate diagnostic name
-            showBox('TRYING ALTERNATE DIAGNOSTIC...', 70);
-            _api.call('Get', {
+        // Strategy: fetch per-device using multiCall batches of 50
+        // This guarantees device ID is known for each result, avoiding matching issues
+        var BATCH = 50;
+        var batches = [];
+        for (var bi = 0; bi < devices.length; bi += BATCH) {
+          batches.push(devices.slice(bi, bi + BATCH));
+        }
+
+        var allData = [];
+        var batchIdx = 0;
+
+        function runBatch() {
+          if (batchIdx >= batches.length) {
+            // All batches done
+            showBox('PROCESSING DATA...', 88);
+            if (!allData.length) {
+              showBox('');
+              showMsg('<div class="info-box">&#9432; No battery voltage data found for any vehicle. This add-in requires the <strong>Cranking voltage</strong> or <strong>Battery voltage</strong> diagnostic to be active. Contact your Geotab administrator to confirm this diagnostic is enabled for your fleet.</div>');
+              return;
+            }
+            processAndRender(allData, devices);
+            return;
+          }
+
+          var batch = batches[batchIdx];
+          var pct = 30 + Math.round((batchIdx / batches.length) * 55);
+          showBox('FETCHING BATCH ' + (batchIdx+1) + ' OF ' + batches.length + '...', pct);
+
+          var calls = batch.map(function(d) {
+            return ['Get', {
               typeName: 'StatusData',
               search: {
                 fromDate: fromStr,
                 toDate: toStr,
-                diagnosticSearch: {id: 'DiagnosticBatteryVoltageId'}
+                deviceSearch: {id: d.id},
+                diagnosticSearch: {id: diagId}
               },
-              resultsLimit: 500000
-            }, function(altData) {
-              if (!altData || !altData.length) {
-                showBox('');
-                showMsg('<div class="info-box">&#9432; No cranking voltage data found. Ensure your vehicles have battery voltage diagnostics enabled in Geotab. This add-in reads the "Cranking voltage" or "Battery voltage" diagnostic.</div>');
-                return;
-              }
-              processAndRender(altData, devices);
-            }, function(e) { showBox(''); showMsg('<div class="err-box">Error: '+(e&&e.message?e.message:JSON.stringify(e))+'</div>'); });
-            return;
-          }
-          processAndRender(statusData, devices);
-        }, function(err) {
-          showBox('');
-          showMsg('<div class="err-box">Error fetching status data: '+(err&&err.message?err.message:JSON.stringify(err))+'</div>');
-        });
+              resultsLimit: 10000
+            }];
+          });
+
+          _api.multiCall(calls, function(results) {
+            batch.forEach(function(d, i) {
+              var recs = (results && results[i]) || [];
+              recs.forEach(function(r) {
+                // Ensure device id is always set to the known device id
+                if (!r.device) r.device = {id: d.id};
+                else r.device.id = d.id; // override with guaranteed correct id
+                allData.push(r);
+              });
+            });
+            batchIdx++;
+            runBatch();
+          }, function(err) {
+            // Batch failed - skip and continue
+            batchIdx++;
+            runBatch();
+          });
+        }
+
+        runBatch();
+
       }, function(err) {
         showBox('');
         showMsg('<div class="err-box">Error fetching devices: '+(err&&err.message?err.message:JSON.stringify(err))+'</div>');
@@ -831,10 +919,56 @@ var battDash = (function() {
   function processAndRender(statusData, devices) {
     processReadings(statusData, devices);
     if (!_rows.length) {
-      showBox('');
-      showMsg('<div class="info-box">&#9432; Voltage data was found but could not be matched to vehicles. Check that device IDs are consistent.</div>');
+      // StatusData came back but nothing matched - try per-device fetch as last resort
+      showBox('TRYING PER-DEVICE FETCH...', 75);
+      var now2 = new Date(), from2 = new Date(now2);
+      from2.setDate(from2.getDate() - 60);
+      var fromStr2 = from2.toISOString(), toStr2 = now2.toISOString();
+      var batch = devices.slice(0, 20);
+      var calls = batch.map(function(d) {
+        return ['Get', {
+          typeName: 'StatusData',
+          search: {
+            fromDate: fromStr2,
+            toDate: toStr2,
+            deviceSearch: {id: d.id},
+            diagnosticSearch: {id: CRANK_DIAG_ID || 'DiagnosticBatteryVoltageId'}
+          },
+          resultsLimit: 5000
+        }];
+      });
+      _api.multiCall(calls, function(results) {
+        var combined = [];
+        batch.forEach(function(d, i) {
+          var recs = (results && results[i]) || [];
+          recs.forEach(function(r) {
+            if (!r.device) r.device = {id: d.id};
+            else if (!r.device.id) r.device.id = d.id;
+            combined.push(r);
+          });
+        });
+        if (!combined.length) {
+          showBox('');
+          showMsg('<div class="info-box">&#9432; No battery voltage data found. This add-in requires the Cranking voltage or Battery voltage diagnostic to be active on your devices.</div>');
+          return;
+        }
+        processReadings(combined, devices);
+        if (!_rows.length) {
+          showBox('');
+          showMsg('<div class="info-box">&#9432; Data found (' + combined.length + ' records) but voltages were outside valid range (6-18V). Sample value: ' + (combined[0] ? combined[0].data : 'N/A') + '</div>');
+          return;
+        }
+        finishRender();
+      }, function() {
+        showBox('');
+        showMsg('<div class="info-box">&#9432; Could not match ' + statusData.length + ' voltage records to vehicles. Sample device: ' + (statusData[0] && statusData[0].device ? JSON.stringify(statusData[0].device).substring(0,80) : 'none') + '</div>');
+      });
       return;
     }
+    finishRender();
+  }
+
+  function finishRender() {
     saveData();
     localStorage.setItem(LAST_RUN_KEY, new Date().toISOString());
     renderAll();
