@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Battery Cranking Voltage</title>
+</head>
+<body>
+<style>
+  :root{--bg:#0b0f1a;--bg2:#121929;--bg3:#1a2540;--border:#1e2e4a;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--accent:#00e5ff;--grid:rgba(0,229,255,0.03);--shadow:none;--ok:#10b981;--warn:#f59e0b;--crit:#ef4444;}
+  body.light{--bg:#f0f4f8;--bg2:#ffffff;--bg3:#e8edf4;--border:#d1dae6;--text:#0f172a;--text2:#475569;--text3:#64748b;--accent:#0891b2;--grid:rgba(8,145,178,0.04);--shadow:0 1px 3px rgba(0,0,0,0.07);}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif;min-height:100vh;transition:background .3s,color .3s;}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+  *{box-sizing:border-box;}
+  #app{position:relative;z-index:1;max-width:1380px;margin:0 auto;padding:28px 24px;}
+
+  /* HEADER */
+  .hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:16px;}
+  h1{font-size:1.8rem;font-weight:800;letter-spacing:-0.03em;color:var(--accent);margin:0;}
+  .hdr-sub{font-size:0.82rem;color:var(--text3);margin-top:4px;}
+  .hdr-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+
+  /* BUTTONS */
+  .btn{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:0.82rem;transition:all .2s;display:flex;align-items:center;gap:6px;white-space:nowrap;box-shadow:var(--shadow);}
+  .btn:hover{border-color:var(--accent);color:var(--accent);}
+  .btn svg{width:14px;height:14px;flex-shrink:0;}
+  .btn-notify{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.35);color:#f59e0b;}
+  .btn-notify:hover{background:rgba(245,158,11,.2);border-color:#f59e0b;color:#f59e0b;}
+  .btn-notify.active{background:rgba(245,158,11,.18);border-color:#f59e0b;}
+
+  /* THEME TOGGLE */
+  .toggle-wrap{display:flex;align-items:center;gap:8px;cursor:pointer;padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);box-shadow:var(--shadow);transition:all .2s;user-select:none;}
+  .toggle-wrap:hover{border-color:var(--accent);}
+  .toggle-track{width:34px;height:18px;border-radius:99px;background:var(--border);position:relative;transition:background .3s;flex-shrink:0;}
+  body.light .toggle-track{background:var(--accent);}
+  .toggle-thumb{width:12px;height:12px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:transform .3s;box-shadow:0 1px 2px rgba(0,0,0,.3);}
+  body.light .toggle-thumb{transform:translateX(16px);}
+  .toggle-lbl{font-size:0.72rem;color:var(--text2);}
+
+  /* NOTIFICATION PANEL */
+  .panel{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:24px;display:none;box-shadow:var(--shadow);}
+  .panel.open{display:block;}
+  .panel-title{font-size:0.9rem;font-weight:700;margin-bottom:4px;color:var(--text);}
+  .panel-desc{font-size:0.75rem;color:var(--text3);margin-bottom:18px;}
+  .notif-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+  .notif-field label{display:block;font-size:0.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+  .notif-input{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:7px;padding:9px 12px;font-size:0.82rem;outline:none;transition:border-color .2s;}
+  .notif-input:focus{border-color:var(--accent);}
+  .notif-thresholds{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:18px;}
+  .notif-thresh-item{display:flex;flex-direction:column;gap:5px;}
+  .notif-thresh-item label{font-size:0.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;}
+  .thresh-input{width:110px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:7px;padding:8px 10px;font-size:0.85rem;outline:none;transition:border-color .2s;text-align:center;}
+  .thresh-input:focus{border-color:var(--accent);}
+  .thresh-warn .thresh-input{border-color:rgba(245,158,11,.4);}
+  .thresh-crit .thresh-input{border-color:rgba(239,68,68,.4);}
+  .panel-footer{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;}
+  .btn-save{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.35);color:#10b981;}
+  .btn-save:hover{background:rgba(16,185,129,.22);border-color:#10b981;color:#10b981;}
+  .notif-emails-wrap{margin-bottom:16px;}
+  .notif-emails-wrap label{display:block;font-size:0.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+  .email-chips{display:flex;flex-wrap:wrap;gap:6px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:8px 10px;min-height:42px;cursor:text;transition:border-color .2s;}
+  .email-chips:focus-within{border-color:var(--accent);}
+  .chip{display:inline-flex;align-items:center;gap:5px;background:rgba(0,229,255,.12);border:1px solid rgba(0,229,255,.3);border-radius:99px;padding:3px 10px;font-size:0.75rem;color:var(--accent);}
+  body.light .chip{background:rgba(8,145,178,.1);border-color:rgba(8,145,178,.3);}
+  .chip-x{cursor:pointer;opacity:.6;font-size:1rem;line-height:1;}
+  .chip-x:hover{opacity:1;}
+  .chip-input{border:none;background:transparent;color:var(--text);font-size:0.82rem;outline:none;flex:1;min-width:140px;padding:2px 4px;}
+
+  /* KPIs */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:28px;}
+  .kpi{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;position:relative;overflow:hidden;box-shadow:var(--shadow);transition:background .3s,border-color .2s;}
+  .kpi-bar{position:absolute;top:0;left:0;right:0;height:2px;}
+  .kpi-lbl{font-size:0.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;}
+  .kpi-val{font-size:1.85rem;font-weight:800;line-height:1;}
+  .kpi-sub{font-size:0.75rem;color:var(--text3);margin-top:5px;}
+
+  /* CHART */
+  .chart-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:24px;box-shadow:var(--shadow);}
+  .chart-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+  .chart-title{font-size:0.9rem;font-weight:700;color:var(--text);}
+  .chart-legend{display:flex;gap:16px;flex-wrap:wrap;}
+  .legend-item{display:flex;align-items:center;gap:6px;font-size:0.72rem;color:var(--text3);}
+  .legend-line{width:20px;height:2px;border-radius:1px;}
+  .chart-svg-wrap{width:100%;overflow:hidden;}
+  svg.chart{width:100%;display:block;}
+  .chart-empty{padding:40px;text-align:center;font-size:0.78rem;color:var(--text3);}
+
+  /* VEHICLE CHART POPUP */
+  .vchart-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:24px;box-shadow:var(--shadow);display:none;}
+  .vchart-wrap.open{display:block;}
+  .vchart-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .vchart-title{font-size:0.88rem;font-weight:700;color:var(--text);}
+  .vchart-close{cursor:pointer;color:var(--text3);font-size:1.2rem;line-height:1;transition:color .15s;}
+  .vchart-close:hover{color:var(--accent);}
+
+  /* TABLE */
+  .sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
+  .sec-ttl{font-size:1rem;font-weight:700;color:var(--text);}
+  .sec-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .srch{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--text);font-size:0.875rem;width:200px;outline:none;transition:border-color .2s;box-shadow:var(--shadow);}
+  .srch:focus{border-color:var(--accent);}
+  .srch::placeholder{color:var(--text3);}
+  .tbl-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;box-shadow:var(--shadow);}
+  table{width:100%;border-collapse:collapse;}
+  thead tr{background:var(--bg3);border-bottom:1px solid var(--border);}
+  th{font-size:0.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);padding:12px 16px;text-align:left;cursor:pointer;user-select:none;white-space:nowrap;transition:color .15s;}
+  th:hover{color:var(--accent);}
+  th .sarr{color:var(--accent);font-style:normal;}
+  tbody tr{border-bottom:1px solid var(--border);transition:background .15s;}
+  tbody tr:last-child{border-bottom:none;}
+  tbody tr:hover{background:var(--bg3);}
+  td{padding:12px 16px;font-size:0.85rem;vertical-align:middle;}
+  .vname{font-size:0.82rem;font-weight:600;color:var(--text);}
+  .volt-num{font-size:1rem;font-weight:800;}
+  .volt-ok{color:var(--ok);}
+  .volt-warn{color:var(--warn);}
+  .volt-crit{color:var(--crit);}
+  .status-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;font-size:0.7rem;font-weight:600;}
+  .badge-ok{background:rgba(16,185,129,.12);color:#10b981;border:1px solid rgba(16,185,129,.3);}
+  .badge-warn{background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.3);}
+  .badge-crit{background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.3);}
+  .badge-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+  .mini-spark{display:block;}
+  .trend-up{color:#ef4444;}
+  .trend-dn{color:#10b981;}
+  .trend-flat{color:var(--text3);}
+  .view-btn{background:transparent;border:1px solid var(--border);color:var(--text3);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:0.72rem;transition:all .15s;}
+  .view-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+  /* LOADING / STATUS */
+  .box{padding:40px 24px;text-align:center;}
+  .spinner{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;}
+  .pbar-bg{background:var(--border);border-radius:99px;height:8px;overflow:hidden;max-width:400px;margin:12px auto 0;}
+  .pbar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),#a78bfa);transition:width .3s ease;}
+  .msg{font-size:0.78rem;color:var(--text3);margin-top:8px;}
+  .err-box{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:14px 18px;margin:0 0 16px;font-size:0.75rem;color:#f87171;word-break:break-all;}
+  .info-box{background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.2);border-radius:10px;padding:12px 16px;margin:0 0 16px;font-size:0.75rem;color:var(--text2);}
+  .toast{position:fixed;bottom:28px;right:28px;color:#fff;font-size:0.8rem;padding:12px 20px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.3);z-index:9999;transform:translateY(80px);opacity:0;transition:transform .3s,opacity .3s;}
+  .toast.show{transform:translateY(0);opacity:1;}
+  .foot{font-size:0.7rem;color:var(--text3);text-align:center;padding-top:4px;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+
+<div id="app">
+  <div class="hdr">
+    <div>
+      <h1>Battery Cranking Voltage</h1>
+      <p class="hdr-sub" id="hdrSub">60-day rolling average &bull; refreshes daily</p>
+    </div>
+    <div class="hdr-right">
+      <button class="btn btn-notify" id="btnNotify" onclick="battDash.toggleNotify()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Notifications
+      </button>
+      <div class="toggle-wrap" onclick="battDash.toggleTheme()">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+        <span class="toggle-lbl" id="themeLbl">DARK</span>
+      </div>
+      <button class="btn" id="btnRefresh">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION PANEL -->
+  <div class="panel" id="notifPanel">
+    <div class="panel-title">&#9993; Email Notifications</div>
+    <div class="panel-desc">Send email alerts when a vehicle's average cranking voltage crosses a threshold. Checks run daily with each background refresh.</div>
+    <div class="notif-emails-wrap">
+      <label>Email Recipients</label>
+      <div class="email-chips" id="emailChips" onclick="document.getElementById('chipInput').focus()">
+        <input class="chip-input" id="chipInput" placeholder="Add email address, press Enter..." onkeydown="battDash.chipKey(event)"/>
+      </div>
+    </div>
+    <div style="margin-bottom:16px;">
+      <label style="display:block;font-size:0.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Alert Thresholds</label>
+      <div class="notif-thresholds">
+        <div class="notif-thresh-item thresh-warn">
+          <label>Medium Risk (V)</label>
+          <input class="thresh-input" type="number" id="threshWarn" step="0.1" min="8" max="14" value="12.5"/>
+        </div>
+        <div class="notif-thresh-item thresh-crit">
+          <label>Critical Risk (V)</label>
+          <input class="thresh-input" type="number" id="threshCrit" step="0.1" min="8" max="14" value="11.5"/>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text3);padding-bottom:10px;align-self:flex-end;max-width:300px;">
+          Alerts fire once per threshold crossing and won't repeat until the vehicle recovers then drops again.
+        </div>
+      </div>
+    </div>
+    <div class="panel-footer">
+      <button class="btn" onclick="battDash.toggleNotify()">Cancel</button>
+      <button class="btn btn-save" onclick="battDash.saveNotify()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Save Notifications
+      </button>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpis">
+    <div class="kpi"><div class="kpi-bar" style="background:var(--accent);"></div><div class="kpi-lbl">Fleet Avg Voltage</div><div class="kpi-val" id="k1" style="color:var(--accent);">&#8212;</div><div class="kpi-sub">60-day rolling avg (V)</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--ok);"></div><div class="kpi-lbl">Healthy Vehicles</div><div class="kpi-val" id="k2" style="color:var(--ok);">&#8212;</div><div class="kpi-sub">avg above 12.5V</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--warn);"></div><div class="kpi-lbl">Medium Risk</div><div class="kpi-val" id="k3" style="color:var(--warn);">&#8212;</div><div class="kpi-sub">avg 11.5 - 12.5V</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--crit);"></div><div class="kpi-lbl">Critical Risk</div><div class="kpi-val" id="k4" style="color:var(--crit);">&#8212;</div><div class="kpi-sub">avg below 11.5V</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:#a78bfa;"></div><div class="kpi-lbl">Vehicles Tracked</div><div class="kpi-val" id="k5" style="color:#a78bfa;">&#8212;</div><div class="kpi-sub">with voltage data</div></div>
+  </div>
+
+  <!-- FLEET TREND CHART -->
+  <div class="chart-wrap">
+    <div class="chart-hdr">
+      <span class="chart-title">Fleet Daily Average Voltage &mdash; Last 60 Days</span>
+      <div class="chart-legend">
+        <div class="legend-item"><div class="legend-line" style="background:var(--accent);"></div>Fleet Avg</div>
+        <div class="legend-item"><div class="legend-line" style="background:var(--warn);border-top:2px dashed var(--warn);height:0;"></div>Med Risk 12.5V</div>
+        <div class="legend-item"><div class="legend-line" style="background:var(--crit);border-top:2px dashed var(--crit);height:0;"></div>Critical 11.5V</div>
+      </div>
+    </div>
+    <div class="chart-svg-wrap" id="fleetChartWrap">
+      <div class="chart-empty">Load data to see the fleet voltage trend.</div>
+    </div>
+  </div>
+
+  <!-- INDIVIDUAL VEHICLE CHART -->
+  <div class="vchart-wrap" id="vchartWrap">
+    <div class="vchart-hdr">
+      <span class="vchart-title" id="vchartTitle">Vehicle Voltage History</span>
+      <span class="vchart-close" onclick="battDash.closeVChart()">&#x2715;</span>
+    </div>
+    <div class="chart-svg-wrap" id="vchartSvgWrap"></div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="sec-hdr">
+    <span class="sec-ttl">Vehicle Breakdown</span>
+    <div class="sec-right">
+      <input type="text" class="srch" id="srch" placeholder="Search vehicle..." oninput="battDash.filter()"/>
+      <button class="btn" onclick="battDash.exportCSV()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export CSV
+      </button>
+    </div>
+  </div>
+
+  <div id="msgBox"></div>
+  <div class="tbl-wrap">
+    <div id="tbl">
+      <div class="box"><div class="spinner"></div><div class="msg">WAITING FOR GEOTAB...</div></div>
+    </div>
+  </div>
+  <div class="foot" id="foot"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+var battDash = (function() {
+  var _api = null;
+  var _rows = [];          // [{id, name, avg, readings:[{date,volt}], trend, status}]
+  var _fleetDaily = [];    // [{date, avg}] last 60 days fleet average
+  var _sortKey = 'avg';
+  var _sortDir = 1;        // 1 = asc (lowest first for voltage)
+  var _isLight = false;
+  var _notifyOpen = false;
+  var _emails = [];
+  var _threshWarn = 12.5;
+  var _threshCrit = 11.5;
+  var _notifyEnabled = false;
+  var _alertState = {};    // {vehicleId: 'ok'|'warn'|'crit'} — tracks last sent state
+
+  // Geotab diagnostic ID for battery/cranking voltage
+  // "BatteryCranking" diagnostic or fallback to "BatteryVoltage"
+  var DIAG_IDS = [
+    'DiagnosticCrankingVoltageId',
+    'DiagnosticBatteryCrankingVoltageId',
+    'DiagnosticDeviceTotalEngineHoursId' // fallback detection only
+  ];
+  var CRANK_DIAG_ID = null; // resolved at runtime
+
+  var STORE_KEY = 'battVoltData';
+  var NOTIFY_KEY = 'battVoltNotify';
+  var LAST_RUN_KEY = 'battVoltLastRun';
+
+  // ── STORAGE ────────────────────────────────────────────────────────────────
+  function saveData() {
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify({
+        rows: _rows,
+        fleetDaily: _fleetDaily,
+        savedAt: new Date().toISOString()
+      }));
+    } catch(e) {}
+  }
+
+  function loadData() {
+    try {
+      var s = localStorage.getItem(STORE_KEY);
+      if (!s) return false;
+      var d = JSON.parse(s);
+      if (d.rows && d.rows.length) {
+        _rows = d.rows;
+        _fleetDaily = d.fleetDaily || [];
+        return d.savedAt;
+      }
+    } catch(e) {}
+    return false;
+  }
+
+  function loadNotifyConfig() {
+    try {
+      var s = localStorage.getItem(NOTIFY_KEY);
+      if (!s) return;
+      var d = JSON.parse(s);
+      _emails = d.emails || [];
+      _threshWarn = d.threshWarn || 12.5;
+      _threshCrit = d.threshCrit || 11.5;
+      _notifyEnabled = d.enabled || false;
+      _alertState = d.alertState || {};
+      // Restore UI
+      document.getElementById('threshWarn').value = _threshWarn;
+      document.getElementById('threshCrit').value = _threshCrit;
+      _emails.forEach(function(e){ addChipEl(e); });
+    } catch(e) {}
+  }
+
+  function saveNotifyConfig() {
+    try {
+      localStorage.setItem(NOTIFY_KEY, JSON.stringify({
+        emails: _emails,
+        threshWarn: _threshWarn,
+        threshCrit: _threshCrit,
+        enabled: _notifyEnabled,
+        alertState: _alertState
+      }));
+    } catch(e) {}
+  }
+
+  // ── UTILS ──────────────────────────────────────────────────────────────────
+  function toast(msg, color) {
+    var t = document.getElementById('toast');
+    t.style.background = color || '#10b981';
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function(){ t.classList.remove('show'); }, 3200);
+  }
+
+  function showMsg(html) { document.getElementById('msgBox').innerHTML = html; }
+  function clearMsg()    { document.getElementById('msgBox').innerHTML = ''; }
+
+  function showBox(label, pct) {
+    document.getElementById('tbl').innerHTML =
+      '<div class="box"><div class="spinner"></div><div class="msg">' + label + '</div>' +
+      (pct !== undefined ? '<div class="pbar-bg"><div class="pbar-fill" style="width:'+pct+'%"></div></div>' : '') +
+      '</div>';
+  }
+
+  function fmtDate(d) {
+    return d.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+  }
+
+  function fmtDateKey(d) {
+    return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+  }
+
+  function pad(n) { return n < 10 ? '0'+n : ''+n; }
+
+  function voltClass(v) {
+    if (v < _threshCrit) return 'volt-crit';
+    if (v < _threshWarn) return 'volt-warn';
+    return 'volt-ok';
+  }
+
+  function statusInfo(v) {
+    if (v < _threshCrit) return {cls:'badge-crit', label:'Critical', dotColor:'#ef4444'};
+    if (v < _threshWarn) return {cls:'badge-warn', label:'Med Risk', dotColor:'#f59e0b'};
+    return {cls:'badge-ok', label:'Healthy', dotColor:'#10b981'};
+  }
+
+  // ── SVG CHART ──────────────────────────────────────────────────────────────
+  function buildChart(containerId, dailyData, vehicleRows, isFleet, threshWarn, threshCrit) {
+    var wrap = document.getElementById(containerId);
+    if (!wrap) return;
+    if (!dailyData || !dailyData.length) {
+      wrap.innerHTML = '<div class="chart-empty">No data available for chart.</div>';
+      return;
+    }
+
+    var W = wrap.offsetWidth || 900;
+    var H = 220;
+    var padL = 52, padR = 20, padT = 16, padB = 36;
+    var chartW = W - padL - padR;
+    var chartH = H - padT - padB;
+
+    // Determine Y range
+    var allVals = dailyData.map(function(d){ return d.avg; });
+    allVals.push(threshCrit - 0.5, threshWarn + 0.5);
+    var minV = Math.min.apply(null, allVals) - 0.3;
+    var maxV = Math.max.apply(null, allVals) + 0.3;
+    minV = Math.max(8, Math.floor(minV * 10) / 10);
+    maxV = Math.min(16, Math.ceil(maxV * 10) / 10);
+
+    function xPos(i) {
+      return padL + (i / Math.max(dailyData.length - 1, 1)) * chartW;
+    }
+    function yPos(v) {
+      return padT + chartH - ((v - minV) / (maxV - minV)) * chartH;
+    }
+
+    // Build polyline points
+    var pts = dailyData.map(function(d, i){ return xPos(i) + ',' + yPos(d.avg).toFixed(1); }).join(' ');
+
+    // Area fill path
+    var areaPath = 'M' + xPos(0) + ',' + yPos(dailyData[0].avg).toFixed(1);
+    dailyData.forEach(function(d, i){ if (i > 0) areaPath += ' L' + xPos(i) + ',' + yPos(d.avg).toFixed(1); });
+    areaPath += ' L' + xPos(dailyData.length-1) + ',' + (padT + chartH) + ' L' + xPos(0) + ',' + (padT + chartH) + ' Z';
+
+    // Y axis ticks
+    var yTicks = [];
+    var step = (maxV - minV) > 3 ? 1 : 0.5;
+    for (var v = Math.ceil(minV / step) * step; v <= maxV; v = Math.round((v + step) * 10) / 10) {
+      yTicks.push(v);
+    }
+
+    // X axis labels (show ~6 evenly spaced)
+    var xLabels = [];
+    var xStep = Math.max(1, Math.floor(dailyData.length / 6));
+    for (var xi = 0; xi < dailyData.length; xi += xStep) {
+      xLabels.push({i: xi, label: dailyData[xi].dateLabel});
+    }
+    // Always include last
+    if (xLabels.length === 0 || xLabels[xLabels.length-1].i !== dailyData.length-1) {
+      xLabels.push({i: dailyData.length-1, label: dailyData[dailyData.length-1].dateLabel});
+    }
+
+    var borderColor = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#1e2e4a';
+    var textColor   = getComputedStyle(document.documentElement).getPropertyValue('--text3').trim() || '#64748b';
+    var accentColor = isFleet ? (getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#00e5ff') : '#a78bfa';
+
+    var svg = '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg">';
+
+    // Defs for area gradient
+    svg += '<defs><linearGradient id="areaGrad_'+containerId+'" x1="0" y1="0" x2="0" y2="1">';
+    svg += '<stop offset="0%" stop-color="'+accentColor+'" stop-opacity="0.18"/>';
+    svg += '<stop offset="100%" stop-color="'+accentColor+'" stop-opacity="0.01"/>';
+    svg += '</linearGradient></defs>';
+
+    // Grid lines (horizontal)
+    yTicks.forEach(function(v) {
+      var y = yPos(v).toFixed(1);
+      svg += '<line x1="'+padL+'" y1="'+y+'" x2="'+(W-padR)+'" y2="'+y+'" stroke="'+borderColor+'" stroke-width="1" opacity="0.6"/>';
+      svg += '<text x="'+(padL-6)+'" y="'+(parseFloat(y)+4)+'" text-anchor="end" font-size="10" fill="'+textColor+'">'+v.toFixed(1)+'</text>';
+    });
+
+    // Threshold lines
+    var warnY = yPos(threshWarn).toFixed(1);
+    var critY = yPos(threshCrit).toFixed(1);
+    svg += '<line x1="'+padL+'" y1="'+warnY+'" x2="'+(W-padR)+'" y2="'+warnY+'" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.8"/>';
+    svg += '<line x1="'+padL+'" y1="'+critY+'" x2="'+(W-padR)+'" y2="'+critY+'" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.8"/>';
+
+    // Area fill
+    svg += '<path d="'+areaPath+'" fill="url(#areaGrad_'+containerId+')" />';
+
+    // Main line
+    svg += '<polyline points="'+pts+'" fill="none" stroke="'+accentColor+'" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>';
+
+    // Data points (only show if few)
+    if (dailyData.length <= 30) {
+      dailyData.forEach(function(d, i) {
+        var cx = xPos(i).toFixed(1), cy = yPos(d.avg).toFixed(1);
+        var dotColor = d.avg < threshCrit ? '#ef4444' : d.avg < threshWarn ? '#f59e0b' : accentColor;
+        svg += '<circle cx="'+cx+'" cy="'+cy+'" r="3" fill="'+dotColor+'" stroke="var(--bg2)" stroke-width="1.5"/>';
+      });
+    }
+
+    // X axis labels
+    xLabels.forEach(function(xl) {
+      svg += '<text x="'+xPos(xl.i).toFixed(1)+'" y="'+(H-8)+'" text-anchor="middle" font-size="10" fill="'+textColor+'">'+xl.label+'</text>';
+    });
+
+    svg += '</svg>';
+    wrap.innerHTML = svg;
+  }
+
+  // ── SPARKLINE ──────────────────────────────────────────────────────────────
+  function buildSparkline(readings) {
+    if (!readings || readings.length < 2) return '<span style="color:var(--text3);font-size:0.7rem;">&#8212;</span>';
+    var W = 80, H = 28;
+    var vals = readings.map(function(r){ return r.volt; });
+    var minV = Math.min.apply(null, vals);
+    var maxV = Math.max.apply(null, vals);
+    var range = maxV - minV || 0.5;
+    function xp(i){ return (i / (vals.length - 1)) * W; }
+    function yp(v){ return H - ((v - minV) / range) * (H - 4) - 2; }
+    var pts = vals.map(function(v, i){ return xp(i).toFixed(1)+','+yp(v).toFixed(1); }).join(' ');
+    var lastColor = vals[vals.length-1] < _threshCrit ? '#ef4444' : vals[vals.length-1] < _threshWarn ? '#f59e0b' : '#10b981';
+    return '<svg class="mini-spark" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">'+
+      '<polyline points="'+pts+'" fill="none" stroke="'+lastColor+'" stroke-width="1.5" stroke-linejoin="round" opacity="0.85"/>'+
+      '</svg>';
+  }
+
+  // ── NOTIFICATION ───────────────────────────────────────────────────────────
+  function checkNotifications() {
+    if (!_notifyEnabled || !_emails.length || !_api) return;
+    _rows.forEach(function(row) {
+      var prev = _alertState[row.id] || 'ok';
+      var curr = row.avg < _threshCrit ? 'crit' : row.avg < _threshWarn ? 'warn' : 'ok';
+      if (curr !== 'ok' && curr !== prev) {
+        sendAlert(row, curr);
+        _alertState[row.id] = curr;
+      } else if (curr === 'ok' && prev !== 'ok') {
+        _alertState[row.id] = 'ok'; // reset so it can alert again if it drops
+      }
+    });
+    saveNotifyConfig();
+  }
+
+  function sendAlert(row, level) {
+    if (!_api || !_emails.length) return;
+    var subject = (level === 'crit' ? '[CRITICAL] ' : '[WARNING] ') + 'Low Cranking Voltage: ' + row.name;
+    var body = 'Battery Cranking Voltage Alert\n\n' +
+      'Vehicle: ' + row.name + '\n' +
+      'Average Voltage (60-day): ' + row.avg.toFixed(2) + 'V\n' +
+      'Risk Level: ' + (level === 'crit' ? 'CRITICAL (below ' + _threshCrit + 'V)' : 'MEDIUM RISK (below ' + _threshWarn + 'V)') + '\n' +
+      'Latest Reading: ' + (row.readings.length ? row.readings[row.readings.length-1].volt.toFixed(2)+'V on '+row.readings[row.readings.length-1].dateLabel : 'N/A') + '\n\n' +
+      'Review this vehicle\'s battery health and consider scheduling maintenance.\n\n' +
+      'Generated by Fleet Battery Monitor | ' + new Date().toLocaleString();
+
+    _emails.forEach(function(email) {
+      try {
+        // Geotab notification via TextMessage
+        _api.call('Add', {
+          typeName: 'TextMessage',
+          entity: {
+            device: {id: row.id},
+            message: body,
+            isDirectionToVehicle: false,
+            messageContent: {
+              contentType: 'Normal',
+              message: body
+            }
+          }
+        }, function(){}, function(){});
+
+        // Also try via native notification if available
+        if (_api.call) {
+          _api.call('Add', {
+            typeName: 'Notification',
+            entity: {
+              subject: subject,
+              message: body,
+              user: {id: 'SystemUser'}
+            }
+          }, function(){}, function(){});
+        }
+      } catch(e) {}
+    });
+
+    toast('Alert sent: ' + row.name + ' (' + row.avg.toFixed(2) + 'V)', level === 'crit' ? '#ef4444' : '#f59e0b');
+  }
+
+  // ── DATA PROCESSING ────────────────────────────────────────────────────────
+  function processReadings(statusData, devices) {
+    var byDevice = {};
+    // Index devices
+    devices.forEach(function(d) { byDevice[d.id] = {id: d.id, name: d.name || d.id, readings: {}}; });
+
+    statusData.forEach(function(sd) {
+      var did = sd.device && sd.device.id;
+      if (!did || !byDevice[did]) return;
+      var v = parseFloat(sd.data);
+      if (isNaN(v) || v < 6 || v > 18) return; // sanity range for voltage
+      var dt = new Date(sd.dateTime);
+      var key = fmtDateKey(dt);
+      if (!byDevice[did].readings[key]) byDevice[did].readings[key] = [];
+      byDevice[did].readings[key].push(v);
+    });
+
+    // Build daily readings arrays and averages
+    var now = new Date();
+    var rows = [];
+    Object.keys(byDevice).forEach(function(did) {
+      var dev = byDevice[did];
+      var dailyArr = [];
+
+      for (var i = 59; i >= 0; i--) {
+        var dt = new Date(now);
+        dt.setDate(dt.getDate() - i);
+        var key = fmtDateKey(dt);
+        var dayVals = dev.readings[key] || [];
+        if (dayVals.length) {
+          var dayAvg = dayVals.reduce(function(s,v){return s+v;}, 0) / dayVals.length;
+          dailyArr.push({
+            date: key,
+            dateLabel: fmtDate(dt),
+            volt: Math.round(dayAvg * 100) / 100
+          });
+        }
+      }
+
+      if (!dailyArr.length) return; // skip vehicles with no voltage data
+
+      var allVolts = dailyArr.map(function(d){ return d.volt; });
+      var avg = allVolts.reduce(function(s,v){return s+v;}, 0) / allVolts.length;
+      avg = Math.round(avg * 100) / 100;
+
+      // Trend: compare last 7 days avg vs prior 7
+      var recent = allVolts.slice(-7);
+      var prior  = allVolts.slice(-14, -7);
+      var recentAvg = recent.length ? recent.reduce(function(s,v){return s+v;},0)/recent.length : avg;
+      var priorAvg  = prior.length  ? prior.reduce(function(s,v){return s+v;},0)/prior.length   : avg;
+      var trend = priorAvg > 0 ? (recentAvg - priorAvg) : 0;
+
+      rows.push({
+        id: did,
+        name: dev.name,
+        avg: avg,
+        readings: dailyArr,
+        trend: Math.round(trend * 100) / 100,
+        status: avg < _threshCrit ? 'crit' : avg < _threshWarn ? 'warn' : 'ok'
+      });
+    });
+
+    // Sort by avg voltage ascending (worst first)
+    rows.sort(function(a, b){ return a.avg - b.avg; });
+    _rows = rows;
+
+    // Build fleet daily averages
+    var fleetByDay = {};
+    rows.forEach(function(row) {
+      row.readings.forEach(function(r) {
+        if (!fleetByDay[r.date]) fleetByDay[r.date] = {sum:0, cnt:0, label:r.dateLabel};
+        fleetByDay[r.date].sum += r.volt;
+        fleetByDay[r.date].cnt++;
+      });
+    });
+    _fleetDaily = Object.keys(fleetByDay).sort().map(function(k) {
+      var d = fleetByDay[k];
+      return {date:k, dateLabel:d.label, avg: Math.round(d.sum/d.cnt*100)/100};
+    });
+  }
+
+  // ── RENDER ─────────────────────────────────────────────────────────────────
+  function renderAll() {
+    renderKPIs();
+    renderFleetChart();
+    renderTable(getFilteredRows());
+    document.getElementById('foot').textContent = 'Last refreshed: ' + new Date().toLocaleString() + '  |  60-day rolling average  |  Auto-refreshes daily';
+  }
+
+  function renderKPIs() {
+    if (!_rows.length) return;
+    var allAvg = _rows.map(function(r){ return r.avg; });
+    var fleetAvg = allAvg.reduce(function(s,v){return s+v;}, 0) / allAvg.length;
+    var healthy = _rows.filter(function(r){ return r.status === 'ok'; }).length;
+    var warn    = _rows.filter(function(r){ return r.status === 'warn'; }).length;
+    var crit    = _rows.filter(function(r){ return r.status === 'crit'; }).length;
+    document.getElementById('k1').textContent = fleetAvg.toFixed(2) + 'V';
+    document.getElementById('k2').textContent = healthy;
+    document.getElementById('k3').textContent = warn;
+    document.getElementById('k4').textContent = crit;
+    document.getElementById('k5').textContent = _rows.length;
+  }
+
+  function renderFleetChart() {
+    buildChart('fleetChartWrap', _fleetDaily, _rows, true, _threshWarn, _threshCrit);
+  }
+
+  function renderTable(rows) {
+    if (!rows || !rows.length) {
+      document.getElementById('tbl').innerHTML = '<div class="box"><div class="msg">No vehicle voltage data found.</div></div>';
+      return;
+    }
+
+    function th(k, label) {
+      var arrow = _sortKey === k ? (' <em class="sarr">'+(_sortDir===1?'&#9650;':'&#9660;')+'</em>') : '';
+      return '<th onclick="battDash.sort(\''+k+'\')">'+label+arrow+'</th>';
+    }
+
+    var h = '<table><thead><tr>'+
+      th('name','Vehicle')+
+      th('avg','Avg Voltage')+
+      '<th>Status</th>'+
+      th('trend','7-Day Trend')+
+      '<th>60-Day Sparkline</th>'+
+      th('readings','Readings')+
+      '<th>Detail</th>'+
+      '</tr></thead><tbody>';
+
+    rows.forEach(function(row) {
+      var vc  = voltClass(row.avg);
+      var si  = statusInfo(row.avg);
+      var trendTxt = row.trend > 0.05 ? ('+'+row.trend.toFixed(2)+'V') : row.trend < -0.05 ? (row.trend.toFixed(2)+'V') : 'Stable';
+      var trendCls = row.trend > 0.05 ? 'trend-up' : row.trend < -0.05 ? 'trend-dn' : 'trend-flat';
+      // Note: trend-dn (dropping) is red, trend-up (rising) is green — voltage rising is good!
+      var trendColor = row.trend > 0.05 ? 'trend-dn' : row.trend < -0.05 ? 'trend-up' : 'trend-flat';
+      var spark = buildSparkline(row.readings);
+
+      h += '<tr>'+
+        '<td class="vname">'+row.name+'</td>'+
+        '<td><span class="volt-num '+vc+'">'+row.avg.toFixed(2)+'V</span></td>'+
+        '<td><span class="status-badge '+si.cls+'"><span class="badge-dot" style="background:'+si.dotColor+';"></span>'+si.label+'</span></td>'+
+        '<td class="'+trendColor+'" style="font-size:0.82rem;font-weight:600;">'+trendTxt+'</td>'+
+        '<td>'+spark+'</td>'+
+        '<td style="color:var(--text3);font-size:0.82rem;">'+row.readings.length+' days</td>'+
+        '<td><button class="view-btn" onclick="battDash.viewVehicle(\''+row.id+'\')">View Chart</button></td>'+
+        '</tr>';
+    });
+
+    document.getElementById('tbl').innerHTML = h + '</tbody></table>';
+  }
+
+  function getFilteredRows() {
+    var q = document.getElementById('srch').value.toLowerCase();
+    var rows = _rows;
+    if (q) rows = rows.filter(function(r){ return r.name.toLowerCase().indexOf(q) !== -1; });
+    // Apply current sort
+    var sorted = rows.slice().sort(function(a, b) {
+      if (typeof a[_sortKey] === 'string') return _sortDir * a[_sortKey].localeCompare(b[_sortKey]);
+      return _sortDir * (a[_sortKey] - b[_sortKey]);
+    });
+    return sorted;
+  }
+
+  // ── EMAIL CHIPS ────────────────────────────────────────────────────────────
+  function addChipEl(email) {
+    var wrap = document.getElementById('emailChips');
+    var input = document.getElementById('chipInput');
+    var chip = document.createElement('span');
+    chip.className = 'chip';
+    chip.setAttribute('data-email', email);
+    chip.innerHTML = email + '<span class="chip-x" onclick="battDash.removeChip(this)">&#x2715;</span>';
+    wrap.insertBefore(chip, input);
+  }
+
+  // ── FETCH ──────────────────────────────────────────────────────────────────
+  function resolveDiagnostic(cb) {
+    // Try to find the cranking voltage diagnostic
+    _api.call('Get', {
+      typeName: 'Diagnostic',
+      search: {name: 'Cranking voltage'},
+      resultsLimit: 10
+    }, function(results) {
+      if (results && results.length) {
+        CRANK_DIAG_ID = results[0].id;
+        cb(CRANK_DIAG_ID);
+      } else {
+        // Fallback: try battery voltage
+        _api.call('Get', {
+          typeName: 'Diagnostic',
+          search: {name: 'Battery voltage'},
+          resultsLimit: 10
+        }, function(res2) {
+          CRANK_DIAG_ID = res2 && res2.length ? res2[0].id : 'DiagnosticBatteryVoltageId';
+          cb(CRANK_DIAG_ID);
+        }, function() {
+          CRANK_DIAG_ID = 'DiagnosticBatteryVoltageId';
+          cb(CRANK_DIAG_ID);
+        });
+      }
+    }, function() {
+      CRANK_DIAG_ID = 'DiagnosticCrankingVoltageId';
+      cb(CRANK_DIAG_ID);
+    });
+  }
+
+  function fetchData() {
+    if (!_api) { return; }
+    clearMsg();
+    showBox('RESOLVING VOLTAGE DIAGNOSTIC...', 5);
+
+    var now  = new Date();
+    var from = new Date(now);
+    from.setDate(from.getDate() - 60);
+    var fromStr = from.toISOString();
+    var toStr   = now.toISOString();
+
+    resolveDiagnostic(function(diagId) {
+      showBox('FETCHING VEHICLES...', 15);
+      _api.call('Get', {typeName: 'Device', resultsLimit: 1000}, function(devices) {
+        if (!devices || !devices.length) {
+          showBox('');
+          showMsg('<div class="err-box">No vehicles found.</div>');
+          return;
+        }
+
+        showBox('FETCHING 60 DAYS OF VOLTAGE DATA FOR ' + devices.length + ' VEHICLES...', 30);
+
+        _api.call('Get', {
+          typeName: 'StatusData',
+          search: {
+            fromDate: fromStr,
+            toDate: toStr,
+            diagnosticSearch: {id: diagId}
+          },
+          resultsLimit: 500000
+        }, function(statusData) {
+          showBox('PROCESSING DATA...', 85);
+          if (!statusData || !statusData.length) {
+            // Try alternate diagnostic name
+            showBox('TRYING ALTERNATE DIAGNOSTIC...', 70);
+            _api.call('Get', {
+              typeName: 'StatusData',
+              search: {
+                fromDate: fromStr,
+                toDate: toStr,
+                diagnosticSearch: {id: 'DiagnosticBatteryVoltageId'}
+              },
+              resultsLimit: 500000
+            }, function(altData) {
+              if (!altData || !altData.length) {
+                showBox('');
+                showMsg('<div class="info-box">&#9432; No cranking voltage data found. Ensure your vehicles have battery voltage diagnostics enabled in Geotab. This add-in reads the "Cranking voltage" or "Battery voltage" diagnostic.</div>');
+                return;
+              }
+              processAndRender(altData, devices);
+            }, function(e) { showBox(''); showMsg('<div class="err-box">Error: '+(e&&e.message?e.message:JSON.stringify(e))+'</div>'); });
+            return;
+          }
+          processAndRender(statusData, devices);
+        }, function(err) {
+          showBox('');
+          showMsg('<div class="err-box">Error fetching status data: '+(err&&err.message?err.message:JSON.stringify(err))+'</div>');
+        });
+      }, function(err) {
+        showBox('');
+        showMsg('<div class="err-box">Error fetching devices: '+(err&&err.message?err.message:JSON.stringify(err))+'</div>');
+      });
+    });
+  }
+
+  function processAndRender(statusData, devices) {
+    processReadings(statusData, devices);
+    if (!_rows.length) {
+      showBox('');
+      showMsg('<div class="info-box">&#9432; Voltage data was found but could not be matched to vehicles. Check that device IDs are consistent.</div>');
+      return;
+    }
+    saveData();
+    localStorage.setItem(LAST_RUN_KEY, new Date().toISOString());
+    renderAll();
+    checkNotifications();
+  }
+
+  // ── DAILY AUTO-REFRESH ─────────────────────────────────────────────────────
+  function scheduleAutoRefresh() {
+    // Check if we need to refresh (once per day)
+    function checkAndRefresh() {
+      var lastRun = null;
+      try { lastRun = localStorage.getItem(LAST_RUN_KEY); } catch(e) {}
+      var shouldRefresh = true;
+      if (lastRun) {
+        var diff = Date.now() - new Date(lastRun).getTime();
+        shouldRefresh = diff > 23 * 60 * 60 * 1000; // 23 hours
+      }
+      if (shouldRefresh && _api) {
+        fetchData();
+      }
+    }
+
+    // Check immediately, then every hour (page may stay open)
+    setTimeout(checkAndRefresh, 1000);
+    setInterval(checkAndRefresh, 60 * 60 * 1000); // check every hour, refresh if 23h elapsed
+  }
+
+  // ── PUBLIC ─────────────────────────────────────────────────────────────────
+  return {
+    init: function(api) {
+      _api = api;
+      document.getElementById('btnRefresh').onclick = fetchData;
+      loadNotifyConfig();
+
+      // Try loading cached data first for instant display
+      var savedAt = loadData();
+      if (savedAt && _rows.length) {
+        var age = Date.now() - new Date(savedAt).getTime();
+        var ageHrs = Math.round(age / 3600000);
+        renderAll();
+        showMsg('<div class="info-box">&#9432; Showing cached data ('+(ageHrs < 1 ? 'less than 1 hour' : ageHrs+' hours')+' old). Fetching latest...</div>');
+        setTimeout(function(){ clearMsg(); fetchData(); }, 1200);
+      } else {
+        fetchData();
+      }
+
+      scheduleAutoRefresh();
+    },
+
+    toggleTheme: function() {
+      _isLight = !_isLight;
+      document.body.classList.toggle('light', _isLight);
+      document.getElementById('themeLbl').textContent = _isLight ? 'LIGHT' : 'DARK';
+      // Redraw charts with new colors
+      if (_rows.length) {
+        setTimeout(function(){ renderFleetChart(); }, 50);
+      }
+    },
+
+    toggleNotify: function() {
+      _notifyOpen = !_notifyOpen;
+      document.getElementById('notifPanel').classList.toggle('open', _notifyOpen);
+      document.getElementById('btnNotify').classList.toggle('active', _notifyOpen);
+    },
+
+    saveNotify: function() {
+      _threshWarn = parseFloat(document.getElementById('threshWarn').value) || 12.5;
+      _threshCrit = parseFloat(document.getElementById('threshCrit').value) || 11.5;
+      _notifyEnabled = _emails.length > 0;
+      saveNotifyConfig();
+      toast(_notifyEnabled ? 'Notifications saved - alerts enabled' : 'Saved (add email addresses to enable alerts)', '#10b981');
+      battDash.toggleNotify();
+      if (_rows.length) renderAll(); // re-render with updated thresholds
+    },
+
+    chipKey: function(e) {
+      if (e.key === 'Enter' || e.key === ',') {
+        e.preventDefault();
+        var val = document.getElementById('chipInput').value.trim().replace(/,$/,'');
+        if (val && val.indexOf('@') !== -1 && _emails.indexOf(val) === -1) {
+          _emails.push(val);
+          addChipEl(val);
+          document.getElementById('chipInput').value = '';
+        }
+      }
+      if (e.key === 'Backspace' && !document.getElementById('chipInput').value && _emails.length) {
+        var chips = document.getElementById('emailChips').querySelectorAll('.chip');
+        if (chips.length) {
+          var last = chips[chips.length - 1];
+          var email = last.getAttribute('data-email');
+          _emails = _emails.filter(function(e){ return e !== email; });
+          last.remove();
+        }
+      }
+    },
+
+    removeChip: function(xEl) {
+      var chip  = xEl.parentElement;
+      var email = chip.getAttribute('data-email');
+      _emails = _emails.filter(function(e){ return e !== email; });
+      chip.remove();
+    },
+
+    viewVehicle: function(vid) {
+      var row = null;
+      for (var i = 0; i < _rows.length; i++) { if (_rows[i].id === vid) { row = _rows[i]; break; } }
+      if (!row) return;
+      document.getElementById('vchartTitle').textContent = row.name + ' - Cranking Voltage (60 Days)';
+      document.getElementById('vchartWrap').classList.add('open');
+      document.getElementById('vchartWrap').scrollIntoView({behavior:'smooth', block:'nearest'});
+      buildChart('vchartSvgWrap', row.readings, [], false, _threshWarn, _threshCrit);
+    },
+
+    closeVChart: function() {
+      document.getElementById('vchartWrap').classList.remove('open');
+      document.getElementById('vchartSvgWrap').innerHTML = '';
+    },
+
+    sort: function(k) {
+      if (_sortKey === k) { _sortDir *= -1; } else { _sortKey = k; _sortDir = k === 'avg' ? 1 : (k === 'name' ? 1 : -1); }
+      renderTable(getFilteredRows());
+    },
+
+    filter: function() { renderTable(getFilteredRows()); },
+
+    exportCSV: function() {
+      if (!_rows.length) return;
+      var lines = [
+        'Battery Cranking Voltage Report',
+        'Generated: ' + new Date().toLocaleString(),
+        'Period: Last 60 days',
+        '',
+        'Vehicle,Avg Voltage (V),Status,7-Day Trend (V),Data Days,Latest Reading (V),Latest Date'
+      ];
+      _rows.forEach(function(row) {
+        var latest = row.readings.length ? row.readings[row.readings.length-1] : null;
+        lines.push([
+          '"'+row.name.replace(/"/g,'""')+'"',
+          row.avg.toFixed(2),
+          row.status === 'crit' ? 'Critical' : row.status === 'warn' ? 'Med Risk' : 'Healthy',
+          (row.trend >= 0 ? '+' : '') + row.trend.toFixed(2),
+          row.readings.length,
+          latest ? latest.volt.toFixed(2) : '',
+          latest ? latest.dateLabel : ''
+        ].join(','));
+      });
+      var blob = new Blob([lines.join('\r\n')], {type:'text/csv'});
+      var url  = URL.createObjectURL(blob);
+      var a    = document.createElement('a');
+      a.href = url; a.download = 'battery-voltage-report.csv';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+    }
+  };
+})();
+
+geotab.addin = geotab.addin || {};
+geotab.addin.batterycranking = function() {
+  return {
+    initialize: function(api, state, cb) { battDash.init(api); if (typeof cb === 'function') cb(); },
+    focus:      function() {},
+    blur:       function() {}
+  };
+};
+</script>
+</body>
+</html>
