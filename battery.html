@@ -270,6 +270,7 @@ var battDash = (function() {
 
   // Geotab diagnostic ID for battery/cranking voltage
   // "BatteryCranking" diagnostic or fallback to "BatteryVoltage"
+  var _diagName = 'Battery voltage';
   var DIAG_IDS = [
     'DiagnosticCrankingVoltageId',
     'DiagnosticBatteryCrankingVoltageId',
@@ -795,34 +796,182 @@ var battDash = (function() {
   }
 
   // ── FETCH ──────────────────────────────────────────────────────────────────
+  // All known Geotab diagnostic IDs and names related to battery/cranking voltage
+  var VOLTAGE_DIAG_CANDIDATES = [
+    'DiagnosticCrankingVoltageId',
+    'DiagnosticBatteryCrankingVoltageId',
+    'DiagnosticBatteryVoltageId',
+    'DiagnosticDeviceVoltageId',
+    'DiagnosticExternalDevicePowerStatusId'
+  ];
+  var VOLTAGE_DIAG_NAMES = [
+    'Cranking voltage',
+    'Battery cranking voltage',
+    'Battery voltage',
+    'External device power supply voltage',
+    'Device voltage',
+    'voltage'
+  ];
+
   function resolveDiagnostic(cb) {
-    // Try to find the cranking voltage diagnostic
-    _api.call('Get', {
-      typeName: 'Diagnostic',
-      search: {name: 'Cranking voltage'},
-      resultsLimit: 10
-    }, function(results) {
-      if (results && results.length) {
-        CRANK_DIAG_ID = results[0].id;
+    showBox('DISCOVERING VOLTAGE DIAGNOSTICS...', 8);
+
+    // Step 1: Search diagnostics by name keywords to find what exists in this database
+    var nameCalls = VOLTAGE_DIAG_NAMES.slice(0, 4).map(function(name) {
+      return ['Get', {typeName: 'Diagnostic', search: {name: name}, resultsLimit: 5}];
+    });
+
+    _api.multiCall(nameCalls, function(nameResults) {
+      // Collect all found diagnostics
+      var found = [];
+      var seen = {};
+      nameResults.forEach(function(res) {
+        (res || []).forEach(function(d) {
+          if (!seen[d.id]) {
+            seen[d.id] = true;
+            found.push(d);
+          }
+        });
+      });
+
+      if (found.length) {
+        // Prefer cranking voltage over generic battery voltage
+        var preferred = null;
+        var crankKw = ['crank', 'cranking'];
+        for (var i = 0; i < found.length; i++) {
+          var nm = (found[i].name || '').toLowerCase();
+          for (var j = 0; j < crankKw.length; j++) {
+            if (nm.indexOf(crankKw[j]) !== -1) { preferred = found[i]; break; }
+          }
+          if (preferred) break;
+        }
+        CRANK_DIAG_ID = preferred ? preferred.id : found[0].id;
+        _diagName = preferred ? preferred.name : found[0].name;
+        document.getElementById('hdrSub').textContent = 'Diagnostic: ' + _diagName + ' • 60-day rolling average • refreshes daily';
         cb(CRANK_DIAG_ID);
-      } else {
-        // Fallback: try battery voltage
-        _api.call('Get', {
-          typeName: 'Diagnostic',
-          search: {name: 'Battery voltage'},
-          resultsLimit: 10
-        }, function(res2) {
-          CRANK_DIAG_ID = res2 && res2.length ? res2[0].id : 'DiagnosticBatteryVoltageId';
+        return;
+      }
+
+      // Step 2: No diagnostics found by name — try known IDs directly via StatusData probe
+      // Pick one device and test each candidate ID to see which returns data
+      showBox('PROBING DIAGNOSTIC IDs...', 12);
+      _api.call('Get', {typeName: 'Device', resultsLimit: 1}, function(probeDevices) {
+        if (!probeDevices || !probeDevices.length) {
+          CRANK_DIAG_ID = 'DiagnosticBatteryVoltageId';
+          cb(CRANK_DIAG_ID);
+          return;
+        }
+        var probeDevice = probeDevices[0];
+        var probeFrom = new Date(); probeFrom.setDate(probeFrom.getDate() - 7);
+        var probeCalls = VOLTAGE_DIAG_CANDIDATES.map(function(diagId) {
+          return ['Get', {
+            typeName: 'StatusData',
+            search: {
+              fromDate: probeFrom.toISOString(),
+              toDate: new Date().toISOString(),
+              deviceSearch: {id: probeDevice.id},
+              diagnosticSearch: {id: diagId}
+            },
+            resultsLimit: 1
+          }];
+        });
+
+        _api.multiCall(probeCalls, function(probeResults) {
+          for (var pi = 0; pi < VOLTAGE_DIAG_CANDIDATES.length; pi++) {
+            if (probeResults[pi] && probeResults[pi].length) {
+              CRANK_DIAG_ID = VOLTAGE_DIAG_CANDIDATES[pi];
+              document.getElementById('hdrSub').textContent = 'Diagnostic ID: ' + CRANK_DIAG_ID + ' • 60-day rolling average';
+              cb(CRANK_DIAG_ID);
+              return;
+            }
+          }
+          // Nothing found on probe device — use default and let fetchData handle empty result
+          CRANK_DIAG_ID = 'DiagnosticBatteryVoltageId';
           cb(CRANK_DIAG_ID);
         }, function() {
           CRANK_DIAG_ID = 'DiagnosticBatteryVoltageId';
           cb(CRANK_DIAG_ID);
         });
-      }
+      }, function() {
+        CRANK_DIAG_ID = 'DiagnosticBatteryVoltageId';
+        cb(CRANK_DIAG_ID);
+      });
     }, function() {
-      CRANK_DIAG_ID = 'DiagnosticCrankingVoltageId';
+      // multiCall failed entirely - fall back to default
+      CRANK_DIAG_ID = 'DiagnosticBatteryVoltageId';
       cb(CRANK_DIAG_ID);
     });
+  }
+
+  function tryNextDiagnostic(devices, fromStr, toStr, idx, cb) {
+    if (idx >= VOLTAGE_DIAG_CANDIDATES.length) { cb(null); return; }
+    var diagId = VOLTAGE_DIAG_CANDIDATES[idx];
+    showBox('TRYING DIAGNOSTIC: ' + diagId + '...', 60 + idx * 5);
+    var batch = devices.slice(0, 10); // probe first 10 devices only
+    var calls = batch.map(function(d) {
+      return ['Get', {
+        typeName: 'StatusData',
+        search: {
+          fromDate: fromStr,
+          toDate: toStr,
+          deviceSearch: {id: d.id},
+          diagnosticSearch: {id: diagId}
+        },
+        resultsLimit: 3000
+      }];
+    });
+    _api.multiCall(calls, function(results) {
+      var combined = [];
+      batch.forEach(function(d, i) {
+        var recs = (results && results[i]) || [];
+        recs.forEach(function(r) {
+          if (!r.device) r.device = {id: d.id};
+          else r.device.id = d.id;
+          combined.push(r);
+        });
+      });
+      if (combined.length) {
+        CRANK_DIAG_ID = diagId;
+        _diagName = diagId;
+        document.getElementById('hdrSub').textContent = 'Diagnostic: ' + diagId + ' • 60-day rolling average • refreshes daily';
+        // Now fetch all devices with this confirmed diag ID
+        fetchAllWithDiag(devices, diagId, fromStr, toStr, cb);
+      } else {
+        tryNextDiagnostic(devices, fromStr, toStr, idx + 1, cb);
+      }
+    }, function() {
+      tryNextDiagnostic(devices, fromStr, toStr, idx + 1, cb);
+    });
+  }
+
+  function fetchAllWithDiag(devices, diagId, fromStr, toStr, cb) {
+    var BATCH = 50;
+    var allData = [];
+    var batchIdx = 0;
+    function runB() {
+      if (batchIdx * BATCH >= devices.length) { cb(allData); return; }
+      var batch = devices.slice(batchIdx * BATCH, (batchIdx + 1) * BATCH);
+      var calls = batch.map(function(d) {
+        return ['Get', {
+          typeName: 'StatusData',
+          search: {fromDate: fromStr, toDate: toStr, deviceSearch: {id: d.id}, diagnosticSearch: {id: diagId}},
+          resultsLimit: 10000
+        }];
+      });
+      _api.multiCall(calls, function(results) {
+        batch.forEach(function(d, i) {
+          var recs = (results && results[i]) || [];
+          recs.forEach(function(r) {
+            if (!r.device) r.device = {id: d.id};
+            else r.device.id = d.id;
+            allData.push(r);
+          });
+        });
+        batchIdx++;
+        runB();
+      }, function() { batchIdx++; runB(); });
+    }
+    runB();
   }
 
   function fetchData() {
