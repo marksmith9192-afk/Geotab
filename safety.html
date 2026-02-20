@@ -9,16 +9,16 @@
 <style>
   :root{--bg:#0b0f1a;--bg2:#121929;--bg3:#1a2540;--border:#1e2e4a;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--grid:rgba(255,107,53,0.02);--slbg:#1e2e4a;--slbdr:#0b0f1a;--shadow:none;}
   body.light{--bg:#f1f5f9;--bg2:#ffffff;--bg3:#e2e8f0;--border:#cbd5e1;--text:#0f172a;--text2:#475569;--text3:#64748b;--grid:rgba(0,0,0,0.03);--slbg:#cbd5e1;--slbdr:#ffffff;--shadow:0 1px 3px rgba(0,0,0,0.08);}
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;min-height:100vh;transition:background .3s,color .3s;}
-  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif;min-height:100vh;transition:background .3s,color .3s;}
+  body.has-grid{background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:40px 40px;}
   *{box-sizing:border-box;}
   #app{position:relative;z-index:1;max-width:1380px;margin:0 auto;padding:28px 24px;}
   .hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:16px;}
   h1{font-size:1.8rem;font-weight:800;letter-spacing:-.03em;background:linear-gradient(90deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-  #dateRange{font-size:.82rem;color:var(--text3);margin-top:4px;font-family:\'Courier New\',monospace;}
+  .date-range{font-size:.82rem;color:var(--text3);margin-top:4px;}
   .hdr-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
   .range-group{display:flex;gap:6px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:4px;box-shadow:var(--shadow);}
-  .range-btn{background:transparent;border:none;color:var(--text3);padding:6px 14px;border-radius:7px;cursor:pointer;font-family:\'Courier New\',monospace;font-size:.72rem;transition:all .2s;}
+  .range-btn{background:transparent;border:none;color:var(--text3);padding:6px 14px;border-radius:7px;cursor:pointer;font-size:.72rem;transition:all .2s;}
   .range-btn:hover{color:var(--text);}
   .range-btn.active{background:var(--bg3);color:#f59e0b;border:1px solid rgba(245,158,11,.3);}
   .btn{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:.82rem;transition:all .2s;display:flex;align-items:center;gap:6px;white-space:nowrap;box-shadow:var(--shadow);}
@@ -27,8 +27,8 @@
   .btn.active-btn{border-color:#f59e0b;color:#f59e0b;background:rgba(245,158,11,.1);}
   .btn-save{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.35);color:#10b981;}
   .btn-save:hover{background:rgba(16,185,129,.22);border-color:#10b981;}
-  .btn-rules{background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.35);color:#a78bfa;}
-  .btn-rules:hover{background:rgba(167,139,250,.22);border-color:#a78bfa;}
+  .btn-purple{background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.35);color:#a78bfa;}
+  .btn-purple:hover{background:rgba(167,139,250,.22);border-color:#a78bfa;}
   .btn-apply{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.35);color:#f59e0b;}
   .btn-apply:hover{background:rgba(245,158,11,.22);}
   .toggle-wrap{display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);box-shadow:var(--shadow);transition:all .2s;}
@@ -37,48 +37,43 @@
   body.light .toggle-track{background:#f59e0b;}
   .toggle-thumb{width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:transform .3s;box-shadow:0 1px 3px rgba(0,0,0,.3);}
   body.light .toggle-thumb{transform:translateX(16px);}
-  .toggle-lbl{font-size:.75rem;font-family:\'Courier New\',monospace;color:var(--text2);white-space:nowrap;}
-  /* KPI */
+  .toggle-lbl{font-size:.75rem;color:var(--text2);white-space:nowrap;}
   .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:28px;}
   .kpi{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;position:relative;overflow:hidden;box-shadow:var(--shadow);transition:background .3s,border-color .2s,transform .15s;}
-  .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
-  .kpi.amber::before{background:#f59e0b;}.kpi.red::before{background:#ef4444;}.kpi.green::before{background:#10b981;}.kpi.blue::before{background:#00e5ff;}.kpi.purple::before{background:#a78bfa;}.kpi.orange::before{background:#ff6b35;}
-  .kpi-lbl{font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;font-family:\'Courier New\',monospace;margin-bottom:8px;}
+  .kpi-top-bar{position:absolute;top:0;left:0;right:0;height:2px;}
+  .kpi-lbl{font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;}
   .kpi-val{font-size:1.8rem;font-weight:800;line-height:1;}
-  .kpi.amber .kpi-val{color:#f59e0b;}.kpi.red .kpi-val{color:#ef4444;}.kpi.green .kpi-val{color:#10b981;}.kpi.blue .kpi-val{color:#00e5ff;}.kpi.purple .kpi-val{color:#a78bfa;}.kpi.orange .kpi-val{color:#ff6b35;}
   .kpi-sub{font-size:.75rem;color:var(--text3);margin-top:5px;}
   .kpi.clickable{cursor:pointer;}
   .kpi.clickable:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.15);}
-  .kpi.clickable .kpi-hint{font-size:.65rem;color:var(--text3);margin-top:8px;font-family:\'Courier New\',monospace;opacity:.7;}
+  .kpi-hint{font-size:.65rem;color:var(--text3);margin-top:8px;opacity:.7;}
   .kpi.clickable:hover .kpi-hint{opacity:1;}
   .kpi.kpi-active{transform:translateY(-2px);}
-  .kpi.green.kpi-active{border-color:#10b981;box-shadow:0 0 0 2px rgba(16,185,129,.2);}
-  .kpi.red.kpi-active{border-color:#ef4444;box-shadow:0 0 0 2px rgba(239,68,68,.2);}
-  .filter-badge{display:inline-flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-family:\'Courier New\',monospace;font-size:.75rem;color:var(--text2);margin-bottom:14px;}
-  .filter-badge-dot{width:8px;height:8px;border-radius:50%;}
-  .filter-badge-x{cursor:pointer;color:var(--text3);font-size:1rem;line-height:1;margin-left:4px;transition:color .15s;}
-  .filter-badge-x:hover{color:#ef4444;}
-  /* PANELS */
+  .kpi-active-green{border-color:#10b981;box-shadow:0 0 0 2px rgba(16,185,129,.2);}
+  .kpi-active-red{border-color:#ef4444;box-shadow:0 0 0 2px rgba(239,68,68,.2);}
+  .filter-badge{display:inline-flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:.75rem;color:var(--text2);margin-bottom:14px;}
+  .filter-dot{width:8px;height:8px;border-radius:50%;}
+  .filter-x{cursor:pointer;color:var(--text3);font-size:1rem;line-height:1;margin-left:4px;transition:color .15s;}
+  .filter-x:hover{color:#ef4444;}
   .panel{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:24px;display:none;box-shadow:var(--shadow);}
   .panel.open{display:block;}
   .panel-title{font-size:.9rem;font-weight:700;margin-bottom:6px;color:var(--text);}
-  .panel-desc{font-size:.75rem;color:var(--text3);margin-bottom:18px;font-family:\'Courier New\',monospace;}
+  .panel-desc{font-size:.75rem;color:var(--text3);margin-bottom:18px;}
+  .panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:8px;}
+  .panel-count{font-size:.75rem;color:var(--text3);}
   .panel-footer{display:flex;gap:10px;margin-top:20px;justify-content:flex-end;flex-wrap:wrap;align-items:center;}
-  /* WEIGHTS */
   .weight-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;}
   .weight-item{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;}
-  .weight-label{font-size:.72rem;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;font-family:\'Courier New\',monospace;margin-bottom:8px;}
+  .weight-label{font-size:.72rem;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .weight-row{display:flex;align-items:center;gap:10px;}
   .weight-slider{flex:1;-webkit-appearance:none;appearance:none;height:4px;border-radius:99px;background:var(--slbg);outline:none;cursor:pointer;}
   .weight-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#f59e0b;cursor:pointer;border:2px solid var(--slbdr);}
-  .weight-val{font-family:\'Courier New\',monospace;font-size:.85rem;color:#f59e0b;min-width:28px;text-align:right;font-weight:700;}
+  .weight-val{font-size:.85rem;color:#f59e0b;min-width:28px;text-align:right;font-weight:700;}
   .weight-sub{font-size:.7rem;color:var(--text3);margin-top:6px;}
-  /* RULES PANEL */
-  .rules-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:8px;}
-  .rules-count{font-size:.75rem;color:var(--text3);font-family:\'Courier New\',monospace;}
+  .weight-empty{padding:16px;font-size:.78rem;color:var(--text3);}
   .rules-cats{display:flex;flex-direction:column;gap:14px;}
   .rule-cat-block{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;}
-  .rule-cat-title{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;font-family:\'Courier New\',monospace;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+  .rule-cat-title{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
   .rule-cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
   .rules-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;}
   .rule-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);cursor:pointer;transition:border-color .15s;}
@@ -89,65 +84,67 @@
   .rule-chk svg{display:none;width:10px;height:10px;}
   .rule-row.rule-on .rule-chk svg{display:block;}
   .rule-info{flex:1;min-width:0;}
-  .rule-name{font-size:.8rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .rule-row.rule-on .rule-name{color:#10b981;}
-  .rule-meta{font-size:.68rem;color:var(--text3);font-family:\'Courier New\',monospace;}
-  .rule-wt{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:3px 6px;font-size:.72rem;font-family:\'Courier New\',monospace;cursor:pointer;outline:none;}
+  .rule-nm{font-size:.8rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .rule-row.rule-on .rule-nm{color:#10b981;}
+  .rule-meta{font-size:.68rem;color:var(--text3);}
+  .rule-wt{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:3px 6px;font-size:.72rem;cursor:pointer;outline:none;}
   .rule-wt:focus{border-color:#f59e0b;}
-  /* TABLE */
   .sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
   .sec-ttl{font-size:1rem;font-weight:700;color:var(--text);}
   .sec-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
   .srch{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--text);font-size:.875rem;width:200px;outline:none;transition:border-color .2s;box-shadow:var(--shadow);}
-  .srch:focus{border-color:#f59e0b;}.srch::placeholder{color:var(--text3);}
+  .srch:focus{border-color:#f59e0b;}
   .tbl-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:24px;box-shadow:var(--shadow);}
   table{width:100%;border-collapse:collapse;}
   thead tr{background:var(--bg3);border-bottom:1px solid var(--border);}
-  th{font-family:\'Courier New\',monospace;font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);padding:12px 16px;text-align:left;cursor:pointer;user-select:none;white-space:nowrap;}
+  th{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);padding:12px 16px;text-align:left;cursor:pointer;user-select:none;white-space:nowrap;}
   th:hover{color:#f59e0b;}
-  th.sort-asc::after{content:' \2191';color:#f59e0b;}th.sort-desc::after{content:' \2193';color:#f59e0b;}
+  th .sort-arrow{color:#f59e0b;font-style:normal;}
   tbody tr{border-bottom:1px solid var(--border);transition:background .15s;}
-  tbody tr:last-child{border-bottom:none;}tbody tr:hover{background:var(--bg3);}
+  tbody tr:last-child{border-bottom:none;}
+  tbody tr:hover{background:var(--bg3);}
   td{padding:12px 16px;font-size:.85rem;vertical-align:middle;}
-  .dname{font-family:\'Courier New\',monospace;font-size:.82rem;font-weight:600;color:var(--text);}
+  .dname{font-size:.82rem;font-weight:600;color:var(--text);}
   .score-wrap{display:flex;align-items:center;gap:10px;}
-  .score-num{font-family:\'Courier New\',monospace;font-size:1rem;font-weight:800;min-width:36px;}
+  .score-num{font-size:1rem;font-weight:800;min-width:36px;}
   .score-bar-bg{flex:1;height:7px;background:var(--border);border-radius:99px;overflow:hidden;min-width:60px;}
   .score-bar-fill{height:100%;border-radius:99px;}
   .score-hi .score-num{color:#10b981;}.score-hi .score-bar-fill{background:linear-gradient(90deg,#10b981,#34d399);}
   .score-med .score-num{color:#f59e0b;}.score-med .score-bar-fill{background:linear-gradient(90deg,#f59e0b,#fbbf24);}
   .score-low .score-num{color:#ef4444;}.score-low .score-bar-fill{background:linear-gradient(90deg,#ef4444,#f87171);}
-  .ev-cell{display:flex;align-items:center;gap:7px;font-family:\'Courier New\',monospace;font-size:.82rem;font-weight:600;}
+  .ev-cell{display:flex;align-items:center;gap:7px;font-size:.82rem;font-weight:600;}
   .ev-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
   .ev-0{color:#10b981;}.ev-0 .ev-dot{background:#10b981;}
   .ev-few{color:#f59e0b;}.ev-few .ev-dot{background:#f59e0b;}
   .ev-mid{color:#fb923c;}.ev-mid .ev-dot{background:#fb923c;}
   .ev-many{color:#ef4444;}.ev-many .ev-dot{background:#ef4444;}
-  .grade{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;font-weight:800;font-size:.9rem;font-family:\'Courier New\',monospace;}
+  .grade{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;font-weight:800;font-size:.9rem;}
   .grade-a{background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.35);}
   .grade-b{background:rgba(0,229,255,.1);color:#00bcd4;border:1px solid rgba(0,188,212,.3);}
   .grade-c{background:rgba(245,158,11,.15);color:#d97706;border:1px solid rgba(217,119,6,.3);}
   .grade-d{background:rgba(255,107,53,.15);color:#ea580c;border:1px solid rgba(234,88,12,.3);}
   .grade-f{background:rgba(239,68,68,.15);color:#dc2626;border:1px solid rgba(220,38,38,.3);}
+  .trips-cell{color:var(--text2);}
   .box{padding:40px 24px;text-align:center;}
   .spinner{width:34px;height:34px;border:3px solid var(--border);border-top-color:#f59e0b;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;}
   .pbar-bg{background:var(--border);border-radius:99px;height:8px;overflow:hidden;max-width:400px;margin:12px auto 0;}
   .pbar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#f59e0b,#ef4444);transition:width .3s ease;}
-  .msg{font-family:\'Courier New\',monospace;font-size:.78rem;color:var(--text3);margin-top:8px;}
-  .err-box{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:14px 18px;margin:0 0 16px;font-family:\'Courier New\',monospace;font-size:.75rem;color:#dc2626;word-break:break-all;}
-  .warn-box{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:10px;padding:12px 16px;margin:0 0 16px;font-family:\'Courier New\',monospace;font-size:.73rem;color:#d97706;}
-  .foot{font-family:\'Courier New\',monospace;font-size:.7rem;color:var(--text3);text-align:center;padding-top:4px;}
-  .toast{position:fixed;bottom:28px;right:28px;color:#fff;font-family:\'Courier New\',monospace;font-size:.8rem;padding:12px 20px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.3);z-index:9999;display:flex;align-items:center;gap:8px;transform:translateY(80px);opacity:0;transition:transform .3s ease,opacity .3s ease;}
+  .msg-txt{font-size:.78rem;color:var(--text3);margin-top:8px;}
+  .err-box{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:14px 18px;margin:0 0 16px;font-size:.75rem;color:#dc2626;word-break:break-all;}
+  .warn-box{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:10px;padding:12px 16px;margin:0 0 16px;font-size:.73rem;color:#d97706;}
+  .foot{font-size:.7rem;color:var(--text3);text-align:center;padding-top:4px;}
+  .toast{position:fixed;bottom:28px;right:28px;color:#fff;font-size:.8rem;padding:12px 20px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.3);z-index:9999;display:flex;align-items:center;gap:8px;transform:translateY(80px);opacity:0;transition:transform .3s ease,opacity .3s ease;}
   .toast.show{transform:translateY(0);opacity:1;}
+  .srch::placeholder{color:var(--text3);}
   @keyframes spin{to{transform:rotate(360deg)}}
-  /* utility classes used in JS-built HTML to avoid inline font strings */
-  .trips-cell{font-family:'Courier New',monospace;color:var(--text2);}
-  .weight-empty{padding:16px;font-family:'Courier New',monospace;font-size:.78rem;color:var(--text3);}
 </style>
 
 <div id="app">
   <div class="hdr">
-    <div><h1>Driver Safety Scorecard</h1><p id="dateRange"></p></div>
+    <div>
+      <h1>Driver Safety Scorecard</h1>
+      <p class="date-range" id="dateRange"></p>
+    </div>
     <div class="hdr-right">
       <div class="range-group">
         <button class="range-btn" onclick="safetyDash.setRange(7)">7D</button>
@@ -163,7 +160,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         Weights
       </button>
-      <button class="btn btn-rules" id="btnRules" onclick="safetyDash.togglePanel('rules')">
+      <button class="btn btn-purple" id="btnRules" onclick="safetyDash.togglePanel('rules')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
         Rules
       </button>
@@ -175,28 +172,42 @@
   </div>
 
   <div class="kpis">
-    <div class="kpi amber"><div class="kpi-lbl">Fleet Avg Score</div><div class="kpi-val" id="k1">&#8212;</div><div class="kpi-sub">out of 100</div></div>
-    <div class="kpi green clickable" id="kpi-top" onclick="safetyDash.filterGroup('top')">
-      <div class="kpi-lbl">Top Performers</div><div class="kpi-val" id="k2">&#8212;</div>
+    <div class="kpi" id="kpi-avg">
+      <div class="kpi-top-bar" style="background:#f59e0b;"></div>
+      <div class="kpi-lbl">Fleet Avg Score</div><div class="kpi-val" id="k1" style="color:#f59e0b;">&#8212;</div><div class="kpi-sub">out of 100</div>
+    </div>
+    <div class="kpi clickable" id="kpi-top" onclick="safetyDash.filterGroup('top')">
+      <div class="kpi-top-bar" style="background:#10b981;"></div>
+      <div class="kpi-lbl">Top Performers</div><div class="kpi-val" id="k2" style="color:#10b981;">&#8212;</div>
       <div class="kpi-sub">score &#8805; 80</div><div class="kpi-hint">&#9654; Click to filter</div>
     </div>
-    <div class="kpi red clickable" id="kpi-risk" onclick="safetyDash.filterGroup('risk')">
-      <div class="kpi-lbl">At-Risk Drivers</div><div class="kpi-val" id="k3">&#8212;</div>
+    <div class="kpi clickable" id="kpi-risk" onclick="safetyDash.filterGroup('risk')">
+      <div class="kpi-top-bar" style="background:#ef4444;"></div>
+      <div class="kpi-lbl">At-Risk Drivers</div><div class="kpi-val" id="k3" style="color:#ef4444;">&#8212;</div>
       <div class="kpi-sub">score &lt; 60</div><div class="kpi-hint">&#9654; Click to filter</div>
     </div>
-    <div class="kpi blue"><div class="kpi-lbl">Total Speeding</div><div class="kpi-val" id="k4">&#8212;</div><div class="kpi-sub">events in period</div></div>
-    <div class="kpi orange"><div class="kpi-lbl">Hard Braking</div><div class="kpi-val" id="k5">&#8212;</div><div class="kpi-sub">events in period</div></div>
-    <div class="kpi purple"><div class="kpi-lbl">Drivers Tracked</div><div class="kpi-val" id="k6">&#8212;</div><div class="kpi-sub">active in period</div></div>
+    <div class="kpi" id="kpi-spd">
+      <div class="kpi-top-bar" style="background:#00e5ff;"></div>
+      <div class="kpi-lbl">Total Speeding</div><div class="kpi-val" id="k4" style="color:#00e5ff;">&#8212;</div><div class="kpi-sub">events in period</div>
+    </div>
+    <div class="kpi" id="kpi-brk">
+      <div class="kpi-top-bar" style="background:#ff6b35;"></div>
+      <div class="kpi-lbl">Hard Braking</div><div class="kpi-val" id="k5" style="color:#ff6b35;">&#8212;</div><div class="kpi-sub">events in period</div>
+    </div>
+    <div class="kpi" id="kpi-drv">
+      <div class="kpi-top-bar" style="background:#a78bfa;"></div>
+      <div class="kpi-lbl">Drivers Tracked</div><div class="kpi-val" id="k6" style="color:#a78bfa;">&#8212;</div><div class="kpi-sub">active in period</div>
+    </div>
   </div>
 
   <!-- WEIGHTS PANEL -->
   <div class="panel" id="panelWeights">
-    <div class="rules-header">
+    <div class="panel-header">
       <div class="panel-title">&#9881; Score Weight Configuration</div>
-      <span class="rules-count" id="weightsCount"></span>
+      <span class="panel-count" id="weightsCount"></span>
     </div>
-    <div class="panel-desc">Max points deducted per rule. Higher = bigger penalty per incident. Open the Rules panel to enable/disable rules. Weights save persists across sessions.</div>
-    <div class="weight-grid" id="weightGrid"><div class="box"><div class="msg">Load data first to see weights.</div></div></div>
+    <div class="panel-desc">Max points deducted per rule. Higher = bigger penalty per incident. Enable rules in the Rules panel first.</div>
+    <div class="weight-grid" id="weightGrid"><div class="weight-empty">Load data first to see weights.</div></div>
     <div class="panel-footer">
       <button class="btn" onclick="safetyDash.resetWeights()">Reset to Factory</button>
       <button class="btn btn-save" onclick="safetyDash.saveWeights()">
@@ -209,14 +220,14 @@
 
   <!-- RULES PANEL -->
   <div class="panel" id="panelRules">
-    <div class="rules-header">
+    <div class="panel-header">
       <div class="panel-title">&#10003; Rule Configuration</div>
-      <span class="rules-count" id="ruleCount"></span>
+      <span class="panel-count" id="ruleCount"></span>
     </div>
-    <div class="panel-desc">Toggle which exception rules affect driver scores. Each rule can have its own penalty weight per incident. Custom rules appear under Uncategorized.</div>
-    <div id="rulesList"><div class="box"><div class="msg">Load data first to see available rules.</div></div></div>
+    <div class="panel-desc">Toggle which exception rules affect driver scores. Each rule has its own penalty weight per incident. Custom rules appear under Uncategorized.</div>
+    <div id="rulesList"><div class="box"><div class="msg-txt">Load data first to see available rules.</div></div></div>
     <div class="panel-footer">
-      <span class="rules-count" id="rulesEnabled"></span>
+      <span class="panel-count" id="rulesEnabled"></span>
       <button class="btn" onclick="safetyDash.resetRules()" style="margin-left:auto;">Reset Rules</button>
       <button class="btn btn-save" onclick="safetyDash.saveRulesDefault()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
@@ -242,54 +253,54 @@
 
   <div id="errBox"></div>
   <div id="warnBox"></div>
-  <div class="tbl-wrap"><div id="tbl"><div class="box"><div class="spinner"></div><div class="msg">WAITING FOR GEOTAB...</div></div></div></div>
+  <div class="tbl-wrap"><div id="tbl"><div class="box"><div class="spinner"></div><div class="msg-txt">WAITING FOR GEOTAB...</div></div></div></div>
   <div class="foot" id="foot"></div>
 </div>
 <div class="toast" id="toast"></div>
 
 <script>
 var safetyDash = (function() {
-  var _api = null, _rows = [], _rawData = [], _allRules = [], _ruleConfig = {};
+  var _api = null, _rows = [], _rawData = [], _allRules = [], _ruleConfig = {}, _ruleWeights = {};
   var _days = 30, _sortKey = 'score', _sortDir = 1, _groupFilter = null, _isLight = false;
 
-  var WCATS = ['speeding','braking','acceleration','cornering','seatbelt'];
-  var CATS  = ['speeding','braking','acceleration','cornering','seatbelt','other'];
+  var CATS = ['speeding','braking','acceleration','cornering','seatbelt','other'];
   var CAT_LABELS = {speeding:'Speeding',braking:'Hard Braking',acceleration:'Hard Acceleration',cornering:'Harsh Cornering',seatbelt:'Seatbelt',other:'Uncategorized / Custom'};
   var CAT_COLORS = {speeding:'#ef4444',braking:'#f59e0b',acceleration:'#fb923c',cornering:'#a78bfa',seatbelt:'#00e5ff',other:'#64748b'};
-  var KEYWORDS   = {speeding:['speed'],braking:['brak'],acceleration:['accel'],cornering:['corner'],seatbelt:['seat','belt']};
-  var WMAX = {speeding:25,braking:20,acceleration:20,cornering:20,seatbelt:15,other:10};
-  var _wmax = {speeding:25,braking:20,acceleration:20,cornering:20,seatbelt:15};
-  var _wper = {speeding:3,braking:4,acceleration:4,cornering:4,seatbelt:5};
+  var KEYWORDS = {speeding:['speed'],braking:['brak'],acceleration:['accel'],cornering:['corner'],seatbelt:['seat','belt']};
+  var WMAX_DEF = {speeding:25,braking:20,acceleration:20,cornering:20,seatbelt:15,other:10};
 
-  // ── utils ──────────────────────────────────────────────────────────────────
   function setDateRange() {
     var now = new Date(), from = new Date(now);
     from.setDate(from.getDate() - _days);
-    var f = function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});};
-    document.getElementById('dateRange').textContent = f(from) + ' \u2192 ' + f(now);
+    var fmt = function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});};
+    document.getElementById('dateRange').textContent = fmt(from) + ' to ' + fmt(now);
   }
   function showErr(m){document.getElementById('errBox').innerHTML='<div class="err-box">&#9888; '+m+'</div>';}
-  function showWarn(m){document.getElementById('warnBox').innerHTML='<div class="warn-box">&#9432; '+m+'</div>';}
   function clearMsg(){document.getElementById('errBox').innerHTML='';document.getElementById('warnBox').innerHTML='';}
   function showBox(label,pct){
-    document.getElementById('tbl').innerHTML='<div class="box"><div class="spinner"></div><div class="msg">'+label+'</div>'+(pct!==undefined?'<div class="pbar-bg"><div class="pbar-fill" style="width:'+pct+'%"></div></div>':'')+'</div>';
+    document.getElementById('tbl').innerHTML='<div class="box"><div class="spinner"></div><div class="msg-txt">'+label+'</div>'+(pct!==undefined?'<div class="pbar-bg"><div class="pbar-fill" style="width:'+pct+'%"></div></div>':'')+'</div>';
   }
-  function resetKPIs(){['k1','k2','k3','k4','k5','k6'].forEach(function(id){document.getElementById(id).textContent='\u2014';});}
+  function resetKPIs(){['k1','k2','k3','k4','k5','k6'].forEach(function(id){document.getElementById(id).textContent='-';});}
   function toast(msg,color){
     var t=document.getElementById('toast');
-    t.style.background=color||'#10b981'; t.textContent=msg;
-    t.classList.add('show'); setTimeout(function(){t.classList.remove('show');},3000);
+    t.style.background=color||'#10b981';
+    t.textContent=msg;
+    t.classList.add('show');
+    setTimeout(function(){t.classList.remove('show');},3000);
   }
   function guessCategory(ruleName){
-    var l=(ruleName||'').toLowerCase();
+    var lo=(ruleName||'').toLowerCase();
     var ks=Object.keys(KEYWORDS);
-    for(var i=0;i<ks.length;i++){var kws=KEYWORDS[ks[i]];for(var j=0;j<kws.length;j++){if(l.indexOf(kws[j])!==-1)return ks[i];}}
+    for(var i=0;i<ks.length;i++){
+      var kws=KEYWORDS[ks[i]];
+      for(var j=0;j<kws.length;j++){if(lo.indexOf(kws[j])!==-1)return ks[i];}
+    }
     return 'other';
   }
-  function buildName(u){
+  function buildDriverName(u){
     if(!u) return null;
-    var f=(u.firstName||'').trim(), l=(u.lastName||'').trim();
-    if(f||l) return (f+' '+l).trim();
+    var fn=(u.firstName||'').trim(), ln=(u.lastName||'').trim();
+    if(fn||ln) return (fn+' '+ln).trim();
     if(u.name&&u.name.trim()) return u.name.trim();
     return null;
   }
@@ -301,24 +312,13 @@ var safetyDash = (function() {
   }
   function evClass(n){return n===0?'ev-0':n<=5?'ev-few':n<=20?'ev-mid':'ev-many';}
 
-  // ── scoring ────────────────────────────────────────────────────────────────
-  // Per-rule saved weights: rid -> {maxDeduction, perEvent}
-  var _ruleWeights = {};
-
-  function getRuleWeight(rid) {
+  function getRuleWeight(rid){
     if(_ruleWeights[rid]) return _ruleWeights[rid];
-    var cat = _ruleConfig[rid] ? _ruleConfig[rid].category : 'other';
-    return {maxDeduction: WMAX[cat]||10, perEvent: _ruleConfig[rid]?_ruleConfig[rid].perEvent:3};
+    var cat=_ruleConfig[rid]?_ruleConfig[rid].category:'other';
+    return {maxDeduction:WMAX_DEF[cat]||10, perEvent:_ruleConfig[rid]?_ruleConfig[rid].perEvent:3};
   }
 
-  function loadSavedRuleWeights() {
-    try{
-      var s=localStorage.getItem('safetyRuleWeights');
-      if(s) _ruleWeights=JSON.parse(s);
-    }catch(e){}
-  }
-
-  function calcScore(ebr, trips) {
+  function calcScore(ebr, trips){
     if(!trips) return 100;
     var score=100, scale=Math.max(1,trips/10);
     Object.keys(_ruleConfig).forEach(function(rid){
@@ -331,28 +331,26 @@ var safetyDash = (function() {
     return Math.max(0,Math.round(score));
   }
 
-  // ── rule config ────────────────────────────────────────────────────────────
-  function initRuleConfig(rules) {
+  function initRuleConfig(rules){
     var saved=null;
     try{var s=localStorage.getItem('safetyRuleConfig');if(s)saved=JSON.parse(s);}catch(e){}
-    _allRules = rules;
-    _ruleConfig = {};
+    _allRules=rules;
+    _ruleConfig={};
     rules.forEach(function(rule){
-      var cat = guessCategory(rule.name);
-      if(saved && saved[rule.id]){
+      var cat=guessCategory(rule.name);
+      if(saved&&saved[rule.id]){
         _ruleConfig[rule.id]={enabled:!!saved[rule.id].enabled,category:saved[rule.id].category||cat,perEvent:saved[rule.id].perEvent||3};
       } else {
         _ruleConfig[rule.id]={enabled:cat!=='other',category:cat,perEvent:3};
       }
     });
+    try{var rw=localStorage.getItem('safetyRuleWeights');if(rw)_ruleWeights=JSON.parse(rw);}catch(e){}
   }
 
-  // ── rebuild ────────────────────────────────────────────────────────────────
   function rebuildRows(){
-    _rows = _rawData.map(function(d){
-      var score = calcScore(d.ebr, d.trips);
-      var row = {name:d.name,score:score,trips:d.trips,ebr:d.ebr};
-      // category totals for sorting
+    _rows=_rawData.map(function(d){
+      var score=calcScore(d.ebr,d.trips);
+      var row={dname:d.dname,score:score,trips:d.trips,ebr:d.ebr};
       CATS.forEach(function(cat){
         row['cat_'+cat]=Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid].enabled&&_ruleConfig[rid].category===cat;}).reduce(function(s,rid){return s+(d.ebr[rid]||0);},0);
       });
@@ -368,13 +366,12 @@ var safetyDash = (function() {
     renderWeightsPanel();
   }
 
-  // ── render KPIs ────────────────────────────────────────────────────────────
   function renderKPIs(rows){
     var avg=rows.length?Math.round(rows.reduce(function(s,r){return s+r.score;},0)/rows.length):0;
     var spd=0,brk=0;
     rows.forEach(function(r){
       Object.keys(_ruleConfig).forEach(function(rid){
-        var cfg=_ruleConfig[rid]; if(!cfg.enabled)return;
+        var cfg=_ruleConfig[rid]; if(!cfg.enabled) return;
         if(cfg.category==='speeding') spd+=(r.ebr[rid]||0);
         if(cfg.category==='braking')  brk+=(r.ebr[rid]||0);
       });
@@ -390,67 +387,70 @@ var safetyDash = (function() {
 
   function updateBadge(){
     var badge=document.getElementById('filterBadge');
-    document.getElementById('kpi-top').classList.remove('kpi-active');
-    document.getElementById('kpi-risk').classList.remove('kpi-active');
+    var topCard=document.getElementById('kpi-top');
+    var riskCard=document.getElementById('kpi-risk');
+    topCard.classList.remove('kpi-active','kpi-active-green');
+    riskCard.classList.remove('kpi-active','kpi-active-red');
     if(!_groupFilter){badge.style.display='none';return;}
     var isTop=_groupFilter==='top';
     var color=isTop?'#10b981':'#ef4444';
-    var label=isTop?'Top Performers (score \u2265 80)':'At-Risk Drivers (score < 60)';
-    if(isTop)document.getElementById('kpi-top').classList.add('kpi-active');
-    else document.getElementById('kpi-risk').classList.add('kpi-active');
+    var label=isTop?'Top Performers (score 80+)':'At-Risk Drivers (score below 60)';
+    if(isTop){topCard.classList.add('kpi-active','kpi-active-green');}
+    else{riskCard.classList.add('kpi-active','kpi-active-red');}
     badge.style.display='inline-flex';
-    badge.innerHTML='<span class="filter-badge"><span class="filter-badge-dot" style="background:'+color+'"></span>Filtered: '+label+'<span class="filter-badge-x" onclick="safetyDash.clearFilter()">&#x2715;</span></span>';
+    badge.innerHTML='<span class="filter-badge"><span class="filter-dot" style="background:'+color+'"></span>Filtered: '+label+'<span class="filter-x" onclick="safetyDash.clearFilter()">&#x2715;</span></span>';
   }
 
   function getDisplayRows(){
     var rows=_rows;
-    if(_groupFilter==='top')  rows=rows.filter(function(r){return r.score>=80;});
+    if(_groupFilter==='top') rows=rows.filter(function(r){return r.score>=80;});
     if(_groupFilter==='risk') rows=rows.filter(function(r){return r.score<60;});
     var q=document.getElementById('srch').value.toLowerCase();
-    if(q) rows=rows.filter(function(r){return r.name.toLowerCase().indexOf(q)!==-1;});
+    if(q) rows=rows.filter(function(r){return r.dname.toLowerCase().indexOf(q)!==-1;});
     return rows;
   }
 
-  // ── render table ───────────────────────────────────────────────────────────
   function renderTable(rows){
     if(!rows||!rows.length){
-      document.getElementById('tbl').innerHTML='<div class="box"><div class="msg">'+(_groupFilter?'No drivers match this filter.':'No driver data found.')+'</div></div>';
+      document.getElementById('tbl').innerHTML='<div class="box"><div class="msg-txt">'+(_groupFilter?'No drivers match this filter.':'No driver data found.')+'</div></div>';
       return;
     }
-    var enabled=Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid].enabled;});
+    var enabled=Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid]&&_ruleConfig[rid].enabled;});
     var useCat=enabled.length>8;
     var colCats=CATS.filter(function(c){return enabled.some(function(rid){return _ruleConfig[rid].category===c;});});
 
-    function thc(k){return _sortKey===k?(_sortDir===1?' class="sort-asc"':' class="sort-desc"'):'';}
+    function thSort(k, label){
+      var arrow='';
+      if(_sortKey===k) arrow=' <em class="sort-arrow">'+ (_sortDir===1?'&#9650;':'&#9660;') +'</em>';
+      return '<th onclick="safetyDash.sort(\''+k+'\')">'+label+arrow+'</th>';
+    }
+
     var h='<table><thead><tr>'+
-      '<th onclick="safetyDash.sort(\'name\')"'+thc('name')+'>Driver</th>'+
-      '<th onclick="safetyDash.sort(\'score\')"'+thc('score')+'>Score</th>'+
+      thSort('dname','Driver')+
+      thSort('score','Score')+
       '<th>Grade</th>'+
-      '<th onclick="safetyDash.sort(\'trips\')"'+thc('trips')+'>Trips</th>';
+      thSort('trips','Trips');
 
     if(useCat){
-      colCats.forEach(function(cat){
-        h+='<th onclick="safetyDash.sort(\'cat_'+cat+'\')"'+thc('cat_'+cat)+'>'+CAT_LABELS[cat]+'</th>';
-      });
+      colCats.forEach(function(cat){h+=thSort('cat_'+cat,CAT_LABELS[cat]);});
     } else {
       enabled.forEach(function(rid){
         var rule=null;
         for(var i=0;i<_allRules.length;i++){if(_allRules[i].id===rid){rule=_allRules[i];break;}}
         var nm=rule?rule.name:rid;
-        var short=nm.length>18?nm.substring(0,16)+'\u2026':nm;
-        h+='<th onclick="safetyDash.sort(\'rule_'+rid+'\')"'+thc('rule_'+rid)+' title="'+nm+'">'+short+'</th>';
+        var short=nm.length>18?nm.substring(0,16)+'..':nm;
+        h+=thSort('rule_'+rid,short);
       });
     }
     h+='</tr></thead><tbody>';
 
     rows.forEach(function(r){
       var sc=scoreClass(r.score), gr=gradeFromScore(r.score);
-      h+='<tr><td class="dname">'+r.name+'</td>'+
+      h+='<tr><td class="dname">'+r.dname+'</td>'+
         '<td><div class="score-wrap '+sc+'"><span class="score-num">'+r.score+'</span>'+
         '<div class="score-bar-bg"><div class="score-bar-fill" style="width:'+r.score+'%"></div></div></div></td>'+
         '<td><span class="grade '+gr.c+'">'+gr.l+'</span></td>'+
         '<td class="trips-cell">'+r.trips+'</td>';
-
       if(useCat){
         colCats.forEach(function(cat){
           var total=enabled.filter(function(rid){return _ruleConfig[rid].category===cat;}).reduce(function(s,rid){return s+(r.ebr[rid]||0);},0);
@@ -467,84 +467,75 @@ var safetyDash = (function() {
     document.getElementById('tbl').innerHTML=h+'</tbody></table>';
   }
 
-  // ── render rules panel ─────────────────────────────────────────────────────
+  function renderWeightsPanel(){
+    var enabled=Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid]&&_ruleConfig[rid].enabled;});
+    var wc=document.getElementById('weightsCount');
+    if(wc) wc.textContent=enabled.length+' rules';
+    var grid=document.getElementById('weightGrid');
+    if(!grid) return;
+    if(!enabled.length){
+      grid.innerHTML='<div class="weight-empty">No rules enabled. Enable rules in the Rules panel first.</div>';
+      return;
+    }
+    var h='';
+    enabled.forEach(function(rid){
+      var rule=null;
+      for(var i=0;i<_allRules.length;i++){if(_allRules[i].id===rid){rule=_allRules[i];break;}}
+      var rname=rule?rule.name:rid;
+      var wt=getRuleWeight(rid);
+      var maxD=wt.maxDeduction;
+      var perE=wt.perEvent;
+      var sid=rid.replace(/[^a-zA-Z0-9]/g,'_');
+      h+='<div class="weight-item">'+
+        '<div class="weight-label" title="'+rname+'">'+rname+'</div>'+
+        '<div class="weight-row">'+
+          '<input type="range" class="weight-slider" id="wsl_'+sid+'" min="0" max="40" step="1" value="'+maxD+'" oninput="safetyDash.updateRuleWLabel(\''+rid+'\',\''+sid+'\')"/>'+
+          '<span class="weight-val" id="wvl_'+sid+'">'+maxD+'</span>'+
+        '</div>'+
+        '<div class="weight-sub" id="wsb_'+sid+'">Max '+maxD+' pts ~ '+perE+' pts/inc</div>'+
+        '</div>';
+    });
+    grid.innerHTML=h;
+  }
+
   function renderRulesPanel(){
     if(!_allRules.length) return;
     var enabledCount=Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid]&&_ruleConfig[rid].enabled;}).length;
     document.getElementById('ruleCount').textContent=_allRules.length+' rules available';
     document.getElementById('rulesEnabled').textContent=enabledCount+' rules enabled';
-
     var bycat={};
     CATS.forEach(function(c){bycat[c]=[];});
     _allRules.forEach(function(rule){
       var cat=_ruleConfig[rule.id]?_ruleConfig[rule.id].category:guessCategory(rule.name);
-      if(!bycat[cat])bycat[cat]=[];
+      if(!bycat[cat]) bycat[cat]=[];
       bycat[cat].push(rule);
     });
-
-    var html='<div class="rules-cats">';
+    var h='<div class="rules-cats">';
     CATS.forEach(function(cat){
       var rules=bycat[cat]||[];
       if(!rules.length) return;
-      html+='<div class="rule-cat-block">'+
+      h+='<div class="rule-cat-block">'+
         '<div class="rule-cat-title"><span class="rule-cat-dot" style="background:'+CAT_COLORS[cat]+'"></span>'+CAT_LABELS[cat]+' ('+rules.length+')</div>'+
         '<div class="rules-grid">';
       rules.forEach(function(rule){
         var cfg=_ruleConfig[rule.id]||{enabled:false,category:cat,perEvent:3};
         var on=cfg.enabled;
-        html+='<div class="rule-row'+(on?' rule-on':'')+'" id="rr_'+rule.id+'" onclick="safetyDash.toggleRule(\''+rule.id+'\')">'+
-          '<div class="rule-chk">'+
-            '<svg viewBox="0 0 12 10" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="1,5 4.5,8.5 11,1"/></svg>'+
-          '</div>'+
+        var ptOpts=[1,2,3,4,5,7,10].map(function(v){return '<option value="'+v+'"'+(cfg.perEvent===v?' selected':'')+'>'+v+'pt</option>';}).join('');
+        h+='<div class="rule-row'+(on?' rule-on':'')+'" id="rr_'+rule.id+'" onclick="safetyDash.toggleRule(\''+rule.id+'\')">'+
+          '<div class="rule-chk"><svg viewBox="0 0 12 10" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="1,5 4.5,8.5 11,1"/></svg></div>'+
           '<div class="rule-info">'+
-            '<div class="rule-name" title="'+rule.name+'">'+rule.name+'</div>'+
-            '<div class="rule-meta">'+CAT_LABELS[cat]+' &bull; id:'+rule.id+'</div>'+
+            '<div class="rule-nm" title="'+rule.name+'">'+rule.name+'</div>'+
+            '<div class="rule-meta">'+CAT_LABELS[cat]+'</div>'+
           '</div>'+
-          '<select class="rule-wt" onclick="event.stopPropagation()" onchange="safetyDash.setRuleWt(\''+rule.id+'\',this.value)">'+
-          [1,2,3,4,5,7,10].map(function(v){return '<option value="'+v+'"'+(cfg.perEvent===v?' selected':'')+'>'+v+'pt</option>';}).join('')+
-          '</select>'+
+          '<select class="rule-wt" onclick="event.stopPropagation()" onchange="safetyDash.setRuleWt(\''+rule.id+'\',this.value)">'+ptOpts+'</select>'+
         '</div>';
       });
-      html+='</div></div>';
+      h+='</div></div>';
     });
-    html+='</div>';
-    document.getElementById('rulesList').innerHTML=html;
+    h+='</div>';
+    document.getElementById('rulesList').innerHTML=h;
   }
 
-  // ── render weights panel ──────────────────────────────────────────────────
-  function renderWeightsPanel() {
-    var enabled = Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid]&&_ruleConfig[rid].enabled;});
-    var wc = document.getElementById('weightsCount');
-    if(wc) wc.textContent = enabled.length + ' rules with weights';
-    var grid = document.getElementById('weightGrid');
-    if(!grid) return;
-    if(!enabled.length) {
-      grid.innerHTML='<div class="weight-empty">No rules enabled. Enable rules in the Rules panel first.</div>';
-      return;
-    }
-    var html='';
-    enabled.forEach(function(rid){
-      var rule=null;
-      for(var i=0;i<_allRules.length;i++){if(_allRules[i].id===rid){rule=_allRules[i];break;}}
-      var rname = rule ? rule.name : rid;
-      var wt = getRuleWeight(rid);
-      var maxD = wt.maxDeduction;
-      var perE = wt.perEvent;
-      var safeId = rid.replace(/[^a-zA-Z0-9]/g,'_');
-      html += '<div class="weight-item">' +
-        '<div class="weight-label" title="'+rname+'">'+rname+'</div>' +
-        '<div class="weight-row">' +
-          '<input type="range" class="weight-slider" id="wslider_'+safeId+'" min="0" max="40" step="1" value="'+maxD+'" ' +
-            'oninput="safetyDash.updateRuleWLabel(''+rid+'',''+safeId+'')"/>' +
-          '<span class="weight-val" id="wval_'+safeId+'">'+maxD+'</span>' +
-        '</div>' +
-        '<div class="weight-sub" id="wsub_'+safeId+'">Max '+maxD+' pts &bull; ~'+perE+' pts/incident</div>' +
-        '</div>';
-    });
-    grid.innerHTML = html;
-  }
-
-  // ── fetch ──────────────────────────────────────────────────────────────────
   function fetchData(){
     if(!_api){showBox('API not ready.');return;}
     clearMsg(); resetKPIs(); _groupFilter=null; updateBadge();
@@ -560,9 +551,9 @@ var safetyDash = (function() {
       var rules=(res&&res[0])||[];
       var users=(res&&res[1])||[];
       initRuleConfig(rules);
-      var driverMap={};
-      users.forEach(function(u){var n=buildName(u);if(n&&u.id)driverMap[u.id]=n;});
-      doFetch(driverMap,fromStr,toStr);
+      var dmap={};
+      users.forEach(function(u){var dn=buildDriverName(u);if(dn&&u.id)dmap[u.id]=dn;});
+      doFetch(dmap,fromStr,toStr);
     },function(){
       _api.call('Get',{typeName:'Rule',resultsLimit:1000},function(rules){
         initRuleConfig(rules||[]);
@@ -571,7 +562,7 @@ var safetyDash = (function() {
     });
   }
 
-  function doFetch(driverMap,fromStr,toStr){
+  function doFetch(dmap,fromStr,toStr){
     showBox('FETCHING EXCEPTIONS & TRIPS...',30);
     _api.multiCall([
       ['Get',{typeName:'ExceptionEvent',search:{fromDate:fromStr,toDate:toStr},resultsLimit:100000}],
@@ -580,45 +571,39 @@ var safetyDash = (function() {
       var excs=(res&&res[0])||[];
       var trips=(res&&res[1])||[];
       showBox('BUILDING SCORECARDS...',80);
-
       trips.forEach(function(t){
-        var d=t.driver; if(!d||!d.id||d.id==='UnknownDriverId')return;
-        if(!driverMap[d.id]){var n=buildName(d);if(n)driverMap[d.id]=n;}
+        var d=t.driver; if(!d||!d.id||d.id==='UnknownDriverId') return;
+        if(!dmap[d.id]){var dn=buildDriverName(d);if(dn)dmap[d.id]=dn;}
       });
       var tc={};
       trips.forEach(function(t){
-        var did=t.driver&&t.driver.id; if(!did||did==='UnknownDriverId')return;
+        var did=t.driver&&t.driver.id; if(!did||did==='UnknownDriverId') return;
         tc[did]=(tc[did]||0)+1;
       });
       var ebrd={};
       excs.forEach(function(e){
-        var did=e.driver&&e.driver.id; if(!did||did==='UnknownDriverId')return;
-        var rid=e.rule&&e.rule.id; if(!rid)return;
-        if(!ebrd[did])ebrd[did]={};
+        var did=e.driver&&e.driver.id; if(!did||did==='UnknownDriverId') return;
+        var rid=e.rule&&e.rule.id; if(!rid) return;
+        if(!ebrd[did]) ebrd[did]={};
         ebrd[did][rid]=(ebrd[did][rid]||0)+1;
-        if(!driverMap[did]&&e.driver){var n=buildName(e.driver);if(n)driverMap[did]=n;}
+        if(!dmap[did]&&e.driver){var dn=buildDriverName(e.driver);if(dn)dmap[did]=dn;}
       });
-
       var seen={};
       Object.keys(tc).forEach(function(k){seen[k]=1;});
       Object.keys(ebrd).forEach(function(k){seen[k]=1;});
       _rawData=[];
       Object.keys(seen).forEach(function(did){
-        _rawData.push({name:driverMap[did]||('Driver '+did),trips:tc[did]||0,ebr:ebrd[did]||{}});
+        _rawData.push({dname:dmap[did]||('Driver '+did),trips:tc[did]||0,ebr:ebrd[did]||{}});
       });
-      if(!_rawData.length){showBox('');showErr('No driver data found. Ensure drivers are assigned to vehicles and have trips in this period.');return;}
+      if(!_rawData.length){showBox('');showErr('No driver data found.');return;}
       rebuildRows();
     },function(err){showBox('');showErr('Error: '+(err&&err.message?err.message:JSON.stringify(err)));});
   }
 
-  // loadSavedWeights removed — now using per-rule weights via loadSavedRuleWeights
-
-  // ── public ─────────────────────────────────────────────────────────────────
   return {
     init: function(api){
       _api=api; setDateRange();
       document.getElementById('btnRefresh').onclick=fetchData;
-      loadSavedRuleWeights();
     },
     fetch: fetchData,
 
@@ -635,19 +620,19 @@ var safetyDash = (function() {
     },
 
     togglePanel: function(which){
-      var panels={weights:'panelWeights',rules:'panelRules'};
+      var ids={weights:'panelWeights',rules:'panelRules'};
       var btns={weights:'btnWeights',rules:'btnRules'};
-      Object.keys(panels).forEach(function(k){
-        var open = k===which ? document.getElementById(panels[k]).classList.toggle('open') : false;
-        if(k!==which) document.getElementById(panels[k]).classList.remove('open');
-        document.getElementById(btns[k]).classList.toggle('active-btn', k===which && document.getElementById(panels[k]).classList.contains('open'));
+      Object.keys(ids).forEach(function(k){
+        if(k===which){
+          var isOpen=document.getElementById(ids[k]).classList.toggle('open');
+          document.getElementById(btns[k]).classList.toggle('active-btn',isOpen);
+          if(isOpen&&k==='rules'&&_allRules.length) renderRulesPanel();
+          if(isOpen&&k==='weights') renderWeightsPanel();
+        } else {
+          document.getElementById(ids[k]).classList.remove('open');
+          document.getElementById(btns[k]).classList.remove('active-btn');
+        }
       });
-      if(which==='rules' && document.getElementById('panelRules').classList.contains('open') && _allRules.length){
-        renderRulesPanel();
-      }
-      if(which==='weights' && document.getElementById('panelWeights').classList.contains('open')){
-        renderWeightsPanel();
-      }
     },
 
     toggleRule: function(rid){
@@ -656,19 +641,25 @@ var safetyDash = (function() {
       var row=document.getElementById('rr_'+rid);
       if(row) row.classList.toggle('rule-on',_ruleConfig[rid].enabled);
       var cnt=Object.keys(_ruleConfig).filter(function(r){return _ruleConfig[r]&&_ruleConfig[r].enabled;}).length;
-      var el=document.getElementById('rulesEnabled'); if(el) el.textContent=cnt+' rules enabled';
+      var el=document.getElementById('rulesEnabled');
+      if(el) el.textContent=cnt+' rules enabled';
     },
 
     setRuleWt: function(rid,val){
       if(_ruleConfig[rid]) _ruleConfig[rid].perEvent=parseInt(val,10)||1;
     },
 
-    saveRules: function(){
+    saveRulesDefault: function(){
       try{
         localStorage.setItem('safetyRuleConfig',JSON.stringify(_ruleConfig));
-        toast('\u2713 Rule config saved','#10b981');
+        toast('Rule config saved as default','#10b981');
       }catch(e){toast('Could not save: '+e.message,'#ef4444');}
+    },
+
+    saveRules: function(){
+      try{localStorage.setItem('safetyRuleConfig',JSON.stringify(_ruleConfig));}catch(e){}
       if(_rawData.length) rebuildRows();
+      toast('Rules applied - scores recalculated','#f59e0b');
     },
 
     resetRules: function(){
@@ -684,28 +675,22 @@ var safetyDash = (function() {
     },
     clearFilter: function(){_groupFilter=null;updateBadge();renderTable(getDisplayRows());},
 
-    updateWLabel: function(cat){
-      var v=parseInt(document.getElementById('w_'+cat).value,10);
-      document.getElementById('wv_'+cat).textContent=v;
-      document.getElementById('wd_'+cat).textContent='Max '+v+' pts • ~'+Math.max(1,Math.round(v/5))+' pts/incident';
-    },
-
-    updateRuleWLabel: function(rid, safeId){
-      var v=parseInt(document.getElementById('wslider_'+safeId).value,10);
-      document.getElementById('wval_'+safeId).textContent=v;
-      document.getElementById('wsub_'+safeId).textContent='Max '+v+' pts • ~'+Math.max(1,Math.round(v/5))+' pts/incident';
-      // Update live in _ruleWeights so scoring reflects slider immediately
+    updateRuleWLabel: function(rid,sid){
+      var el=document.getElementById('wsl_'+sid);
+      if(!el) return;
+      var v=parseInt(el.value,10);
+      document.getElementById('wvl_'+sid).textContent=v;
+      document.getElementById('wsb_'+sid).textContent='Max '+v+' pts ~ '+Math.max(1,Math.round(v/5))+' pts/inc';
       if(!_ruleWeights[rid]) _ruleWeights[rid]={};
       _ruleWeights[rid].maxDeduction=v;
       _ruleWeights[rid].perEvent=Math.max(1,Math.round(v/5));
     },
 
     applyWeights: function(){
-      // Read current slider values from the dynamic weight grid
       var enabled=Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid]&&_ruleConfig[rid].enabled;});
       enabled.forEach(function(rid){
-        var safeId=rid.replace(/[^a-zA-Z0-9]/g,'_');
-        var el=document.getElementById('wslider_'+safeId);
+        var sid=rid.replace(/[^a-zA-Z0-9]/g,'_');
+        var el=document.getElementById('wsl_'+sid);
         if(el){
           var v=parseInt(el.value,10);
           if(!_ruleWeights[rid]) _ruleWeights[rid]={};
@@ -718,11 +703,10 @@ var safetyDash = (function() {
     },
 
     saveWeights: function(){
-      // Read sliders, update _ruleWeights, then persist
       var enabled=Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid]&&_ruleConfig[rid].enabled;});
       enabled.forEach(function(rid){
-        var safeId=rid.replace(/[^a-zA-Z0-9]/g,'_');
-        var el=document.getElementById('wslider_'+safeId);
+        var sid=rid.replace(/[^a-zA-Z0-9]/g,'_');
+        var el=document.getElementById('wsl_'+sid);
         if(el){
           var v=parseInt(el.value,10);
           if(!_ruleWeights[rid]) _ruleWeights[rid]={};
@@ -732,7 +716,7 @@ var safetyDash = (function() {
       });
       try{
         localStorage.setItem('safetyRuleWeights',JSON.stringify(_ruleWeights));
-        toast('✓ Weights saved as default','#10b981');
+        toast('Weights saved as default','#10b981');
       }catch(e){toast('Could not save: '+e.message,'#ef4444');}
       if(_rawData.length) rebuildRows();
     },
@@ -740,13 +724,13 @@ var safetyDash = (function() {
     resetWeights: function(){
       try{localStorage.removeItem('safetyRuleWeights');}catch(e){}
       _ruleWeights={};
-      renderWeightsPanel(); // re-render sliders with factory defaults
+      renderWeightsPanel();
       if(_rawData.length) rebuildRows();
       toast('Reset to factory defaults','#64748b');
     },
 
     sort: function(k){
-      if(_sortKey===k){_sortDir*=-1;}else{_sortKey=k;_sortDir=(k==='name'||k==='score')?1:-1;}
+      if(_sortKey===k){_sortDir*=-1;}else{_sortKey=k;_sortDir=(k==='dname'||k==='score')?1:-1;}
       _rows.sort(function(a,b){
         var av=a[k]!==undefined?a[k]:0, bv=b[k]!==undefined?b[k]:0;
         if(typeof av==='string') return _sortDir*av.localeCompare(bv);
@@ -761,18 +745,19 @@ var safetyDash = (function() {
       if(!_rows.length) return;
       var now=new Date(), from=new Date(now);
       from.setDate(from.getDate()-_days);
-      var f=function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});};
+      var fmt=function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});};
       var exportRows=getDisplayRows();
       var enabled=Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid].enabled;});
       var ruleNames=enabled.map(function(rid){
-        var r=null; for(var i=0;i<_allRules.length;i++){if(_allRules[i].id===rid){r=_allRules[i];break;}}
+        var r=null;
+        for(var i=0;i<_allRules.length;i++){if(_allRules[i].id===rid){r=_allRules[i];break;}}
         return r?r.name:rid;
       });
-      var note=_groupFilter?(' - '+(_groupFilter==='top'?'Top Performers':'At-Risk Drivers')):'';
-      var lines=['Driver Safety Scorecard'+note,'Period: '+f(from)+' to '+f(now),'','Driver,Score,Grade,Trips,'+ruleNames.join(',')];
+      var note=_groupFilter?(' - '+(_groupFilter==='top'?'Top Performers':'At-Risk')):'';
+      var lines=['Driver Safety Scorecard'+note,'Period: '+fmt(from)+' to '+fmt(now),'','Driver,Score,Grade,Trips,'+ruleNames.join(',')];
       exportRows.forEach(function(r){
         var gr=gradeFromScore(r.score);
-        lines.push('"'+r.name.replace(/"/g,'""')+'",'+r.score+','+gr.l+','+r.trips+','+enabled.map(function(rid){return r.ebr[rid]||0;}).join(','));
+        lines.push('"'+r.dname.replace(/"/g,'""')+'",'+r.score+','+gr.l+','+r.trips+','+enabled.map(function(rid){return r.ebr[rid]||0;}).join(','));
       });
       var csv=lines.join('\r\n');
       var blob=new Blob([csv],{type:'text/csv'});
