@@ -509,7 +509,7 @@ var safetyDash = (function() {
   }
   function evClass(n){return n===0?'ev-0':n<=5?'ev-few':n<=20?'ev-mid':'ev-many';}
 
-  // ── WEIGHT SYSTEM: percentages summing to 100 ─────────────────────────────
+  // \u2500\u2500 WEIGHT SYSTEM: percentages summing to 100 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
   function getEnabledRules(){
     return Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid]&&_ruleConfig[rid].enabled;});
   }
@@ -523,6 +523,15 @@ var safetyDash = (function() {
   }
 
   // Set all enabled rules to equal share summing to 100
+  // Map sid (sanitized id) back to rid (real rule id)
+  function _sidToRid(sid){
+    var enabled=getEnabledRules();
+    for(var i=0;i<enabled.length;i++){
+      if(enabled[i].replace(/[^a-zA-Z0-9]/g,'_')===sid) return enabled[i];
+    }
+    return null;
+  }
+
   function equalizeWeightsData(){
     var enabled=getEnabledRules();
     if(!enabled.length) return;
@@ -743,7 +752,7 @@ var safetyDash = (function() {
     numEl.className='wt-total-num '+(total===100?'wt-total-ok':total>100?'wt-total-over':'wt-total-under');
     fillEl.style.width=Math.min(100,total)+'%';
     fillEl.style.background=total===100?'#10b981':total>100?'#ef4444':'#f59e0b';
-    hintEl.textContent=total===100?'✓ Balanced':total>100?'⚠ Over by '+(total-100)+'%':'⚠ Under by '+(100-total)+'%';
+    hintEl.textContent=total===100?'\u2713 Balanced':total>100?'\u26A0 Over by '+(total-100)+'%':'\u26A0 Under by '+(100-total)+'%';
     hintEl.style.color=total===100?'#10b981':total>100?'#ef4444':'#f59e0b';
   }
 
@@ -754,14 +763,14 @@ var safetyDash = (function() {
     var perE=(_ruleConfig[rid]&&_ruleConfig[rid].perEvent)||3;
     if(slEl) slEl.value=newVal;
     if(piEl){piEl.value=newVal; piEl.classList.toggle('input-err',newVal<0||newVal>100);}
-    if(sbEl) sbEl.textContent=newVal+'% weight • '+perE+' pts/incident';
+    if(sbEl) sbEl.textContent=newVal+'% weight \u2022 '+perE+' pts/incident';
     getEnabledRules().forEach(function(r){
       if(r===rid) return;
       var s2=r.replace(/[^a-zA-Z0-9]/g,'_'),v=getWeight(r),pe2=(_ruleConfig[r]&&_ruleConfig[r].perEvent)||3;
       var sl2=document.getElementById('wsl_'+s2),pi2=document.getElementById('wpi_'+s2),sb2=document.getElementById('wsb_'+s2);
       if(sl2) sl2.value=v;
       if(pi2) pi2.value=v;
-      if(sb2) sb2.textContent=v+'% weight • '+pe2+' pts/incident';
+      if(sb2) sb2.textContent=v+'% weight \u2022 '+pe2+' pts/incident';
     });
     updateWeightTotalBar();
   }
@@ -783,11 +792,11 @@ var safetyDash = (function() {
       h+='<div class="weight-item">'+
         '<div class="weight-label" title="'+rname+'">'+rname+'</div>'+
         '<div class="weight-input-wrap">'+
-          '<input type="range" class="weight-slider" id="wsl_'+sid+'" min="0" max="100" step="1" value="'+wt+'" oninput="safetyDash.onWeightSlide(''+rid+'',''+sid+'')"/>'+
-          '<input type="number" class="weight-pct-input" id="wpi_'+sid+'" min="0" max="100" value="'+wt+'" oninput="safetyDash.onWeightInput(''+rid+'',''+sid+'')"/>'+
+          '<input type="range" class="weight-slider" id="wsl_'+sid+'" data-rid="'+sid+'" min="0" max="100" step="1" value="'+wt+'" oninput="safetyDash.onWeightSlide(this)"/>'+
+          '<input type="number" class="weight-pct-input" id="wpi_'+sid+'" data-rid="'+sid+'" min="0" max="100" value="'+wt+'" oninput="safetyDash.onWeightInput(this)"/>'+
           '<span style="font-size:.75rem;color:var(--text3);">%</span>'+
         '</div>'+
-        '<div class="weight-sub" id="wsb_'+sid+'">'+wt+'% weight • '+perE+' pts/incident</div>'+
+        '<div class="weight-sub" id="wsb_'+sid+'">'+wt+'% weight - '+perE+' pts/incident</div>'+
       '</div>';
     });
     grid.innerHTML=h;
@@ -895,7 +904,7 @@ var safetyDash = (function() {
     },function(err){showBox('');showErr('Error: '+(err&&err.message?err.message:JSON.stringify(err)));});
   }
 
-  // ── SCHEDULE ────────────────────────────────────────────────────────────
+  // \u2500\u2500 SCHEDULE \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
   function loadSchedule(){
     try{
       var s=localStorage.getItem(SCHED_KEY);
@@ -935,7 +944,7 @@ var safetyDash = (function() {
       var freq=document.getElementById('schedFreq');
       var freqTxt=freq?freq.options[freq.selectedIndex].text:'Weekly';
       el.className='sched-status on';
-      el.textContent='✓ Active — report sends '+freqTxt.toLowerCase()+' to '+_schedEmails.length+' recipient'+ (_schedEmails.length>1?'s':'');
+      el.textContent='\u2713 Active \u2014 report sends '+freqTxt.toLowerCase()+' to '+_schedEmails.length+' recipient'+ (_schedEmails.length>1?'s':'');
       if(disBtn) disBtn.style.display='';
     } else {
       el.className='sched-status off';
@@ -950,7 +959,7 @@ var safetyDash = (function() {
     var chip=document.createElement('span');
     chip.className='schip';
     chip.setAttribute('data-email',email);
-    chip.innerHTML=email+'<span class="schip-x" onclick="safetyDash.removeSchedChip(this)">✕</span>';
+    chip.innerHTML=email+'<span class="schip-x" onclick="safetyDash.removeSchedChip(this)">\u2715</span>';
     wrap.insertBefore(chip,input);
   }
 
@@ -983,35 +992,62 @@ var safetyDash = (function() {
     var now=new Date();
     var fmt=function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});};
     var from=new Date(now); from.setDate(from.getDate()-_days);
-    var lines=['Driver Safety Scorecard Report','Period: '+fmt(from)+' to '+fmt(now),'Generated: '+now.toLocaleString(),''];
+    var sep='\n';
     var enabled=getEnabledRules();
-    var ruleNames=enabled.map(function(rid){var r=_allRules.find(function(x){return x.id===rid;}); return r?r.name:rid;});
-    lines.push('Driver,Score,Grade,Trips,'+ruleNames.join(','));
+    var ruleNames=enabled.map(function(rid){
+      for(var i=0;i<_allRules.length;i++){if(_allRules[i].id===rid)return _allRules[i].name;}
+      return rid;
+    });
+    var csvLines=[
+      'Driver Safety Scorecard Report',
+      'Period: '+fmt(from)+' to '+fmt(now),
+      'Generated: '+now.toLocaleString(),
+      '',
+      'Driver,Score,Grade,Trips,'+ruleNames.join(',')
+    ];
     _rows.forEach(function(r){
       var gr=gradeFromScore(r.score);
-      lines.push('"'+r.dname.replace(/"/g,'""')+'",'+r.score+','+gr.l+','+r.trips+','+enabled.map(function(rid){return r.ebr[rid]||0;}).join(','));
+      csvLines.push('"'+r.dname.replace(/"/g,'""')+'",'+r.score+','+gr.l+','+r.trips+','+enabled.map(function(rid){return r.ebr[rid]||0;}).join(','));
     });
-    var body=lines.join('
-');
+    var body=csvLines.join(sep);
+    var fullMsg=subject+sep+sep+body;
     if(_api){
       _schedEmails.forEach(function(email){
         try{
           _api.call('Add',{typeName:'TextMessage',entity:{
-            message:subject+'
-
-'+body,
+            message:fullMsg,
             isDirectionToVehicle:false,
-            messageContent:{contentType:'Normal',message:subject+'
-
-'+body}
+            messageContent:{contentType:'Normal',message:fullMsg}
           }},function(){},function(){});
         }catch(e){}
       });
     }
-    toast('Scheduled report sent to '+_schedEmails.length+' recipient'+ (_schedEmails.length>1?'s':''),'#10b981');
+    toast('Scheduled report sent to '+_schedEmails.length+' recipient'+(_schedEmails.length>1?'s':''),'#10b981');
+  }
+  function checkAndSendScheduled(){
+    if(!_schedEnabled||!_schedEmails.length||!_rows.length) return;
+    try{
+      var saved=JSON.parse(localStorage.getItem(SCHED_KEY)||'{}');
+      var lastSent=saved.lastSent?new Date(saved.lastSent):null;
+      var now=new Date();
+      var shouldSend=false;
+      if(!lastSent){ shouldSend=true; }
+      else {
+        var freq=saved.freq||'weekly';
+        var diff=(now-lastSent)/86400000;
+        if(freq==='daily'&&diff>=1) shouldSend=true;
+        else if(freq==='weekly'&&diff>=7) shouldSend=true;
+        else if(freq==='biweekly'&&diff>=14) shouldSend=true;
+        else if(freq==='monthly'&&diff>=28) shouldSend=true;
+      }
+      if(shouldSend){
+        sendScheduledEmail();
+        saved.lastSent=now.toISOString();
+        localStorage.setItem(SCHED_KEY,JSON.stringify(saved));
+      }
+    }catch(e){}
   }
 
-  // When a rule is toggled, re-equalize weights automatically
   function onRuleToggled(){
     equalizeWeightsData();
     if(document.getElementById('panelWeights').classList.contains('open')) renderWeightsPanel();
@@ -1021,11 +1057,9 @@ var safetyDash = (function() {
     init: function(api){
       _api=api; setDateRange();
       document.getElementById('btnRefresh').onclick=fetchData;
-      // Set default start date to today
       var today=new Date().toISOString().split('T')[0];
       document.getElementById('schedStart').value=today;
       loadSchedule();
-      // Check if scheduled send is due
       setTimeout(function(){ if(_rows.length) checkAndSendScheduled(); }, 5000);
     },
     fetch: fetchData,
@@ -1042,7 +1076,26 @@ var safetyDash = (function() {
       document.getElementById('themeLbl').textContent=_isLight?'LIGHT':'DARK';
     },
 
+    toggleInfo: function(){
+      document.getElementById('infoModal').classList.toggle('open');
+    },
 
+    togglePanel: function(which){
+      var ids={weights:'panelWeights',rules:'panelRules',schedule:'panelSchedule'};
+      var btns={weights:'btnWeights',rules:'btnRules',schedule:'btnSchedule'};
+      Object.keys(ids).forEach(function(k){
+        if(k===which){
+          var isOpen=document.getElementById(ids[k]).classList.toggle('open');
+          if(btns[k]&&document.getElementById(btns[k])) document.getElementById(btns[k]).classList.toggle('active-btn',isOpen);
+          if(isOpen&&k==='rules'&&_allRules.length) renderRulesPanel();
+          if(isOpen&&k==='weights') renderWeightsPanel();
+          if(isOpen&&k==='schedule') updateSchedStatus();
+        } else {
+          document.getElementById(ids[k]).classList.remove('open');
+          if(btns[k]&&document.getElementById(btns[k])) document.getElementById(btns[k]).classList.remove('active-btn');
+        }
+      });
+    },
 
     toggleRule: function(rid){
       if(!_ruleConfig[rid]) return;
@@ -1085,17 +1138,19 @@ var safetyDash = (function() {
     },
     clearFilter: function(){_groupFilter=null;updateBadge();renderTable(getDisplayRows());},
 
-    onWeightSlide: function(rid,sid){
-      var el=document.getElementById('wsl_'+sid);
-      if(!el) return;
+    onWeightSlide: function(el){
+      var sid=el.getAttribute('data-rid');
+      var rid=_sidToRid(sid);
+      if(!rid) return;
       var v=parseInt(el.value,10);
       redistributeAfterEdit(rid,v);
       syncWeightUI(rid,sid,getWeight(rid));
     },
 
-    onWeightInput: function(rid,sid){
-      var el=document.getElementById('wpi_'+sid);
-      if(!el) return;
+    onWeightInput: function(el){
+      var sid=el.getAttribute('data-rid');
+      var rid=_sidToRid(sid);
+      if(!rid) return;
       var v=parseInt(el.value,10);
       if(isNaN(v)) return;
       redistributeAfterEdit(rid,v);
@@ -1105,11 +1160,11 @@ var safetyDash = (function() {
     equalizeWeights: function(){
       equalizeWeightsData();
       renderWeightsPanel();
-      toast('Weights equalized to '+Math.round(100/Math.max(1,getEnabledRules().length))+'% each','#f59e0b');
+      var n=Math.max(1,getEnabledRules().length);
+      toast('Weights equalized to '+Math.round(100/n)+'% each','#f59e0b');
     },
 
     applyWeights: function(){
-      // Ensure total=100 before applying
       var total=getTotalWeight();
       if(total!==100){ equalizeWeightsData(); renderWeightsPanel(); }
       if(_rawData.length) rebuildRows();
@@ -1118,7 +1173,7 @@ var safetyDash = (function() {
 
     saveWeights: function(){
       var total=getTotalWeight();
-      if(total!==100){ equalizeWeightsData(); renderWeightsPanel(); toast('Weights auto-corrected to 100 and saved','#f59e0b'); }
+      if(total!==100){ equalizeWeightsData(); renderWeightsPanel(); }
       try{
         localStorage.setItem('safetyRuleWeights',JSON.stringify(_ruleWeights));
         toast('Weights saved (total: '+getTotalWeight()+'%)','#10b981');
@@ -1135,26 +1190,17 @@ var safetyDash = (function() {
       toast('Reset to equal distribution','#64748b');
     },
 
-    toggleInfo: function(){
-      document.getElementById('infoModal').classList.toggle('open');
+    sort: function(k){
+      if(_sortKey===k){_sortDir*=-1;}else{_sortKey=k;_sortDir=(k==='dname'||k==='score')?1:-1;}
+      _rows.sort(function(a,b){
+        var av=a[k]!==undefined?a[k]:0, bv=b[k]!==undefined?b[k]:0;
+        if(typeof av==='string') return _sortDir*av.localeCompare(bv);
+        return _sortDir*(av-bv);
+      });
+      renderTable(getDisplayRows());
     },
 
-    togglePanel: function(which){
-      var ids={weights:'panelWeights',rules:'panelRules',schedule:'panelSchedule'};
-      var btns={weights:'btnWeights',rules:'btnRules',schedule:'btnSchedule'};
-      Object.keys(ids).forEach(function(k){
-        if(k===which){
-          var isOpen=document.getElementById(ids[k]).classList.toggle('open');
-          if(btns[k]&&document.getElementById(btns[k])) document.getElementById(btns[k]).classList.toggle('active-btn',isOpen);
-          if(isOpen&&k==='rules'&&_allRules.length) renderRulesPanel();
-          if(isOpen&&k==='weights') renderWeightsPanel();
-          if(isOpen&&k==='schedule') updateSchedStatus();
-        } else {
-          document.getElementById(ids[k]).classList.remove('open');
-          if(btns[k]&&document.getElementById(btns[k])) document.getElementById(btns[k]).classList.remove('active-btn');
-        }
-      });
-    },
+    filter: function(){renderTable(getDisplayRows());},
 
     schedFreqChange: function(){
       var freq=document.getElementById('schedFreq').value;
@@ -1197,7 +1243,7 @@ var safetyDash = (function() {
       _schedEnabled=true;
       saveScheduleData();
       updateSchedStatus();
-      toast('Schedule saved — report will send '+document.getElementById('schedFreq').value,'#10b981');
+      toast('Schedule saved - report will send '+document.getElementById('schedFreq').value,'#10b981');
     },
 
     disableSchedule: function(){
@@ -1207,29 +1253,16 @@ var safetyDash = (function() {
       toast('Schedule disabled','#64748b');
     },
 
-    sort: function(k){
-      if(_sortKey===k){_sortDir*=-1;}else{_sortKey=k;_sortDir=(k==='dname'||k==='score')?1:-1;}
-      _rows.sort(function(a,b){
-        var av=a[k]!==undefined?a[k]:0, bv=b[k]!==undefined?b[k]:0;
-        if(typeof av==='string') return _sortDir*av.localeCompare(bv);
-        return _sortDir*(av-bv);
-      });
-      renderTable(getDisplayRows());
-    },
-
-    filter: function(){renderTable(getDisplayRows());},
-
     exportCSV: function(){
       if(!_rows.length) return;
       var now=new Date(), from=new Date(now);
       from.setDate(from.getDate()-_days);
       var fmt=function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});};
       var exportRows=getDisplayRows();
-      var enabled=Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid].enabled;});
+      var enabled=getEnabledRules();
       var ruleNames=enabled.map(function(rid){
-        var r=null;
-        for(var i=0;i<_allRules.length;i++){if(_allRules[i].id===rid){r=_allRules[i];break;}}
-        return r?r.name:rid;
+        for(var i=0;i<_allRules.length;i++){if(_allRules[i].id===rid)return _allRules[i].name;}
+        return rid;
       });
       var note=_groupFilter?(' - '+(_groupFilter==='top'?'Top Performers':'At-Risk')):'';
       var lines=['Driver Safety Scorecard'+note,'Period: '+fmt(from)+' to '+fmt(now),'','Driver,Score,Grade,Trips,'+ruleNames.join(',')];
