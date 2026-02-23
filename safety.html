@@ -458,6 +458,7 @@
 var safetyDash = (function() {
   var _api = null, _rows = [], _rawData = [], _allRules = [], _ruleConfig = {}, _ruleWeights = {};
   var _days = 30, _sortKey = 'score', _sortDir = 1, _groupFilter = null, _isLight = false;
+  var _usingTripProxy = false;
   var _schedEmails = [], _schedEnabled = false;
   var SCHED_KEY = 'safetySchedule';
 
@@ -659,7 +660,7 @@ var safetyDash = (function() {
     document.getElementById('k5').textContent=brk.toLocaleString();
     document.getElementById('k6').textContent=rows.length;
     var totalMiles=rows.reduce(function(s,r){return s+(r.miles||0);},0);
-    document.getElementById('k4sub').textContent=totalMiles.toLocaleString()+' mi total';
+    document.getElementById('k4sub').textContent=totalMiles.toLocaleString()+(_usingTripProxy?' mi (est)':' mi total');
     document.getElementById('foot').textContent='Last refreshed: '+new Date().toLocaleString()+'  |  Last '+_days+' days  |  Score = 100 minus weighted deductions (normalized per 100 miles driven)';
   }
 
@@ -708,7 +709,7 @@ var safetyDash = (function() {
       thSort('dname','Driver','th-driver')+
       thSort('score','Score','th-score')+
       '<th class="th-grade">Grade</th>'+
-      thSort('miles','Miles','th-trips');
+      thSort('miles',_usingTripProxy?'Miles (est)':'Miles','th-trips');
 
     if(useCat){
       colCats.forEach(function(cat){h+=thSort('cat_'+cat,CAT_LABELS[cat],'th-rule');});
@@ -883,13 +884,32 @@ var safetyDash = (function() {
         var d=t.driver; if(!d||!d.id||d.id==='UnknownDriverId') return;
         if(!dmap[d.id]){var dn=buildDriverName(d);if(dn)dmap[d.id]=dn;}
       });
-      var miles={};
+      var miles={}, tripCount={};
+      var _tripSamples=[];
       trips.forEach(function(t){
         var did=t.driver&&t.driver.id; if(!did||did==='UnknownDriverId') return;
-        // Geotab distance is in meters; convert to miles
-        var distMiles=(t.distance||0)*0.000621371;
+        tripCount[did]=(tripCount[did]||0)+1;
+        if(_tripSamples.length<3) _tripSamples.push({distance:t.distance,startOdo:t.start&&t.start.odometer,stopOdo:t.stop&&t.stop.odometer});
+        // Try t.distance (meters), then odometer delta (km), then t.durationTicks
+        var distMeters=0;
+        if(t.distance&&t.distance>0){
+          distMeters=t.distance;
+        } else if(t.stop&&t.start&&t.stop.odometer!=null&&t.start.odometer!=null&&t.stop.odometer>t.start.odometer){
+          distMeters=(t.stop.odometer-t.start.odometer)*1000;
+        }
+        var distMiles=distMeters*0.000621371;
         miles[did]=(miles[did]||0)+distMiles;
       });
+      // Detect bad distance data: if avg miles/trip < 0.5 for drivers with trips,
+      // distance field is not populated - fall back to trip-count proxy (avg 10mi/trip)
+      var totalMilesAll=Object.keys(miles).reduce(function(s,k){return s+(miles[k]||0);},0);
+      var totalTripsAll=Object.keys(tripCount).reduce(function(s,k){return s+(tripCount[k]||0);},0);
+      _usingTripProxy=totalTripsAll>0&&(totalMilesAll/totalTripsAll)<0.5;
+      if(_usingTripProxy){
+        console.warn('[SafetyScorecard] Distance data not available (avg '+((totalMilesAll/totalTripsAll)||0).toFixed(3)+'mi/trip). Using trip-count proxy (10mi/trip).');
+        Object.keys(tripCount).forEach(function(did){ miles[did]=tripCount[did]*10; });
+      }
+      console.log('[SafetyScorecard] Distance check: totalMiles='+totalMilesAll.toFixed(1)+' totalTrips='+totalTripsAll+' usingProxy='+_usingTripProxy+' samples='+JSON.stringify(_tripSamples));
       var ebrd={};
       excs.forEach(function(e){
         var did=e.driver&&e.driver.id; if(!did||did==='UnknownDriverId') return;
@@ -903,9 +923,12 @@ var safetyDash = (function() {
       Object.keys(ebrd).forEach(function(k){seen[k]=1;});
       _rawData=[];
       Object.keys(seen).forEach(function(did){
-        _rawData.push({dname:dmap[did]||('Driver '+did),miles:Math.round(miles[did]||0),ebr:ebrd[did]||{}});
+        _rawData.push({dname:dmap[did]||('Driver '+did),miles:Math.round((miles[did]||0)*10)/10,ebr:ebrd[did]||{}});
       });
       if(!_rawData.length){showBox('');showErr('No driver data found.');return;}
+      if(_usingTripProxy){
+        document.getElementById('warnBox').innerHTML='<div class="warn-box">&#9888; GPS distance data unavailable for this fleet — miles column shows estimated distance (10 mi/trip proxy). Scores are still normalized but less precise. Check console for details.</div>';
+      }
       rebuildRows();
     },function(err){showBox('');showErr('Error: '+(err&&err.message?err.message:JSON.stringify(err)));});
   }
