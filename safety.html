@@ -142,6 +142,63 @@
   .toast.show{transform:translateY(0);opacity:1;}
   .srch::placeholder{color:var(--text3);}
   @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* WEIGHT TOTAL BAR */
+  .wt-total-bar{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg);margin-bottom:16px;flex-wrap:wrap;}
+  .wt-total-label{font-size:.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;}
+  .wt-total-num{font-size:1.1rem;font-weight:800;min-width:48px;}
+  .wt-total-ok{color:#10b981;}.wt-total-over{color:#ef4444;}.wt-total-under{color:#f59e0b;}
+  .wt-total-track{flex:1;height:8px;background:var(--border);border-radius:99px;overflow:hidden;min-width:80px;}
+  .wt-total-fill{height:100%;border-radius:99px;transition:width .25s,background .25s;}
+  .wt-total-hint{font-size:.7rem;color:var(--text3);margin-left:auto;}
+  .wt-tooltip{position:relative;display:inline-flex;align-items:center;margin-left:6px;cursor:help;}
+  .wt-tooltip-icon{width:16px;height:16px;border-radius:50%;border:1px solid var(--text3);color:var(--text3);font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1;transition:all .15s;}
+  .wt-tooltip:hover .wt-tooltip-icon{border-color:#f59e0b;color:#f59e0b;}
+  .wt-tooltip-popup{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:.72rem;color:var(--text2);width:240px;z-index:200;line-height:1.5;box-shadow:0 4px 16px rgba(0,0,0,.25);}
+  .wt-tooltip:hover .wt-tooltip-popup{display:block;}
+
+  /* WEIGHT ITEMS - percentage style */
+  .weight-pct{font-size:1rem;font-weight:800;color:#f59e0b;min-width:44px;text-align:right;}
+  .weight-input-wrap{display:flex;align-items:center;gap:6px;}
+  .weight-pct-input{width:58px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:5px 8px;font-size:.85rem;font-weight:700;text-align:center;outline:none;transition:border-color .2s;}
+  .weight-pct-input:focus{border-color:#f59e0b;}
+  .weight-pct-input.input-err{border-color:#ef4444;}
+  .weight-eq-btn{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:#f59e0b;border-radius:6px;padding:5px 10px;font-size:.72rem;cursor:pointer;transition:all .15s;white-space:nowrap;}
+  .weight-eq-btn:hover{background:rgba(245,158,11,.2);}
+
+  /* INFO MODAL */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:none;align-items:center;justify-content:center;padding:24px;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:560px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.4);}
+  .modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+  .modal-title{font-size:1rem;font-weight:800;color:var(--text);}
+  .modal-close{cursor:pointer;color:var(--text3);font-size:1.3rem;line-height:1;transition:color .15s;}
+  .modal-close:hover{color:#ef4444;}
+  .modal-section{margin-bottom:18px;}
+  .modal-section-title{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#f59e0b;margin-bottom:8px;}
+  .modal-body{font-size:.82rem;color:var(--text2);line-height:1.65;}
+  .modal-formula{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-size:.8rem;color:var(--text2);margin:10px 0;line-height:1.7;}
+  .modal-formula strong{color:var(--text);}
+  .modal-grade-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px;}
+  .modal-grade-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:8px;}
+  .modal-grade-item .grade{margin:0;}
+  .modal-grade-range{font-size:.68rem;color:var(--text3);}
+
+  /* SCHEDULE PANEL */
+  .sched-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;}
+  .sched-field label{display:block;font-size:.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+  .sched-sel,.sched-input{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:7px;padding:9px 12px;font-size:.82rem;outline:none;transition:border-color .2s;}
+  .sched-sel:focus,.sched-input:focus{border-color:#f59e0b;}
+  .sched-emails-wrap label{display:block;font-size:.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+  .sched-chips{display:flex;flex-wrap:wrap;gap:6px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:8px 10px;min-height:42px;cursor:text;transition:border-color .2s;}
+  .sched-chips:focus-within{border-color:#f59e0b;}
+  .schip{display:inline-flex;align-items:center;gap:5px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);border-radius:99px;padding:3px 10px;font-size:.75rem;color:#f59e0b;}
+  .schip-x{cursor:pointer;opacity:.6;font-size:1rem;line-height:1;}
+  .schip-x:hover{opacity:1;}
+  .schip-input{border:none;background:transparent;color:var(--text);font-size:.82rem;outline:none;flex:1;min-width:160px;padding:2px 4px;}
+  .sched-status{font-size:.75rem;padding:10px 14px;border-radius:8px;margin-top:12px;display:none;}
+  .sched-status.on{display:block;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:#10b981;}
+  .sched-status.off{display:block;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);color:#d97706;}
 </style>
 
 <div id="app">
@@ -161,6 +218,14 @@
         <div class="toggle-track"><div class="toggle-thumb"></div></div>
         <span class="toggle-lbl" id="themeLbl">DARK</span>
       </div>
+      <button class="btn" id="btnInfo" onclick="safetyDash.toggleInfo()" title="How scoring works">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        How It Works
+      </button>
+      <button class="btn" id="btnSchedule" onclick="safetyDash.togglePanel('schedule')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Schedule Report
+      </button>
       <button class="btn" id="btnWeights" onclick="safetyDash.togglePanel('weights')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         Weights
@@ -208,10 +273,23 @@
   <!-- WEIGHTS PANEL -->
   <div class="panel" id="panelWeights">
     <div class="panel-header">
-      <div class="panel-title">&#9881; Score Weight Configuration</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="panel-title">&#9881; Score Weight Configuration</div>
+        <div class="wt-tooltip">
+          <div class="wt-tooltip-icon">?</div>
+          <div class="wt-tooltip-popup">Weights must total exactly 100. Each rule's weight is its share of the total score penalty. Equal distribution is set automatically when rules are added or removed. You can override individual values - the remaining weight is redistributed automatically.</div>
+        </div>
+      </div>
       <span class="panel-count" id="weightsCount"></span>
     </div>
-    <div class="panel-desc">Max points deducted per rule. Higher = bigger penalty per incident. Enable rules in the Rules panel first.</div>
+    <div class="panel-desc">Each weight is a percentage of the total score (must sum to 100). Higher weight = bigger impact on the score. Rules are auto-equalized when added or removed.</div>
+    <div class="wt-total-bar">
+      <span class="wt-total-label">Total Weight</span>
+      <span class="wt-total-num" id="wtTotalNum">100</span>
+      <div class="wt-total-track"><div class="wt-total-fill" id="wtTotalFill" style="width:100%;background:#10b981;"></div></div>
+      <span class="wt-total-hint" id="wtTotalHint">&#10003; Balanced</span>
+      <button class="weight-eq-btn" onclick="safetyDash.equalizeWeights()">&#8776; Auto-equalize</button>
+    </div>
     <div class="weight-grid" id="weightGrid"><div class="weight-empty">Load data first to see weights.</div></div>
     <div class="panel-footer">
       <button class="btn" onclick="safetyDash.resetWeights()">Reset to Factory</button>
@@ -242,6 +320,119 @@
     </div>
   </div>
 
+  <!-- SCHEDULE PANEL -->
+  <div class="panel" id="panelSchedule">
+    <div class="panel-header">
+      <div class="panel-title">&#128197; Schedule Email Report</div>
+      <span class="panel-count" id="schedCount"></span>
+    </div>
+    <div class="panel-desc">Automatically email the Driver Safety Scorecard as a CSV report on a recurring schedule.</div>
+    <div class="sched-grid">
+      <div class="sched-field">
+        <label>Frequency</label>
+        <select class="sched-sel" id="schedFreq" onchange="safetyDash.schedFreqChange()">
+          <option value="daily">Daily</option>
+          <option value="weekly" selected>Weekly</option>
+          <option value="biweekly">Every 2 Weeks</option>
+          <option value="monthly">Monthly</option>
+        </select>
+      </div>
+      <div class="sched-field" id="schedDayField">
+        <label>Day of Week</label>
+        <select class="sched-sel" id="schedDay">
+          <option value="1">Monday</option>
+          <option value="2">Tuesday</option>
+          <option value="3">Wednesday</option>
+          <option value="4">Thursday</option>
+          <option value="5" selected>Friday</option>
+          <option value="6">Saturday</option>
+          <option value="0">Sunday</option>
+        </select>
+      </div>
+      <div class="sched-field">
+        <label>Start Date</label>
+        <input type="date" class="sched-input" id="schedStart"/>
+      </div>
+      <div class="sched-field">
+        <label>Report Time</label>
+        <select class="sched-sel" id="schedTime">
+          <option value="06:00">6:00 AM</option>
+          <option value="07:00">7:00 AM</option>
+          <option value="08:00" selected>8:00 AM</option>
+          <option value="09:00">9:00 AM</option>
+          <option value="12:00">12:00 PM</option>
+          <option value="17:00">5:00 PM</option>
+        </select>
+      </div>
+    </div>
+    <div class="sched-emails-wrap" style="margin-bottom:16px;">
+      <label>Recipients</label>
+      <div class="sched-chips" id="schedChips" onclick="document.getElementById('schedChipInput').focus()">
+        <input class="schip-input" id="schedChipInput" placeholder="Add email, press Enter..." onkeydown="safetyDash.schedChipKey(event)"/>
+      </div>
+    </div>
+    <div class="sched-field" style="margin-bottom:16px;">
+      <label>Report Subject Line</label>
+      <input type="text" class="sched-input" id="schedSubject" value="Driver Safety Scorecard Report" placeholder="Email subject..."/>
+    </div>
+    <div class="sched-status" id="schedStatus"></div>
+    <div class="panel-footer">
+      <button class="btn" onclick="safetyDash.togglePanel('schedule')">Cancel</button>
+      <button class="btn" id="btnSchedDisable" onclick="safetyDash.disableSchedule()" style="display:none;">Disable Schedule</button>
+      <button class="btn btn-save" onclick="safetyDash.saveSchedule()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Save Schedule
+      </button>
+    </div>
+  </div>
+
+  <!-- INFO MODAL -->
+  <div class="modal-overlay" id="infoModal" onclick="if(event.target===this)safetyDash.toggleInfo()">
+    <div class="modal">
+      <div class="modal-hdr">
+        <span class="modal-title">&#9432; How Driver Scoring Works</span>
+        <span class="modal-close" onclick="safetyDash.toggleInfo()">&#x2715;</span>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-title">Score Formula</div>
+        <div class="modal-body">Every driver starts with a perfect score of 100. Points are deducted for each safety rule violation, scaled by how many trips the driver made in the period.</div>
+        <div class="modal-formula">
+          <strong>Score = 100 &minus; &sum; Rule Deductions</strong><br/>
+          <strong>Rule Deduction</strong> = min( Weight, (Events &divide; Scale) &times; Points/Incident )<br/>
+          <strong>Scale</strong> = max(1, Trips &divide; 10)
+        </div>
+        <div class="modal-body">The trip scaling prevents drivers with fewer trips from being unfairly penalized. A driver with 5 trips is held to a proportionally lower bar than one with 100 trips.</div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-title">Weights</div>
+        <div class="modal-body">Each enabled rule has a <strong>Weight</strong> (0&ndash;100) representing its share of the total score impact. All weights must sum to exactly 100. When rules are added or removed, weights are automatically equalized. You can manually override any weight &mdash; the others are redistributed proportionally to maintain the 100-point total.</div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-title">Points Per Incident</div>
+        <div class="modal-body">Set in the Rules panel per rule. This controls how many raw penalty points each event generates before the weight cap is applied. Higher = more sensitive to individual incidents.</div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-title">Grade Scale</div>
+        <div class="modal-grade-grid">
+          <div class="modal-grade-item"><span class="grade grade-a">A</span><span class="modal-grade-range">90&ndash;100</span></div>
+          <div class="modal-grade-item"><span class="grade grade-b">B</span><span class="modal-grade-range">80&ndash;89</span></div>
+          <div class="modal-grade-item"><span class="grade grade-c">C</span><span class="modal-grade-range">70&ndash;79</span></div>
+          <div class="modal-grade-item"><span class="grade grade-d">D</span><span class="modal-grade-range">60&ndash;69</span></div>
+          <div class="modal-grade-item"><span class="grade grade-f">F</span><span class="modal-grade-range">0&ndash;59</span></div>
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-title">Tips</div>
+        <div class="modal-body">
+          &bull; Use the <strong>Rules</strong> panel to toggle which violations count and set sensitivity.<br/>
+          &bull; Use <strong>Weights</strong> to prioritize the violations that matter most to your fleet.<br/>
+          &bull; Click <strong>Top Performers</strong> or <strong>At-Risk Drivers</strong> KPI cards to filter the table.<br/>
+          &bull; Use <strong>Schedule Report</strong> to automatically email a CSV scorecard on a recurring basis.
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="sec-hdr">
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
       <span class="sec-ttl">Driver Scorecard</span>
@@ -267,12 +458,13 @@
 var safetyDash = (function() {
   var _api = null, _rows = [], _rawData = [], _allRules = [], _ruleConfig = {}, _ruleWeights = {};
   var _days = 30, _sortKey = 'score', _sortDir = 1, _groupFilter = null, _isLight = false;
+  var _schedEmails = [], _schedEnabled = false;
+  var SCHED_KEY = 'safetySchedule';
 
   var CATS = ['speeding','braking','acceleration','cornering','seatbelt','other'];
   var CAT_LABELS = {speeding:'Speeding',braking:'Hard Braking',acceleration:'Hard Acceleration',cornering:'Harsh Cornering',seatbelt:'Seatbelt',other:'Uncategorized / Custom'};
   var CAT_COLORS = {speeding:'#ef4444',braking:'#f59e0b',acceleration:'#fb923c',cornering:'#a78bfa',seatbelt:'#00e5ff',other:'#64748b'};
   var KEYWORDS = {speeding:['speed'],braking:['brak'],acceleration:['accel'],cornering:['corner'],seatbelt:['seat','belt']};
-  var WMAX_DEF = {speeding:25,braking:20,acceleration:20,cornering:20,seatbelt:15,other:10};
 
   function setDateRange() {
     var now = new Date(), from = new Date(now);
@@ -317,39 +509,107 @@ var safetyDash = (function() {
   }
   function evClass(n){return n===0?'ev-0':n<=5?'ev-few':n<=20?'ev-mid':'ev-many';}
 
-  function getRuleWeight(rid){
-    if(_ruleWeights[rid]) return _ruleWeights[rid];
-    var cat=_ruleConfig[rid]?_ruleConfig[rid].category:'other';
-    return {maxDeduction:WMAX_DEF[cat]||10, perEvent:_ruleConfig[rid]?_ruleConfig[rid].perEvent:3};
+  // ── WEIGHT SYSTEM: percentages summing to 100 ─────────────────────────────
+  function getEnabledRules(){
+    return Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid]&&_ruleConfig[rid].enabled;});
+  }
+
+  function getWeight(rid){
+    return (_ruleWeights[rid]!==undefined) ? _ruleWeights[rid] : 0;
+  }
+
+  function getTotalWeight(){
+    return getEnabledRules().reduce(function(s,rid){return s+getWeight(rid);},0);
+  }
+
+  // Set all enabled rules to equal share summing to 100
+  function equalizeWeightsData(){
+    var enabled=getEnabledRules();
+    if(!enabled.length) return;
+    var base=Math.floor(100/enabled.length);
+    var rem=100-(base*enabled.length);
+    enabled.forEach(function(rid,i){ _ruleWeights[rid]=base+(i<rem?1:0); });
+  }
+
+  // After user edits one rule's weight, redistribute remainder proportionally
+  function redistributeAfterEdit(changedRid, newVal){
+    var enabled=getEnabledRules();
+    if(enabled.length<=1){ _ruleWeights[changedRid]=100; return; }
+    newVal=Math.max(0,Math.min(100,newVal));
+    _ruleWeights[changedRid]=newVal;
+    var rest=enabled.filter(function(r){return r!==changedRid;});
+    var remaining=100-newVal;
+    if(remaining<0) remaining=0;
+    var oldOthersTotal=rest.reduce(function(s,r){return s+getWeight(r);},0);
+    if(oldOthersTotal===0){
+      // distribute evenly
+      var share=Math.floor(remaining/rest.length), extra=remaining-(share*rest.length);
+      rest.forEach(function(r,i){_ruleWeights[r]=share+(i<extra?1:0);});
+    } else {
+      // distribute proportionally
+      var assigned=0;
+      rest.forEach(function(r,i){
+        if(i===rest.length-1){ _ruleWeights[r]=remaining-assigned; }
+        else {
+          var prop=Math.round((getWeight(r)/oldOthersTotal)*remaining);
+          _ruleWeights[r]=Math.max(0,prop);
+          assigned+=_ruleWeights[r];
+        }
+      });
+    }
+    // Final correction for rounding
+    var total=getTotalWeight();
+    if(total!==100){
+      var diff=100-total;
+      // give the diff to the first rule that can absorb it
+      for(var i=0;i<rest.length;i++){
+        if(_ruleWeights[rest[i]]+diff>=0){ _ruleWeights[rest[i]]+=diff; break; }
+      }
+    }
   }
 
   function calcScore(ebr, trips){
     if(!trips) return 100;
-    var score=100, scale=Math.max(1,trips/10);
-    Object.keys(_ruleConfig).forEach(function(rid){
-      var cfg=_ruleConfig[rid];
-      if(!cfg.enabled) return;
+    var enabled=getEnabledRules();
+    if(!enabled.length) return 100;
+    var scale=Math.max(1,trips/10);
+    var totalDeduction=0;
+    enabled.forEach(function(rid){
       var cnt=ebr[rid]||0;
-      var wt=getRuleWeight(rid);
-      score -= Math.min(wt.maxDeduction, (cnt/scale)*wt.perEvent);
+      var wt=getWeight(rid);          // percentage weight 0-100
+      var perEvent=(_ruleConfig[rid]&&_ruleConfig[rid].perEvent)||3;
+      // Raw events scaled by trips, capped at the rule's weight allocation
+      var raw=(cnt/scale)*perEvent;
+      totalDeduction+=Math.min(wt, raw);
     });
-    return Math.max(0,Math.round(score));
+    return Math.max(0,Math.round(100-totalDeduction));
   }
 
   function initRuleConfig(rules){
-    var saved=null;
-    try{var s=localStorage.getItem('safetyRuleConfig');if(s)saved=JSON.parse(s);}catch(e){}
+    var savedCfg=null, savedWts=null;
+    try{var s=localStorage.getItem('safetyRuleConfig');if(s)savedCfg=JSON.parse(s);}catch(e){}
+    try{var rw=localStorage.getItem('safetyRuleWeights');if(rw)savedWts=JSON.parse(rw);}catch(e){}
     _allRules=rules;
     _ruleConfig={};
     rules.forEach(function(rule){
       var cat=guessCategory(rule.name);
-      if(saved&&saved[rule.id]){
-        _ruleConfig[rule.id]={enabled:!!saved[rule.id].enabled,category:saved[rule.id].category||cat,perEvent:saved[rule.id].perEvent||3};
+      if(savedCfg&&savedCfg[rule.id]){
+        _ruleConfig[rule.id]={enabled:!!savedCfg[rule.id].enabled,category:savedCfg[rule.id].category||cat,perEvent:savedCfg[rule.id].perEvent||3};
       } else {
         _ruleConfig[rule.id]={enabled:cat!=='other',category:cat,perEvent:3};
       }
     });
-    try{var rw=localStorage.getItem('safetyRuleWeights');if(rw)_ruleWeights=JSON.parse(rw);}catch(e){}
+    // Load or initialize weights
+    if(savedWts){
+      _ruleWeights=savedWts;
+      // Validate: if enabled rules changed, re-equalize
+      var enabled=getEnabledRules();
+      var savedTotal=enabled.reduce(function(s,r){return s+(savedWts[r]||0);},0);
+      if(Math.abs(savedTotal-100)>2) equalizeWeightsData();
+    } else {
+      _ruleWeights={};
+      equalizeWeightsData();
+    }
   }
 
   function rebuildRows(){
@@ -473,33 +733,62 @@ var safetyDash = (function() {
     document.getElementById('tbl').innerHTML=h+'</tbody></table>';
   }
 
+  function updateWeightTotalBar(){
+    var total=getTotalWeight();
+    var numEl=document.getElementById('wtTotalNum');
+    var fillEl=document.getElementById('wtTotalFill');
+    var hintEl=document.getElementById('wtTotalHint');
+    if(!numEl) return;
+    numEl.textContent=total;
+    numEl.className='wt-total-num '+(total===100?'wt-total-ok':total>100?'wt-total-over':'wt-total-under');
+    fillEl.style.width=Math.min(100,total)+'%';
+    fillEl.style.background=total===100?'#10b981':total>100?'#ef4444':'#f59e0b';
+    hintEl.textContent=total===100?'✓ Balanced':total>100?'⚠ Over by '+(total-100)+'%':'⚠ Under by '+(100-total)+'%';
+    hintEl.style.color=total===100?'#10b981':total>100?'#ef4444':'#f59e0b';
+  }
+
+  function syncWeightUI(rid,sid,newVal){
+    var slEl=document.getElementById('wsl_'+sid);
+    var piEl=document.getElementById('wpi_'+sid);
+    var sbEl=document.getElementById('wsb_'+sid);
+    var perE=(_ruleConfig[rid]&&_ruleConfig[rid].perEvent)||3;
+    if(slEl) slEl.value=newVal;
+    if(piEl){piEl.value=newVal; piEl.classList.toggle('input-err',newVal<0||newVal>100);}
+    if(sbEl) sbEl.textContent=newVal+'% weight • '+perE+' pts/incident';
+    getEnabledRules().forEach(function(r){
+      if(r===rid) return;
+      var s2=r.replace(/[^a-zA-Z0-9]/g,'_'),v=getWeight(r),pe2=(_ruleConfig[r]&&_ruleConfig[r].perEvent)||3;
+      var sl2=document.getElementById('wsl_'+s2),pi2=document.getElementById('wpi_'+s2),sb2=document.getElementById('wsb_'+s2);
+      if(sl2) sl2.value=v;
+      if(pi2) pi2.value=v;
+      if(sb2) sb2.textContent=v+'% weight • '+pe2+' pts/incident';
+    });
+    updateWeightTotalBar();
+  }
+
   function renderWeightsPanel(){
-    var enabled=Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid]&&_ruleConfig[rid].enabled;});
+    var enabled=getEnabledRules();
     var wc=document.getElementById('weightsCount');
-    if(wc) wc.textContent=enabled.length+' rules';
+    if(wc) wc.textContent=enabled.length+' rule'+(enabled.length===1?'':'s');
+    updateWeightTotalBar();
     var grid=document.getElementById('weightGrid');
     if(!grid) return;
-    if(!enabled.length){
-      grid.innerHTML='<div class="weight-empty">No rules enabled. Enable rules in the Rules panel first.</div>';
-      return;
-    }
+    if(!enabled.length){grid.innerHTML='<div class="weight-empty">No rules enabled. Enable rules in the Rules panel first.</div>';return;}
     var h='';
     enabled.forEach(function(rid){
       var rule=null;
       for(var i=0;i<_allRules.length;i++){if(_allRules[i].id===rid){rule=_allRules[i];break;}}
-      var rname=rule?rule.name:rid;
-      var wt=getRuleWeight(rid);
-      var maxD=wt.maxDeduction;
-      var perE=wt.perEvent;
+      var rname=rule?rule.name:rid, wt=getWeight(rid), perE=(_ruleConfig[rid]&&_ruleConfig[rid].perEvent)||3;
       var sid=rid.replace(/[^a-zA-Z0-9]/g,'_');
       h+='<div class="weight-item">'+
         '<div class="weight-label" title="'+rname+'">'+rname+'</div>'+
-        '<div class="weight-row">'+
-          '<input type="range" class="weight-slider" id="wsl_'+sid+'" min="0" max="40" step="1" value="'+maxD+'" oninput="safetyDash.updateRuleWLabel(\''+rid+'\',\''+sid+'\')"/>'+
-          '<span class="weight-val" id="wvl_'+sid+'">'+maxD+'</span>'+
+        '<div class="weight-input-wrap">'+
+          '<input type="range" class="weight-slider" id="wsl_'+sid+'" min="0" max="100" step="1" value="'+wt+'" oninput="safetyDash.onWeightSlide(''+rid+'',''+sid+'')"/>'+
+          '<input type="number" class="weight-pct-input" id="wpi_'+sid+'" min="0" max="100" value="'+wt+'" oninput="safetyDash.onWeightInput(''+rid+'',''+sid+'')"/>'+
+          '<span style="font-size:.75rem;color:var(--text3);">%</span>'+
         '</div>'+
-        '<div class="weight-sub" id="wsb_'+sid+'">Max '+maxD+' pts ~ '+perE+' pts/inc</div>'+
-        '</div>';
+        '<div class="weight-sub" id="wsb_'+sid+'">'+wt+'% weight • '+perE+' pts/incident</div>'+
+      '</div>';
     });
     grid.innerHTML=h;
   }
@@ -606,10 +895,138 @@ var safetyDash = (function() {
     },function(err){showBox('');showErr('Error: '+(err&&err.message?err.message:JSON.stringify(err)));});
   }
 
+  // ── SCHEDULE ────────────────────────────────────────────────────────────
+  function loadSchedule(){
+    try{
+      var s=localStorage.getItem(SCHED_KEY);
+      if(!s) return;
+      var d=JSON.parse(s);
+      _schedEmails=d.emails||[];
+      _schedEnabled=d.enabled||false;
+      if(d.freq) document.getElementById('schedFreq').value=d.freq;
+      if(d.day!==undefined) document.getElementById('schedDay').value=d.day;
+      if(d.time) document.getElementById('schedTime').value=d.time;
+      if(d.start) document.getElementById('schedStart').value=d.start;
+      if(d.subject) document.getElementById('schedSubject').value=d.subject;
+      _schedEmails.forEach(function(e){ addSchedChipEl(e); });
+      updateSchedStatus();
+    }catch(e){}
+  }
+
+  function saveScheduleData(){
+    try{
+      localStorage.setItem(SCHED_KEY, JSON.stringify({
+        emails: _schedEmails,
+        enabled: _schedEnabled,
+        freq: document.getElementById('schedFreq').value,
+        day: document.getElementById('schedDay').value,
+        time: document.getElementById('schedTime').value,
+        start: document.getElementById('schedStart').value,
+        subject: document.getElementById('schedSubject').value
+      }));
+    }catch(e){}
+  }
+
+  function updateSchedStatus(){
+    var el=document.getElementById('schedStatus');
+    var disBtn=document.getElementById('btnSchedDisable');
+    if(!el) return;
+    if(_schedEnabled && _schedEmails.length){
+      var freq=document.getElementById('schedFreq');
+      var freqTxt=freq?freq.options[freq.selectedIndex].text:'Weekly';
+      el.className='sched-status on';
+      el.textContent='✓ Active — report sends '+freqTxt.toLowerCase()+' to '+_schedEmails.length+' recipient'+ (_schedEmails.length>1?'s':'');
+      if(disBtn) disBtn.style.display='';
+    } else {
+      el.className='sched-status off';
+      el.textContent='Schedule is inactive. Add recipients and save to activate.';
+      if(disBtn) disBtn.style.display='none';
+    }
+  }
+
+  function addSchedChipEl(email){
+    var wrap=document.getElementById('schedChips');
+    var input=document.getElementById('schedChipInput');
+    var chip=document.createElement('span');
+    chip.className='schip';
+    chip.setAttribute('data-email',email);
+    chip.innerHTML=email+'<span class="schip-x" onclick="safetyDash.removeSchedChip(this)">✕</span>';
+    wrap.insertBefore(chip,input);
+  }
+
+  function checkAndSendScheduled(){
+    if(!_schedEnabled||!_schedEmails.length||!_rows.length) return;
+    try{
+      var saved=JSON.parse(localStorage.getItem(SCHED_KEY)||'{}');
+      var lastSent=saved.lastSent?new Date(saved.lastSent):null;
+      var now=new Date();
+      var shouldSend=false;
+      if(!lastSent){ shouldSend=true; }
+      else {
+        var freq=saved.freq||'weekly';
+        var diff=(now-lastSent)/86400000;
+        if(freq==='daily'&&diff>=1) shouldSend=true;
+        else if(freq==='weekly'&&diff>=7) shouldSend=true;
+        else if(freq==='biweekly'&&diff>=14) shouldSend=true;
+        else if(freq==='monthly'&&diff>=28) shouldSend=true;
+      }
+      if(shouldSend){
+        sendScheduledEmail();
+        saved.lastSent=now.toISOString();
+        localStorage.setItem(SCHED_KEY,JSON.stringify(saved));
+      }
+    }catch(e){}
+  }
+
+  function sendScheduledEmail(){
+    var subject=document.getElementById('schedSubject').value||'Driver Safety Scorecard Report';
+    var now=new Date();
+    var fmt=function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});};
+    var from=new Date(now); from.setDate(from.getDate()-_days);
+    var lines=['Driver Safety Scorecard Report','Period: '+fmt(from)+' to '+fmt(now),'Generated: '+now.toLocaleString(),''];
+    var enabled=getEnabledRules();
+    var ruleNames=enabled.map(function(rid){var r=_allRules.find(function(x){return x.id===rid;}); return r?r.name:rid;});
+    lines.push('Driver,Score,Grade,Trips,'+ruleNames.join(','));
+    _rows.forEach(function(r){
+      var gr=gradeFromScore(r.score);
+      lines.push('"'+r.dname.replace(/"/g,'""')+'",'+r.score+','+gr.l+','+r.trips+','+enabled.map(function(rid){return r.ebr[rid]||0;}).join(','));
+    });
+    var body=lines.join('
+');
+    if(_api){
+      _schedEmails.forEach(function(email){
+        try{
+          _api.call('Add',{typeName:'TextMessage',entity:{
+            message:subject+'
+
+'+body,
+            isDirectionToVehicle:false,
+            messageContent:{contentType:'Normal',message:subject+'
+
+'+body}
+          }},function(){},function(){});
+        }catch(e){}
+      });
+    }
+    toast('Scheduled report sent to '+_schedEmails.length+' recipient'+ (_schedEmails.length>1?'s':''),'#10b981');
+  }
+
+  // When a rule is toggled, re-equalize weights automatically
+  function onRuleToggled(){
+    equalizeWeightsData();
+    if(document.getElementById('panelWeights').classList.contains('open')) renderWeightsPanel();
+  }
+
   return {
     init: function(api){
       _api=api; setDateRange();
       document.getElementById('btnRefresh').onclick=fetchData;
+      // Set default start date to today
+      var today=new Date().toISOString().split('T')[0];
+      document.getElementById('schedStart').value=today;
+      loadSchedule();
+      // Check if scheduled send is due
+      setTimeout(function(){ if(_rows.length) checkAndSendScheduled(); }, 5000);
     },
     fetch: fetchData,
 
@@ -625,30 +1042,17 @@ var safetyDash = (function() {
       document.getElementById('themeLbl').textContent=_isLight?'LIGHT':'DARK';
     },
 
-    togglePanel: function(which){
-      var ids={weights:'panelWeights',rules:'panelRules'};
-      var btns={weights:'btnWeights',rules:'btnRules'};
-      Object.keys(ids).forEach(function(k){
-        if(k===which){
-          var isOpen=document.getElementById(ids[k]).classList.toggle('open');
-          document.getElementById(btns[k]).classList.toggle('active-btn',isOpen);
-          if(isOpen&&k==='rules'&&_allRules.length) renderRulesPanel();
-          if(isOpen&&k==='weights') renderWeightsPanel();
-        } else {
-          document.getElementById(ids[k]).classList.remove('open');
-          document.getElementById(btns[k]).classList.remove('active-btn');
-        }
-      });
-    },
+
 
     toggleRule: function(rid){
       if(!_ruleConfig[rid]) return;
       _ruleConfig[rid].enabled=!_ruleConfig[rid].enabled;
       var row=document.getElementById('rr_'+rid);
       if(row) row.classList.toggle('rule-on',_ruleConfig[rid].enabled);
-      var cnt=Object.keys(_ruleConfig).filter(function(r){return _ruleConfig[r]&&_ruleConfig[r].enabled;}).length;
+      var cnt=getEnabledRules().length;
       var el=document.getElementById('rulesEnabled');
       if(el) el.textContent=cnt+' rules enabled';
+      onRuleToggled();
     },
 
     setRuleWt: function(rid,val){
@@ -681,48 +1085,43 @@ var safetyDash = (function() {
     },
     clearFilter: function(){_groupFilter=null;updateBadge();renderTable(getDisplayRows());},
 
-    updateRuleWLabel: function(rid,sid){
+    onWeightSlide: function(rid,sid){
       var el=document.getElementById('wsl_'+sid);
       if(!el) return;
       var v=parseInt(el.value,10);
-      document.getElementById('wvl_'+sid).textContent=v;
-      document.getElementById('wsb_'+sid).textContent='Max '+v+' pts ~ '+Math.max(1,Math.round(v/5))+' pts/inc';
-      if(!_ruleWeights[rid]) _ruleWeights[rid]={};
-      _ruleWeights[rid].maxDeduction=v;
-      _ruleWeights[rid].perEvent=Math.max(1,Math.round(v/5));
+      redistributeAfterEdit(rid,v);
+      syncWeightUI(rid,sid,getWeight(rid));
+    },
+
+    onWeightInput: function(rid,sid){
+      var el=document.getElementById('wpi_'+sid);
+      if(!el) return;
+      var v=parseInt(el.value,10);
+      if(isNaN(v)) return;
+      redistributeAfterEdit(rid,v);
+      syncWeightUI(rid,sid,getWeight(rid));
+    },
+
+    equalizeWeights: function(){
+      equalizeWeightsData();
+      renderWeightsPanel();
+      toast('Weights equalized to '+Math.round(100/Math.max(1,getEnabledRules().length))+'% each','#f59e0b');
     },
 
     applyWeights: function(){
-      var enabled=Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid]&&_ruleConfig[rid].enabled;});
-      enabled.forEach(function(rid){
-        var sid=rid.replace(/[^a-zA-Z0-9]/g,'_');
-        var el=document.getElementById('wsl_'+sid);
-        if(el){
-          var v=parseInt(el.value,10);
-          if(!_ruleWeights[rid]) _ruleWeights[rid]={};
-          _ruleWeights[rid].maxDeduction=v;
-          _ruleWeights[rid].perEvent=Math.max(1,Math.round(v/5));
-        }
-      });
+      // Ensure total=100 before applying
+      var total=getTotalWeight();
+      if(total!==100){ equalizeWeightsData(); renderWeightsPanel(); }
       if(_rawData.length) rebuildRows();
-      toast('Scores recalculated','#f59e0b');
+      toast('Scores recalculated with new weights','#f59e0b');
     },
 
     saveWeights: function(){
-      var enabled=Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid]&&_ruleConfig[rid].enabled;});
-      enabled.forEach(function(rid){
-        var sid=rid.replace(/[^a-zA-Z0-9]/g,'_');
-        var el=document.getElementById('wsl_'+sid);
-        if(el){
-          var v=parseInt(el.value,10);
-          if(!_ruleWeights[rid]) _ruleWeights[rid]={};
-          _ruleWeights[rid].maxDeduction=v;
-          _ruleWeights[rid].perEvent=Math.max(1,Math.round(v/5));
-        }
-      });
+      var total=getTotalWeight();
+      if(total!==100){ equalizeWeightsData(); renderWeightsPanel(); toast('Weights auto-corrected to 100 and saved','#f59e0b'); }
       try{
         localStorage.setItem('safetyRuleWeights',JSON.stringify(_ruleWeights));
-        toast('Weights saved as default','#10b981');
+        toast('Weights saved (total: '+getTotalWeight()+'%)','#10b981');
       }catch(e){toast('Could not save: '+e.message,'#ef4444');}
       if(_rawData.length) rebuildRows();
     },
@@ -730,9 +1129,82 @@ var safetyDash = (function() {
     resetWeights: function(){
       try{localStorage.removeItem('safetyRuleWeights');}catch(e){}
       _ruleWeights={};
+      equalizeWeightsData();
       renderWeightsPanel();
       if(_rawData.length) rebuildRows();
-      toast('Reset to factory defaults','#64748b');
+      toast('Reset to equal distribution','#64748b');
+    },
+
+    toggleInfo: function(){
+      document.getElementById('infoModal').classList.toggle('open');
+    },
+
+    togglePanel: function(which){
+      var ids={weights:'panelWeights',rules:'panelRules',schedule:'panelSchedule'};
+      var btns={weights:'btnWeights',rules:'btnRules',schedule:'btnSchedule'};
+      Object.keys(ids).forEach(function(k){
+        if(k===which){
+          var isOpen=document.getElementById(ids[k]).classList.toggle('open');
+          if(btns[k]&&document.getElementById(btns[k])) document.getElementById(btns[k]).classList.toggle('active-btn',isOpen);
+          if(isOpen&&k==='rules'&&_allRules.length) renderRulesPanel();
+          if(isOpen&&k==='weights') renderWeightsPanel();
+          if(isOpen&&k==='schedule') updateSchedStatus();
+        } else {
+          document.getElementById(ids[k]).classList.remove('open');
+          if(btns[k]&&document.getElementById(btns[k])) document.getElementById(btns[k]).classList.remove('active-btn');
+        }
+      });
+    },
+
+    schedFreqChange: function(){
+      var freq=document.getElementById('schedFreq').value;
+      var dayField=document.getElementById('schedDayField');
+      if(dayField) dayField.style.display=(freq==='daily')?'none':'';
+    },
+
+    schedChipKey: function(e){
+      if(e.key==='Enter'||e.key===','){
+        e.preventDefault();
+        var val=document.getElementById('schedChipInput').value.trim().replace(/,$/,'');
+        if(val&&val.indexOf('@')!==-1&&_schedEmails.indexOf(val)===-1){
+          _schedEmails.push(val);
+          addSchedChipEl(val);
+          document.getElementById('schedChipInput').value='';
+        }
+      }
+      if(e.key==='Backspace'&&!document.getElementById('schedChipInput').value&&_schedEmails.length){
+        var chips=document.getElementById('schedChips').querySelectorAll('.schip');
+        if(chips.length){
+          var last=chips[chips.length-1];
+          var email=last.getAttribute('data-email');
+          _schedEmails=_schedEmails.filter(function(x){return x!==email;});
+          last.remove();
+        }
+      }
+    },
+
+    removeSchedChip: function(xEl){
+      var chip=xEl.parentElement;
+      var email=chip.getAttribute('data-email');
+      _schedEmails=_schedEmails.filter(function(x){return x!==email;});
+      chip.remove();
+    },
+
+    saveSchedule: function(){
+      if(!_schedEmails.length){
+        toast('Add at least one recipient email first','#ef4444'); return;
+      }
+      _schedEnabled=true;
+      saveScheduleData();
+      updateSchedStatus();
+      toast('Schedule saved — report will send '+document.getElementById('schedFreq').value,'#10b981');
+    },
+
+    disableSchedule: function(){
+      _schedEnabled=false;
+      saveScheduleData();
+      updateSchedStatus();
+      toast('Schedule disabled','#64748b');
     },
 
     sort: function(k){
