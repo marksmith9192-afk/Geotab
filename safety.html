@@ -266,7 +266,7 @@
     </div>
     <div class="kpi" id="kpi-drv">
       <div class="kpi-top-bar" style="background:#a78bfa;"></div>
-      <div class="kpi-lbl">Drivers Tracked</div><div class="kpi-val" id="k6" style="color:#a78bfa;">&#8212;</div><div class="kpi-sub">active in period</div>
+      <div class="kpi-lbl">Drivers Tracked</div><div class="kpi-val" id="k6" style="color:#a78bfa;">&#8212;</div><div class="kpi-sub" id="k4sub">total fleet miles</div>
     </div>
   </div>
 
@@ -398,10 +398,10 @@
         <div class="modal-body">Every driver starts with a perfect score of 100. Points are deducted for each safety rule violation, scaled by how many trips the driver made in the period.</div>
         <div class="modal-formula">
           <strong>Score = 100 &minus; &sum; Rule Deductions</strong><br/>
-          <strong>Rule Deduction</strong> = min( Weight, (Events &divide; Scale) &times; Points/Incident )<br/>
-          <strong>Scale</strong> = max(1, Trips &divide; 10)
+          <strong>Rule Deduction</strong> = min( Weight, Rate &times; Points/Incident )<br/>
+          <strong>Rate</strong> = Events &divide; Miles Driven &times; 100
         </div>
-        <div class="modal-body">The trip scaling prevents drivers with fewer trips from being unfairly penalized. A driver with 5 trips is held to a proportionally lower bar than one with 100 trips.</div>
+        <div class="modal-body">Scoring is normalized per 100 miles driven. A driver with 3 harsh braking events over 300 miles scores much better than one with 3 events over 30 miles &mdash; because the first driver&rsquo;s rate is 1 per 100 miles vs 10 per 100 miles. This reflects true risk exposure.</div>
       </div>
       <div class="modal-section">
         <div class="modal-section-title">Weights</div>
@@ -577,18 +577,20 @@ var safetyDash = (function() {
     }
   }
 
-  function calcScore(ebr, trips){
-    if(!trips) return 100;
+  function calcScore(ebr, miles){
+    if(!miles) return 100;
     var enabled=getEnabledRules();
     if(!enabled.length) return 100;
-    var scale=Math.max(1,trips/10);
+    // Normalize to events per 100 miles, then apply weight cap
+    // Base rate: 1 event per 100 miles = full perEvent deduction
     var totalDeduction=0;
     enabled.forEach(function(rid){
       var cnt=ebr[rid]||0;
-      var wt=getWeight(rid);          // percentage weight 0-100
+      var wt=getWeight(rid);           // percentage weight 0-100
       var perEvent=(_ruleConfig[rid]&&_ruleConfig[rid].perEvent)||3;
-      // Raw events scaled by trips, capped at the rule's weight allocation
-      var raw=(cnt/scale)*perEvent;
+      // Rate = events per 100 miles driven
+      var rate=(cnt/miles)*100;
+      var raw=rate*perEvent;
       totalDeduction+=Math.min(wt, raw);
     });
     return Math.max(0,Math.round(100-totalDeduction));
@@ -623,8 +625,8 @@ var safetyDash = (function() {
 
   function rebuildRows(){
     _rows=_rawData.map(function(d){
-      var score=calcScore(d.ebr,d.trips);
-      var row={dname:d.dname,score:score,trips:d.trips,ebr:d.ebr};
+      var score=calcScore(d.ebr,d.miles);
+      var row={dname:d.dname,score:score,miles:d.miles,ebr:d.ebr};
       CATS.forEach(function(cat){
         row['cat_'+cat]=Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid].enabled&&_ruleConfig[rid].category===cat;}).reduce(function(s,rid){return s+(d.ebr[rid]||0);},0);
       });
@@ -656,7 +658,9 @@ var safetyDash = (function() {
     document.getElementById('k4').textContent=spd.toLocaleString();
     document.getElementById('k5').textContent=brk.toLocaleString();
     document.getElementById('k6').textContent=rows.length;
-    document.getElementById('foot').textContent='Last refreshed: '+new Date().toLocaleString()+'  |  Last '+_days+' days  |  Score = 100 minus weighted deductions (normalized by trips)';
+    var totalMiles=rows.reduce(function(s,r){return s+(r.miles||0);},0);
+    document.getElementById('k4sub').textContent=totalMiles.toLocaleString()+' mi total';
+    document.getElementById('foot').textContent='Last refreshed: '+new Date().toLocaleString()+'  |  Last '+_days+' days  |  Score = 100 minus weighted deductions (normalized per 100 miles driven)';
   }
 
   function updateBadge(){
@@ -704,7 +708,7 @@ var safetyDash = (function() {
       thSort('dname','Driver','th-driver')+
       thSort('score','Score','th-score')+
       '<th class="th-grade">Grade</th>'+
-      thSort('trips','Trips','th-trips');
+      thSort('miles','Miles','th-trips');
 
     if(useCat){
       colCats.forEach(function(cat){h+=thSort('cat_'+cat,CAT_LABELS[cat],'th-rule');});
@@ -725,7 +729,7 @@ var safetyDash = (function() {
         '<td><div class="score-wrap '+sc+'"><span class="score-num">'+r.score+'</span>'+
         '<div class="score-bar-bg"><div class="score-bar-fill" style="width:'+r.score+'%"></div></div></div></td>'+
         '<td><span class="grade '+gr.c+'">'+gr.l+'</span></td>'+
-        '<td class="trips-cell">'+r.trips+'</td>';
+        '<td class="trips-cell">'+(r.miles||0).toLocaleString()+'</td>';
       if(useCat){
         colCats.forEach(function(cat){
           var total=enabled.filter(function(rid){return _ruleConfig[rid].category===cat;}).reduce(function(s,rid){return s+(r.ebr[rid]||0);},0);
@@ -879,10 +883,12 @@ var safetyDash = (function() {
         var d=t.driver; if(!d||!d.id||d.id==='UnknownDriverId') return;
         if(!dmap[d.id]){var dn=buildDriverName(d);if(dn)dmap[d.id]=dn;}
       });
-      var tc={};
+      var miles={};
       trips.forEach(function(t){
         var did=t.driver&&t.driver.id; if(!did||did==='UnknownDriverId') return;
-        tc[did]=(tc[did]||0)+1;
+        // Geotab distance is in meters; convert to miles
+        var distMiles=(t.distance||0)*0.000621371;
+        miles[did]=(miles[did]||0)+distMiles;
       });
       var ebrd={};
       excs.forEach(function(e){
@@ -897,7 +903,7 @@ var safetyDash = (function() {
       Object.keys(ebrd).forEach(function(k){seen[k]=1;});
       _rawData=[];
       Object.keys(seen).forEach(function(did){
-        _rawData.push({dname:dmap[did]||('Driver '+did),trips:tc[did]||0,ebr:ebrd[did]||{}});
+        _rawData.push({dname:dmap[did]||('Driver '+did),miles:Math.round(miles[did]||0),ebr:ebrd[did]||{}});
       });
       if(!_rawData.length){showBox('');showErr('No driver data found.');return;}
       rebuildRows();
@@ -1003,11 +1009,11 @@ var safetyDash = (function() {
       'Period: '+fmt(from)+' to '+fmt(now),
       'Generated: '+now.toLocaleString(),
       '',
-      'Driver,Score,Grade,Trips,'+ruleNames.join(',')
+      'Driver,Score,Grade,Miles,'+ruleNames.join(',')
     ];
     _rows.forEach(function(r){
       var gr=gradeFromScore(r.score);
-      csvLines.push('"'+r.dname.replace(/"/g,'""')+'",'+r.score+','+gr.l+','+r.trips+','+enabled.map(function(rid){return r.ebr[rid]||0;}).join(','));
+      csvLines.push('"'+r.dname.replace(/"/g,'""')+'",'+r.score+','+gr.l+','+(r.miles||0)+','+enabled.map(function(rid){return r.ebr[rid]||0;}).join(','));
     });
     var body=csvLines.join(sep);
     var fullMsg=subject+sep+sep+body;
@@ -1265,10 +1271,10 @@ var safetyDash = (function() {
         return rid;
       });
       var note=_groupFilter?(' - '+(_groupFilter==='top'?'Top Performers':'At-Risk')):'';
-      var lines=['Driver Safety Scorecard'+note,'Period: '+fmt(from)+' to '+fmt(now),'','Driver,Score,Grade,Trips,'+ruleNames.join(',')];
+      var lines=['Driver Safety Scorecard'+note,'Period: '+fmt(from)+' to '+fmt(now),'','Driver,Score,Grade,Miles,'+ruleNames.join(',')];
       exportRows.forEach(function(r){
         var gr=gradeFromScore(r.score);
-        lines.push('"'+r.dname.replace(/"/g,'""')+'",'+r.score+','+gr.l+','+r.trips+','+enabled.map(function(rid){return r.ebr[rid]||0;}).join(','));
+        lines.push('"'+r.dname.replace(/"/g,'""')+'",'+r.score+','+gr.l+','+(r.miles||0)+','+enabled.map(function(rid){return r.ebr[rid]||0;}).join(','));
       });
       var csv=lines.join('\r\n');
       var blob=new Blob([csv],{type:'text/csv'});
