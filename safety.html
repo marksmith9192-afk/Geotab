@@ -899,7 +899,7 @@ var safetyDash = (function() {
         if(!dmap[did]&&e.driver){var dn=buildDriverName(e.driver);if(dn)dmap[did]=dn;}
       });
       var seen={};
-      Object.keys(tc).forEach(function(k){seen[k]=1;});
+      Object.keys(miles).forEach(function(k){seen[k]=1;});
       Object.keys(ebrd).forEach(function(k){seen[k]=1;});
       _rawData=[];
       Object.keys(seen).forEach(function(did){
