@@ -425,7 +425,7 @@
           <strong>Rule Deduction</strong> = min( Weight, Rate &times; Points/Incident )<br/>
           <strong>Rate</strong> = Events &divide; Miles Driven &times; 100
         </div>
-        <div class="modal-body">Scoring is normalized per 100 miles driven. A driver with 3 harsh braking events over 300 miles scores much better than one with 3 events over 30 miles &mdash; because the first driver&rsquo;s rate is 1 per 100 miles vs 10 per 100 miles. This reflects true risk exposure.</div>
+        <div class="modal-body">When GPS mileage data is available, scoring is normalized per 100 miles driven &mdash; a driver with 3 harsh braking events over 300 miles scores far better than one with 3 events over 30 miles. When mileage is unavailable (shown as &ldquo;Trips&rdquo; column), scoring normalizes per trip instead. The footer shows which mode is active.</div>
       </div>
       <div class="modal-section">
         <div class="modal-section-title">Weights</div>
@@ -452,6 +452,12 @@
           &bull; Use <strong>Weights</strong> to prioritize the violations that matter most to your fleet.<br/>
           &bull; Click <strong>Top Performers</strong> or <strong>At-Risk Drivers</strong> KPI cards to filter the table.<br/>
           &bull; Use <strong>Schedule Report</strong> to automatically email a CSV scorecard on a recurring basis.
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-title">Data Access &amp; Security</div>
+        <div class="modal-body">
+          This add-in uses the authenticated Geotab API session of the logged-in user. All data returned &mdash; drivers, vehicles, exceptions, and groups &mdash; is automatically scoped to that user&rsquo;s clearance level and group visibility in Geotab. A user who can only see one division will only see that division&rsquo;s drivers here. No data is stored externally; everything is queried live from your Geotab database.
         </div>
       </div>
     </div>
@@ -621,21 +627,25 @@ var safetyDash = (function() {
     }
   }
 
-  function calcScore(ebr, miles){
-    if(!miles) return 100;
+  function calcScore(ebr, norm){
+    // norm = miles (distance mode) or trip count (proxy mode)
+    if(!norm) return 100;
     var enabled=getEnabledRules();
     if(!enabled.length) return 100;
-    // Normalize to events per 100 miles, then apply weight cap
-    // Base rate: 1 event per 100 miles = full perEvent deduction
     var totalDeduction=0;
     enabled.forEach(function(rid){
       var cnt=ebr[rid]||0;
-      var wt=getWeight(rid);           // percentage weight 0-100
+      var wt=getWeight(rid);
       var perEvent=(_ruleConfig[rid]&&_ruleConfig[rid].perEvent)||3;
-      // Rate = events per 100 miles driven
-      var rate=(cnt/miles)*100;
-      var raw=rate*perEvent;
-      totalDeduction+=Math.min(wt, raw);
+      var rate;
+      if(_usingTripProxy){
+        // Events per trip, scaled: 1 event/trip = full perEvent deduction
+        rate=cnt/norm;
+      } else {
+        // Events per 100 miles
+        rate=(cnt/norm)*100;
+      }
+      totalDeduction+=Math.min(wt, rate*perEvent);
     });
     return Math.max(0,Math.round(100-totalDeduction));
   }
@@ -669,8 +679,8 @@ var safetyDash = (function() {
 
   function rebuildRows(){
     _rows=_rawData.map(function(d){
-      var score=calcScore(d.ebr,d.miles);
-      var row={dname:d.dname,score:score,miles:d.miles,ebr:d.ebr,did:d.did};
+      var score=calcScore(d.ebr,d.norm);
+      var row={dname:d.dname,score:score,norm:d.norm,displayVal:d.displayVal,tripCount:d.tripCount,ebr:d.ebr,did:d.did};
       CATS.forEach(function(cat){
         row['cat_'+cat]=Object.keys(_ruleConfig).filter(function(rid){return _ruleConfig[rid].enabled&&_ruleConfig[rid].category===cat;}).reduce(function(s,rid){return s+(d.ebr[rid]||0);},0);
       });
@@ -702,9 +712,11 @@ var safetyDash = (function() {
     document.getElementById('k4').textContent=spd.toLocaleString();
     document.getElementById('k5').textContent=brk.toLocaleString();
     document.getElementById('k6').textContent=rows.length;
-    var totalMiles=rows.reduce(function(s,r){return s+(r.miles||0);},0);
-    document.getElementById('k4sub').textContent=totalMiles.toLocaleString()+(_usingTripProxy?' mi (est)':' mi total');
-    document.getElementById('foot').textContent='Last refreshed: '+new Date().toLocaleString()+'  |  Last '+_days+' days  |  Score = 100 minus weighted deductions (normalized per 100 miles driven)';
+    var totalDisplay=rows.reduce(function(s,r){return s+(r.displayVal||0);},0);
+    var normLabel=_usingTripProxy?' trips total':' mi total';
+    document.getElementById('k4sub').textContent=totalDisplay.toLocaleString()+normLabel;
+    var normNote=_usingTripProxy?'normalized per trip (mileage unavailable)':'normalized per 100 miles';
+    document.getElementById('foot').textContent='Last refreshed: '+new Date().toLocaleString()+'  |  Last '+_days+' days  |  Score = 100 minus weighted deductions ('+normNote+')';
   }
 
   function updateBadge(){
@@ -759,7 +771,7 @@ var safetyDash = (function() {
       thSort('dname','Driver','th-driver')+
       thSort('score','Score','th-score')+
       '<th class="th-grade">Grade</th>'+
-      thSort('miles',_usingTripProxy?'Miles (est)':'Miles','th-trips');
+      thSort('displayVal',_usingTripProxy?'Trips':'Miles','th-trips');
 
     if(useCat){
       colCats.forEach(function(cat){h+=thSort('cat_'+cat,CAT_LABELS[cat],'th-rule');});
@@ -780,7 +792,7 @@ var safetyDash = (function() {
         '<td><div class="score-wrap '+sc+'"><span class="score-num">'+r.score+'</span>'+
         '<div class="score-bar-bg"><div class="score-bar-fill" style="width:'+r.score+'%"></div></div></div></td>'+
         '<td><span class="grade '+gr.c+'">'+gr.l+'</span></td>'+
-        '<td class="trips-cell">'+(r.miles||0).toLocaleString()+'</td>';
+        '<td class="trips-cell">'+(r.displayVal||0).toLocaleString()+'</td>';
       if(useCat){
         colCats.forEach(function(cat){
           var total=enabled.filter(function(rid){return _ruleConfig[rid].category===cat;}).reduce(function(s,rid){return s+(r.ebr[rid]||0);},0);
@@ -971,83 +983,57 @@ var safetyDash = (function() {
     showBox('FETCHING EXCEPTIONS & TRIPS...',30);
     _api.multiCall([
       ['Get',{typeName:'ExceptionEvent',search:{fromDate:fromStr,toDate:toStr},resultsLimit:100000}],
-      ['Get',{typeName:'Trip',search:{fromDate:fromStr,toDate:toStr},resultsLimit:100000}],
-      ['Get',{typeName:'DeviceStatusInfo',resultsLimit:5000}]
+      ['Get',{typeName:'Trip',search:{fromDate:fromStr,toDate:toStr},resultsLimit:100000}]
     ],function(res){
       var excs=(res&&res[0])||[];
       var trips=(res&&res[1])||[];
-      var devStatus=(res&&res[2])||[];
-      // Build device->odometer map from DeviceStatusInfo (km)
-      var devOdo={};
-      devStatus.forEach(function(ds){
-        if(ds.device&&ds.device.id&&ds.odometer) devOdo[ds.device.id]=ds.odometer;
-      });
       showBox('BUILDING SCORECARDS...',80);
       trips.forEach(function(t){
         var d=t.driver; if(!d||!d.id||d.id==='UnknownDriverId') return;
         if(!dmap[d.id]){var dn=buildDriverName(d);if(dn)dmap[d.id]=dn;}
       });
-      var miles={}, tripCount={}, driverDevices={};
-      var _tripSamples=[];
+
+      // Log first trip keys to console so we can diagnose distance field availability
+      if(trips.length>0){
+        var s=trips[0];
+        console.log('[SafetyScorecard] Trip sample - keys:'+Object.keys(s).join(',')+
+          ' distance:'+s.distance+
+          ' stop.odo:'+(s.stop&&s.stop.odometer)+
+          ' start.odo:'+(s.start&&s.start.odometer));
+      }
+
+      var tripCount={}, distMetersMap={};
       trips.forEach(function(t){
         var did=t.driver&&t.driver.id; if(!did||did==='UnknownDriverId') return;
         tripCount[did]=(tripCount[did]||0)+1;
-        // Track which device(s) a driver used for odometer lookup
-        if(t.device&&t.device.id) driverDevices[did]=t.device.id;
-        if(_tripSamples.length<3) _tripSamples.push({
-          distance:t.distance,
-          startOdo:t.start&&t.start.odometer,
-          stopOdo:t.stop&&t.stop.odometer,
-          deviceOdo:t.device&&devOdo[t.device.id]
-        });
-        // Strategy 1: t.distance in meters (Geotab primary field)
-        var distMeters=0;
-        if(t.distance&&t.distance>0){
-          distMeters=t.distance;
+        var dm=0;
+        // Geotab SDK: Trip.distance = meters; Trip.stop/start.odometer = meters
+        if(t.distance>0){
+          dm=t.distance;
+        } else if(t.stop&&t.start&&t.stop.odometer>0&&t.start.odometer>=0&&t.stop.odometer>t.start.odometer){
+          dm=t.stop.odometer-t.start.odometer;
         }
-        // Strategy 2: odometer delta in km on trip start/stop objects
-        else if(t.stop&&t.start&&t.stop.odometer!=null&&t.start.odometer!=null&&t.stop.odometer>t.start.odometer){
-          distMeters=(t.stop.odometer-t.start.odometer)*1000;
-        }
-        // Strategy 3: device odometer objects sometimes attached differently
-        else if(t.startOdometer!=null&&t.stopOdometer!=null&&t.stopOdometer>t.startOdometer){
-          distMeters=(t.stopOdometer-t.startOdometer)*1000;
-        }
-        var distMiles=distMeters*0.000621371;
-        miles[did]=(miles[did]||0)+distMiles;
+        distMetersMap[did]=(distMetersMap[did]||0)+dm;
       });
-      var totalMilesAll=Object.keys(miles).reduce(function(s,k){return s+(miles[k]||0);},0);
-      var totalTripsAll=Object.keys(tripCount).reduce(function(s,k){return s+(tripCount[k]||0);},0);
-      _usingTripProxy=totalTripsAll>0&&(totalMilesAll/totalTripsAll)<0.5;
-      if(_usingTripProxy){
-        console.warn('[SafetyScorecard] Trip distance data unavailable. Attempting DeviceStatusInfo odometer fallback.');
-        // Try to estimate per-driver miles from DeviceStatusInfo odometer totals
-        // This gives total lifetime odometer - not perfect but proportionally correct
-        var hasDevOdo=Object.keys(driverDevices).some(function(did){return devOdo[driverDevices[did]]>0;});
-        if(hasDevOdo){
-          // Use device odometer as relative miles (not period-specific but better than nothing)
-          // Scale to be proportional within the fleet
-          var maxOdo=0;
-          Object.keys(driverDevices).forEach(function(did){
-            var odo=devOdo[driverDevices[did]]||0;
-            if(odo>maxOdo) maxOdo=odo;
-          });
-          if(maxOdo>0){
-            Object.keys(driverDevices).forEach(function(did){
-              // Scale odo to reasonable period miles (assume top driver did ~500mi in period)
-              var odo=devOdo[driverDevices[did]]||0;
-              miles[did]=Math.max(1,(odo/maxOdo)*500);
-            });
-            _usingTripProxy=false;
-            console.log('[SafetyScorecard] Using DeviceStatusInfo odometer proportional scaling.');
-          }
-        }
+
+      // Determine normalization mode
+      var totalDist=Object.keys(distMetersMap).reduce(function(s,k){return s+distMetersMap[k];},0);
+      var totalTrips=Object.keys(tripCount).reduce(function(s,k){return s+tripCount[k];},0);
+      var avgMetersPerTrip=totalTrips>0?totalDist/totalTrips:0;
+      // If avg < 500 meters/trip, distance data is not available for this fleet
+      _usingTripProxy=avgMetersPerTrip<500;
+      console.log('[SafetyScorecard] avgMetersPerTrip='+avgMetersPerTrip.toFixed(0)+' totalTrips='+totalTrips+' usingTripProxy='+_usingTripProxy);
+
+      // normMap holds the denominator used for scoring (miles or trips)
+      var normMap={};
+      Object.keys(tripCount).forEach(function(did){
         if(_usingTripProxy){
-          console.warn('[SafetyScorecard] All distance strategies failed. Using trip-count proxy (10mi/trip).');
-          Object.keys(tripCount).forEach(function(did){ miles[did]=tripCount[did]*10; });
+          normMap[did]=tripCount[did];
+        } else {
+          normMap[did]=(distMetersMap[did]||0)*0.000621371;
         }
-      }
-      console.log('[SafetyScorecard] Distance check: totalMiles='+totalMilesAll.toFixed(1)+' totalTrips='+totalTripsAll+' usingProxy='+_usingTripProxy+' samples='+JSON.stringify(_tripSamples));
+      });
+
       var ebrd={};
       excs.forEach(function(e){
         var did=e.driver&&e.driver.id; if(!did||did==='UnknownDriverId') return;
@@ -1056,25 +1042,24 @@ var safetyDash = (function() {
         ebrd[did][rid]=(ebrd[did][rid]||0)+1;
         if(!dmap[did]&&e.driver){var dn=buildDriverName(e.driver);if(dn)dmap[did]=dn;}
       });
+
       var seen={};
-      Object.keys(miles).forEach(function(k){seen[k]=1;});
+      Object.keys(normMap).forEach(function(k){seen[k]=1;});
       Object.keys(ebrd).forEach(function(k){seen[k]=1;});
       _rawData=[];
       Object.keys(seen).forEach(function(did){
-        _rawData.push({dname:dmap[did]||('Driver '+did),miles:Math.round((miles[did]||0)*10)/10,ebr:ebrd[did]||{},did:did});
+        var norm=normMap[did]||1;
+        // displayVal: miles for real data, trip count for proxy
+        var displayVal=_usingTripProxy?(tripCount[did]||0):Math.round((distMetersMap[did]||0)*0.000621371);
+        _rawData.push({dname:dmap[did]||('Driver '+did),norm:norm,displayVal:displayVal,tripCount:tripCount[did]||0,ebr:ebrd[did]||{},did:did});
       });
       if(!_rawData.length){showBox('');showErr('No driver data found.');return;}
-      if(_usingTripProxy){
-        document.getElementById('warnBox').innerHTML='<div class="warn-box">&#9888; GPS distance data unavailable for this fleet \u2014 miles column shows estimated distance (10 mi/trip proxy). Scores are still normalized but less precise. Check console for details.</div>';
-      }
       rebuildRows();
-      // Load group membership for drivers so group filter works
       var dids=_rawData.map(function(d){return d.did;}).filter(Boolean);
       if(dids.length) loadDriverGroups(dids);
     },function(err){showBox('');showErr('Error: '+(err&&err.message?err.message:JSON.stringify(err)));});
   }
 
-  // \u2500\u2500 SCHEDULE \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
   function loadSchedule(){
     try{
       var s=localStorage.getItem(SCHED_KEY);
@@ -1173,11 +1158,11 @@ var safetyDash = (function() {
       'Period: '+fmt(from)+' to '+fmt(now),
       'Generated: '+now.toLocaleString(),
       '',
-      'Driver,Score,Grade,Miles,'+ruleNames.join(',')
+      'Driver,Score,Grade,'+(_usingTripProxy?'Trips':'Miles')+','+ruleNames.join(',')
     ];
     _rows.forEach(function(r){
       var gr=gradeFromScore(r.score);
-      csvLines.push('"'+r.dname.replace(/"/g,'""')+'",'+r.score+','+gr.l+','+(r.miles||0)+','+enabled.map(function(rid){return r.ebr[rid]||0;}).join(','));
+      csvLines.push('"'+r.dname.replace(/"/g,'""')+'",'+r.score+','+gr.l+','+(r.displayVal||0)+','+enabled.map(function(rid){return r.ebr[rid]||0;}).join(','));
     });
     var body=csvLines.join(sep);
     var fullMsg=subject+sep+sep+body;
@@ -1499,10 +1484,11 @@ var safetyDash = (function() {
         return rid;
       });
       var note=_groupFilter?(' - '+(_groupFilter==='top'?'Top Performers':'At-Risk')):'';
-      var lines=['Driver Safety Scorecard'+note,'Period: '+fmt(from)+' to '+fmt(now),'','Driver,Score,Grade,Miles,'+ruleNames.join(',')];
+      var normColHdr=_usingTripProxy?'Trips':'Miles';
+      var lines=['Driver Safety Scorecard'+note,'Period: '+fmt(from)+' to '+fmt(now),'','Driver,Score,Grade,'+normColHdr+','+ruleNames.join(',')];
       exportRows.forEach(function(r){
         var gr=gradeFromScore(r.score);
-        lines.push('"'+r.dname.replace(/"/g,'""')+'",'+r.score+','+gr.l+','+(r.miles||0)+','+enabled.map(function(rid){return r.ebr[rid]||0;}).join(','));
+        lines.push('"'+r.dname.replace(/"/g,'""')+'",'+r.score+','+gr.l+','+(r.displayVal||0)+','+enabled.map(function(rid){return r.ebr[rid]||0;}).join(','));
       });
       var csv=lines.join('\r\n');
       var blob=new Blob([csv],{type:'text/csv'});
