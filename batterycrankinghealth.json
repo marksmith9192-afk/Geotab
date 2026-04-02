@@ -1,0 +1,14 @@
+{
+  "name": "batterycrankinghealth",
+  "supportEmail": "support@yourcompany.com",
+  "version": "1.0.0",
+  "items": [
+    {
+      "url": "https://marksmith9192-afk.github.io/Geotab/crankingfixed.html",
+      "menuName": {
+        "en": "Battery Cranking Health"
+      }
+    }
+  ],
+  "isSigned": false
+}
