@@ -1,0 +1,16 @@
+{
+  "name": "batterycrankinghealthcompat2",
+  "supportEmail": "support@yourcompany.com",
+  "version": "1.0.0",
+  "items": [
+    {
+      "url": "https://marksmith9192-afk.github.io/Geotab/crankingcompat2.html",
+      "path": "EngineMaintenanceLink/",
+      "category": "MaintenanceId",
+      "menuName": {
+        "en": "Battery Cranking Health Compat 2"
+      }
+    }
+  ],
+  "isSigned": false
+}
