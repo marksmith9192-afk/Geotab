@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Battery Cranking Health</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Fleet Maintenance</p>
+        <h1>Battery Cranking Health</h1>
+        <p class="hero-copy">
+          Review six months of cranking voltage history, spot vehicles trending weaker,
+          and prioritize batteries before they become roadside failures.
+        </p>
+      </div>
+      <div class="hero-actions">
+        <button id="refreshButton" class="primary-button" type="button">Refresh Analysis</button>
+        <p class="refresh-note" id="lastUpdatedLabel">Waiting for first analysis</p>
+      </div>
+    </header>
+
+    <section class="status-panel" id="statusPanel">
+      <div class="status-line">
+        <span class="spinner hidden" id="loadingSpinner"></span>
+        <span id="statusMessage">Connect the add-in inside MyGeotab to begin.</span>
+      </div>
+      <div class="status-actions">
+        <button id="retryButton" class="secondary-button hidden" type="button">Retry</button>
+      </div>
+    </section>
+
+    <section class="summary-grid" id="summaryGrid">
+      <article class="summary-card neutral">
+        <p class="summary-label">Vehicles Reviewed</p>
+        <p class="summary-value" id="vehiclesReviewed">0</p>
+      </article>
+      <article class="summary-card critical">
+        <p class="summary-label">Needs Attention</p>
+        <p class="summary-value" id="criticalVehicles">0</p>
+      </article>
+      <article class="summary-card warning">
+        <p class="summary-label">Watch List</p>
+        <p class="summary-value" id="warningVehicles">0</p>
+      </article>
+      <article class="summary-card healthy">
+        <p class="summary-label">Healthy</p>
+        <p class="summary-value" id="healthyVehicles">0</p>
+      </article>
+    </section>
+
+    <section class="legend-panel">
+      <div class="legend-item">
+        <span class="legend-dot critical"></span>
+        <span>Critical: recent cranking voltage is low or clearly deteriorating</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot warning"></span>
+        <span>Watch: trend is weakening or dip frequency is increasing</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot healthy"></span>
+        <span>Healthy: voltage remains stable across the six-month window</span>
+      </div>
+    </section>
+
+    <section class="table-shell">
+      <table class="vehicle-table">
+        <thead>
+          <tr>
+            <th>Vehicle</th>
+            <th>Status</th>
+            <th>Recent Avg</th>
+            <th>6-Month Avg</th>
+            <th>Lowest</th>
+            <th>Weak Starts</th>
+            <th>Trend</th>
+            <th>Recommended Action</th>
+          </tr>
+        </thead>
+        <tbody id="vehicleTableBody">
+          <tr class="empty-state-row">
+            <td colspan="8">No analysis has been run yet.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <script src="./main.js"></script>
+</body>
+</html>
