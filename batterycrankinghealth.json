@@ -5,6 +5,8 @@
   "items": [
     {
       "url": "https://marksmith9192-afk.github.io/Geotab/crankingfixed.html",
+      "path": "EngineMaintenanceLink/",
+      "category": "MaintenanceId",
       "menuName": {
         "en": "Battery Cranking Health"
       }
