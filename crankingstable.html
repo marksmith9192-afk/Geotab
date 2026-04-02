@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Battery Cranking Health</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #f5efe6;
+      color: #1d1b18;
+      font-family: Segoe UI, Arial, sans-serif;
+      min-height: 100%;
+    }
+    * { box-sizing: border-box; }
+    .page { max-width: 1360px; margin: 0 auto; padding: 24px 18px 36px; }
+    .hero,.status-panel,.legend-panel,.table-shell,.summary-card { background: #fffaf3; border: 1px solid #dccdb8; border-radius: 18px; box-shadow: 0 8px 24px rgba(79, 57, 28, 0.08); }
+    .hero { padding: 24px; overflow: hidden; }
+    .eyebrow { margin: 0 0 10px; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #6c5f4e; font-weight: 700; }
+    h1 { margin: 0; font-size: 42px; line-height: 1.05; color: #1d1b18; }
+    .hero-copy { margin: 12px 0 0; max-width: 860px; color: #5f5648; font-size: 16px; line-height: 1.5; }
+    .hero-actions { margin-top: 18px; }
+    .primary-button,.secondary-button { display: inline-block; border-radius: 999px; padding: 12px 18px; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .primary-button { border: 1px solid #245e48; background: #245e48; color: #ffffff; }
+    .secondary-button { border: 1px solid #cfc0aa; background: #ffffff; color: #1d1b18; }
+    .primary-button[disabled],.secondary-button[disabled] { opacity: 0.6; cursor: default; }
+    .refresh-note { margin: 12px 0 0; color: #6c5f4e; font-size: 14px; font-weight: 600; }
+    .status-panel { margin-top: 16px; padding: 16px 18px; }
+    .status-message { font-size: 15px; color: #2b2b2b; font-weight: 600; }
+    .status-helper { margin-top: 8px; font-size: 13px; color: #6c5f4e; }
+    .hidden { display: none; }
+    .summary-grid { margin-top: 16px; overflow: hidden; }
+    .summary-card { float: left; width: 24%; margin-right: 1.333%; padding: 18px; min-height: 124px; }
+    .summary-card.last { margin-right: 0; }
+    .summary-card.neutral { background: #e8eff8; }
+    .summary-card.critical { background: #fde9e6; }
+    .summary-card.warning { background: #fff1dc; }
+    .summary-card.healthy { background: #e6f5ee; }
+    .summary-label { margin: 0; font-size: 12px; color: #6c5f4e; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+    .summary-value { margin: 14px 0 0; font-size: 42px; font-weight: 700; color: #1d1b18; }
+    .legend-panel { margin-top: 16px; padding: 16px 18px; overflow: hidden; }
+    .legend-item { float: left; width: 33.333%; font-size: 14px; line-height: 1.4; color: #5f5648; }
+    .legend-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 10px; vertical-align: middle; }
+    .legend-dot.critical { background: #b42318; }
+    .legend-dot.warning { background: #b36a00; }
+    .legend-dot.healthy { background: #1e7c56; }
+    .table-shell { margin-top: 16px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 980px; }
+    th,td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #eadfce; vertical-align: top; }
+    th { background: #fff4e7; color: #6c5f4e; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; }
+    td { font-size: 14px; color: #1d1b18; }
+    .vehicle-name { font-weight: 700; font-size: 15px; }
+    .vehicle-secondary,.metric-note,.debug-box { margin-top: 4px; color: #6c5f4e; font-size: 12px; line-height: 1.45; }
+    .status-chip { display: inline-block; border-radius: 999px; padding: 6px 10px; font-size: 12px; font-weight: 700; }
+    .status-chip.critical { background: #fde9e6; color: #b42318; }
+    .status-chip.warning { background: #fff1dc; color: #9b5f00; }
+    .status-chip.healthy { background: #e6f5ee; color: #1e7c56; }
+    .trend-up { color: #b42318; font-weight: 700; }
+    .trend-watch { color: #9b5f00; font-weight: 700; }
+    .trend-stable { color: #1e7c56; font-weight: 700; }
+    .empty-state { padding: 22px 16px; color: #6c5f4e; text-align: center; font-size: 14px; }
+    .debug-box { margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: #fff4e7; border: 1px solid #eadfce; white-space: pre-wrap; }
+    @media (max-width: 1024px) { .summary-card { width: 49%; margin-right: 2%; margin-bottom: 12px; } .summary-card:nth-child(2n) { margin-right: 0; } .legend-item { float: none; width: 100%; margin-bottom: 10px; } }
+    @media (max-width: 640px) { .page { padding: 14px 10px 24px; } h1 { font-size: 32px; } .summary-card { float: none; width: 100%; margin-right: 0; } }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="hero">
+      <p class="eyebrow">Fleet Maintenance</p>
+      <h1>Battery Cranking Health</h1>
+      <p class="hero-copy">Review six months of cranking voltage history, spot vehicles trending weaker, and prioritize batteries before they become roadside failures.</p>
+      <div class="hero-actions">
+        <button id="refreshButton" class="primary-button" type="button">Refresh Analysis</button>
+        <p class="refresh-note" id="lastUpdatedLabel">Waiting for first analysis</p>
+      </div>
+    </div>
+    <div class="status-panel">
+      <div class="status-message" id="statusMessage">Waiting for Geotab connection...</div>
+      <div class="status-helper" id="statusHelper">This add-in checks the Cranking voltage measurement for each vehicle.</div>
+      <div style="margin-top:10px;"><button id="retryButton" class="secondary-button hidden" type="button">Retry</button></div>
+      <div id="debugBox" class="debug-box hidden"></div>
+    </div>
+    <div class="summary-grid">
+      <div class="summary-card neutral"><p class="summary-label">Vehicles Reviewed</p><p class="summary-value" id="vehiclesReviewed">0</p></div>
+      <div class="summary-card critical"><p class="summary-label">Needs Attention</p><p class="summary-value" id="criticalVehicles">0</p></div>
+      <div class="summary-card warning"><p class="summary-label">Watch List</p><p class="summary-value" id="warningVehicles">0</p></div>
+      <div class="summary-card healthy last"><p class="summary-label">Healthy</p><p class="summary-value" id="healthyVehicles">0</p></div>
+    </div>
+    <div class="legend-panel">
+      <div class="legend-item"><span class="legend-dot critical"></span>Critical: recent cranking voltage is low or deteriorating</div>
+      <div class="legend-item"><span class="legend-dot warning"></span>Watch: trend is weakening or dips are becoming more common</div>
+      <div class="legend-item"><span class="legend-dot healthy"></span>Healthy: voltage is stable across the six-month window</div>
+    </div>
+    <div class="table-shell">
+      <table>
+        <thead><tr><th>Vehicle</th><th>Status</th><th>Recent Avg</th><th>6-Month Avg</th><th>Lowest</th><th>Weak Starts</th><th>Trend</th><th>Recommended Action</th></tr></thead>
+        <tbody id="vehicleTableBody"><tr><td colspan="8" class="empty-state">No analysis has been run yet.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+  <script>
+    var batteryHealthApp = (function () {
+      var api = null;
+      var loaded = false;
+      var isLoading = false;
+      var SIX_MONTHS_IN_DAYS = 183;
+      var ANALYSIS_WINDOW_DAYS = 45;
+      var LOW_CRANKING_VOLTAGE = 9.8;
+      var WATCH_CRANKING_VOLTAGE = 10.4;
+      var WEAK_START_SHARE_WARNING = 0.2;
+      var WEAK_START_SHARE_CRITICAL = 0.35;
+      var RECENT_DROP_WARNING = 0.45;
+      var RECENT_DROP_CRITICAL = 0.8;
+      var MINIMUM_DATA_POINTS = 5;
+      var DEBUG = true;
+      function byId(id) { return document.getElementById(id); }
+      function setDebug(message) { var box = byId("debugBox"); if (!DEBUG) { box.className = "debug-box hidden"; return; } box.className = "debug-box"; box.textContent = message; }
+      function setStatus(message, helper, canRetry) { byId("statusMessage").textContent = message; byId("statusHelper").textContent = helper || ""; byId("retryButton").className = canRetry ? "secondary-button" : "secondary-button hidden"; }
+      function setLoading(loading) { isLoading = loading; byId("refreshButton").disabled = loading; byId("retryButton").disabled = loading; }
+      function formatVoltage(value) { if (value === null || value === undefined || isNaN(value)) return "N/A"; return Number(value).toFixed(2) + " V"; }
+      function formatDate(date) { if (!date) return "Unknown"; return new Date(date).toLocaleString(); }
+      function getDateDaysAgo(days) { var date = new Date(); date.setDate(date.getDate() - days); return date; }
+      function average(values) { var total = 0; var i; if (!values.length) return null; for (i = 0; i < values.length; i += 1) total += values[i]; return total / values.length; }
+      function escapeHtml(value) { return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&#39;"); }
+      function updateSummary(vehicles) { var totals = { reviewed: 0, critical: 0, warning: 0, healthy: 0 }; var i; for (i = 0; i < vehicles.length; i += 1) { totals.reviewed += 1; totals[vehicles[i].severity] += 1; } byId("vehiclesReviewed").textContent = totals.reviewed; byId("criticalVehicles").textContent = totals.critical; byId("warningVehicles").textContent = totals.warning; byId("healthyVehicles").textContent = totals.healthy; }
+      function buildSeverityChip(severity) { if (severity === "critical") return '<span class="status-chip critical">Needs Attention</span>'; if (severity === "warning") return '<span class="status-chip warning">Watch List</span>'; return '<span class="status-chip healthy">Healthy</span>'; }
+      function trendClass(vehicle) { if (vehicle.recentDrop >= RECENT_DROP_CRITICAL) return "trend-up"; if (vehicle.recentDrop >= RECENT_DROP_WARNING || vehicle.weakStartShare >= WEAK_START_SHARE_WARNING) return "trend-watch"; return "trend-stable"; }
+      function trendText(vehicle) { if (vehicle.recentDrop >= RECENT_DROP_CRITICAL) return "Dropping quickly"; if (vehicle.recentDrop >= RECENT_DROP_WARNING) return "Gradually weakening"; if (vehicle.weakStartShare >= WEAK_START_SHARE_WARNING) return "Weak starts rising"; return "Stable"; }
+      function renderTable(vehicles) { var html = ""; var i; if (!vehicles.length) { byId("vehicleTableBody").innerHTML = '<tr><td colspan="8" class="empty-state">No qualifying cranking voltage data was found in the last six months.</td></tr>'; return; } for (i = 0; i < vehicles.length; i += 1) { html += "<tr>"; html += '<td><div class="vehicle-name">' + escapeHtml(vehicles[i].name) + "</div>"; html += '<div class="vehicle-secondary">Last sample: ' + escapeHtml(formatDate(vehicles[i].lastSeen)) + "</div></td>"; html += "<td>" + buildSeverityChip(vehicles[i].severity) + "</td>"; html += "<td>" + escapeHtml(formatVoltage(vehicles[i].recentAverage)) + '<div class="metric-note">Last ' + ANALYSIS_WINDOW_DAYS + " days</div></td>"; html += "<td>" + escapeHtml(formatVoltage(vehicles[i].overallAverage)) + '<div class="metric-note">' + vehicles[i].sampleCount + " readings</div></td>"; html += "<td>" + escapeHtml(formatVoltage(vehicles[i].lowestVoltage)) + "</td>"; html += "<td>" + escapeHtml(String(vehicles[i].weakStartCount)) + '<div class="metric-note">' + Math.round(vehicles[i].weakStartShare * 100) + "% of readings</div></td>"; html += '<td><span class="' + trendClass(vehicles[i]) + '">' + escapeHtml(trendText(vehicles[i])) + '</span><div class="metric-note">Recent drop: ' + vehicles[i].recentDrop.toFixed(2) + " V</div></td>"; html += "<td>" + escapeHtml(vehicles[i].recommendation) + "</td>"; html += "</tr>"; } byId("vehicleTableBody").innerHTML = html; }
+      function findCrankingDiagnostic(callback, failure) { api.call("Get", { typeName: "Diagnostic", search: {} }, function (diagnostics) { var i; var match = null; var name = ""; diagnostics = diagnostics || []; for (i = 0; i < diagnostics.length; i += 1) { name = (diagnostics[i].name || "").toLowerCase(); if (name === "cranking voltage") { match = diagnostics[i]; break; } if (!match && name.indexOf("cranking") !== -1 && name.indexOf("voltage") !== -1) { match = diagnostics[i]; } } if (match) { callback(match); return; } failure("Could not find a diagnostic named Cranking voltage."); }, function (error) { failure("Diagnostic lookup failed: " + stringifyError(error)); }); }
+      function fetchStatusData(diagnosticId, fromDate, callback, failure) { api.call("Get", { typeName: "StatusData", search: { diagnosticSearch: { id: diagnosticId }, fromDate: fromDate.toISOString() }, resultsLimit: 50000 }, function (statusData) { callback(statusData || []); }, function (error) { failure("StatusData lookup failed: " + stringifyError(error)); }); }
+      function analyzeVehicle(device, rows) { var sorted = []; var recentValues = []; var overallValues = []; var recentCutoff = getDateDaysAgo(ANALYSIS_WINDOW_DAYS); var i; var recentAverage; var overallAverage; var lowestVoltage; var weakStartCount; var criticalStartCount; var weakStartShare; var recentDrop; var severity; var recommendation; for (i = 0; i < rows.length; i += 1) { if (rows[i] && rows[i].data !== null && rows[i].data !== undefined && !isNaN(Number(rows[i].data))) sorted.push({ dateTime: rows[i].dateTime, value: Number(rows[i].data) }); } sorted.sort(function (a, b) { return new Date(a.dateTime) - new Date(b.dateTime); }); if (sorted.length < MINIMUM_DATA_POINTS) return null; for (i = 0; i < sorted.length; i += 1) { overallValues.push(sorted[i].value); if (new Date(sorted[i].dateTime) >= recentCutoff) recentValues.push(sorted[i].value); } overallAverage = average(overallValues); recentAverage = average(recentValues.length ? recentValues : overallValues); lowestVoltage = Math.min.apply(null, overallValues); weakStartCount = 0; criticalStartCount = 0; for (i = 0; i < overallValues.length; i += 1) { if (overallValues[i] <= WATCH_CRANKING_VOLTAGE) weakStartCount += 1; if (overallValues[i] <= LOW_CRANKING_VOLTAGE) criticalStartCount += 1; } weakStartShare = weakStartCount / overallValues.length; recentDrop = overallAverage - recentAverage; severity = "healthy"; recommendation = "Continue monitoring during routine maintenance."; if (recentAverage <= LOW_CRANKING_VOLTAGE || lowestVoltage <= LOW_CRANKING_VOLTAGE || criticalStartCount >= 2 || weakStartShare >= WEAK_START_SHARE_CRITICAL || recentDrop >= RECENT_DROP_CRITICAL) { severity = "critical"; recommendation = "Schedule a battery and charging system test soon."; } else if (recentAverage <= WATCH_CRANKING_VOLTAGE || weakStartShare >= WEAK_START_SHARE_WARNING || recentDrop >= RECENT_DROP_WARNING) { severity = "warning"; recommendation = "Inspect battery health at the next service visit."; } return { name: device.name || device.serialNumber || "Unnamed vehicle", lastSeen: sorted[sorted.length - 1].dateTime, sampleCount: sorted.length, overallAverage: overallAverage, recentAverage: recentAverage, lowestVoltage: lowestVoltage, weakStartCount: weakStartCount, weakStartShare: weakStartShare, recentDrop: recentDrop, severity: severity, recommendation: recommendation }; }
+      function buildAnalysis(devices, statusData) { var grouped = {}; var vehicles = []; var i; var deviceId; var result; for (i = 0; i < statusData.length; i += 1) { deviceId = statusData[i] && statusData[i].device && statusData[i].device.id; if (!deviceId) continue; if (!grouped[deviceId]) grouped[deviceId] = []; grouped[deviceId].push(statusData[i]); } for (i = 0; i < devices.length; i += 1) { result = analyzeVehicle(devices[i], grouped[devices[i].id] || []); if (result) vehicles.push(result); } vehicles.sort(function (a, b) { var order = { critical: 0, warning: 1, healthy: 2 }; if (order[a.severity] !== order[b.severity]) return order[a.severity] - order[b.severity]; return b.recentDrop - a.recentDrop; }); return vehicles; }
+      function stringifyError(error) { if (!error) return "Unknown error"; if (typeof error === "string") return error; if (error.message) return error.message; try { return JSON.stringify(error); } catch (err) { return String(error); } }
+      function runAnalysis() { var fromDate; if (isLoading || !api) return; setLoading(true); setStatus("Loading six months of cranking voltage data...", "Looking up the Cranking voltage measurement and recent readings.", false); setDebug("Starting analysis..."); fromDate = getDateDaysAgo(SIX_MONTHS_IN_DAYS); api.call("Get", { typeName: "Device", search: {}, resultsLimit: 5000 }, function (devices) { setDebug("Loaded devices: " + ((devices || []).length)); findCrankingDiagnostic(function (diagnostic) { setDebug("Using diagnostic: " + diagnostic.name + " (" + diagnostic.id + ")"); fetchStatusData(diagnostic.id, fromDate, function (statusData) { var vehicles = buildAnalysis(devices || [], statusData || []); updateSummary(vehicles); renderTable(vehicles); byId("lastUpdatedLabel").textContent = "Last updated " + formatDate(new Date()); setDebug("StatusData rows: " + statusData.length + "\nVehicles with usable data: " + vehicles.length); if (vehicles.length) { setStatus("Analysis complete. " + byId("criticalVehicles").textContent + " vehicle(s) need attention.", "Using the visible Cranking voltage measurement from your Geotab database.", false); } else { setStatus("No qualifying cranking voltage data was found in the last six months.", "The diagnostic was found, but the query returned no usable rows for the current logic.", true); } setLoading(false); }, function (message) { updateSummary([]); renderTable([]); setStatus("Could not read cranking voltage data.", message, true); setDebug(message); setLoading(false); }); }, function (message) { updateSummary([]); renderTable([]); setStatus("Could not find the cranking voltage measurement.", message, true); setDebug(message); setLoading(false); }); }, function (error) { updateSummary([]); renderTable([]); setStatus("Could not load vehicles from Geotab.", stringifyError(error), true); setDebug("Device lookup failed: " + stringifyError(error)); setLoading(false); }); }
+      function init(currentApi) { api = currentApi; byId("refreshButton").onclick = runAnalysis; byId("retryButton").onclick = runAnalysis; setStatus("Ready to analyze battery cranking health.", "This version uses the visible Cranking voltage measurement name.", false); }
+      return { initialize: init, focus: function (currentApi) { api = currentApi; if (!loaded) { loaded = true; runAnalysis(); } }, refresh: runAnalysis };
+    }());
+    geotab.addin = geotab.addin || {};
+    geotab.addin.batteryCrankingHealth = function () { return { initialize: function (api, state, callback) { batteryHealthApp.initialize(api); if (typeof callback === "function") callback(); }, focus: function (api) { batteryHealthApp.focus(api); }, blur: function () {} }; };
+  </script>
+</body>
+</html>
