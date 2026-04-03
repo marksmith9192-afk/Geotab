@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Battery Cranking Health</title>
+</head>
+<body>
+<style>
+  :root{--bg:#f4efe6;--panel:#fffaf3;--panel2:#fff4e7;--text:#1d1b18;--muted:#6c5f4e;--border:#dccdb8;--critical:#b42318;--warning:#9b5f00;--healthy:#1e7c56;--shadow:0 8px 24px rgba(79,57,28,.08)}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif;min-height:100vh}
+  *{box-sizing:border-box}
+  #app{max-width:1360px;margin:0 auto;padding:24px 18px 36px}
+  .hero,.panel,.tableWrap,.summaryGrid{background:var(--panel);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow)}
+  .hero{padding:24px;margin-bottom:16px}
+  .panel{padding:16px 18px;margin-bottom:16px}
+  .summaryGrid{padding:0;margin-bottom:16px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;overflow:hidden}
+  .summaryCard{padding:18px;min-height:120px;border-right:1px solid #eadfce}
+  .summaryCard:last-child{border-right:none}
+  .neutral{background:#e8eff8}.criticalBg{background:#fde9e6}.warningBg{background:#fff1dc}.healthyBg{background:#e6f5ee}
+  .brandBar{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+  .brandMark{width:64px;height:64px;flex:0 0 64px}
+  .brandText{display:flex;flex-direction:column;gap:2px}
+  .brandName{font-size:18px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#15607d}
+  .brandSub{font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#8b6b49}
+  .eyebrow{margin:0 0 10px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:700}
+  h1{margin:0;font-size:40px;line-height:1.05}
+  .copy{margin:12px 0 0;max-width:860px;color:#5f5648;font-size:16px;line-height:1.5}
+  .actions{margin-top:18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .btn{border-radius:999px;padding:12px 18px;font-size:14px;font-weight:700;cursor:pointer}
+  .btnPrimary{border:1px solid #245e48;background:#245e48;color:#fff}
+  .btnSecondary{border:1px solid #cfc0aa;background:#fff;color:var(--text)}
+  .btnGhost{border:1px dashed #c9bba7;background:transparent;color:var(--muted)}
+  .btn[disabled]{opacity:.6;cursor:default}
+  .stamp{color:var(--muted);font-size:14px;font-weight:600}
+  .status{font-size:15px;font-weight:600}
+  .helper{margin-top:8px;font-size:13px;color:var(--muted)}
+  .debug{margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--panel2);border:1px solid #eadfce;white-space:pre-wrap;color:var(--muted);font-size:12px;line-height:1.45}
+  .hidden{display:none}
+  .rulesPanel{margin-top:14px;padding:14px 16px;border-radius:14px;background:var(--panel2);border:1px solid #eadfce}
+  .rulesTitle{margin:0 0 8px;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+  .rulesList{margin:0;padding-left:18px;color:#5f5648;font-size:13px;line-height:1.55}
+  .rulesList li+li{margin-top:4px}
+  .labelRow{display:flex;align-items:center;gap:6px}
+  .label{margin:0;font-size:12px;color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase}
+  .value{margin:14px 0 0;font-size:40px;font-weight:700}
+  .legend{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+  .legendItem{font-size:14px;line-height:1.4;color:#5f5648}
+  .dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:10px;vertical-align:middle}
+  .c{background:var(--critical)}.w{background:#b36a00}.h{background:var(--healthy)}
+  .controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .controlLabel{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+  .select,.search{border:1px solid var(--border);background:#fff;border-radius:10px;padding:10px 12px;font-size:14px;color:var(--text)}
+  .search{min-width:240px}
+  .tableWrap{overflow:auto}
+  .table{width:100%;border-collapse:collapse;min-width:1080px}
+  .table th,.table td{padding:14px 16px;text-align:left;border-bottom:1px solid #eadfce;vertical-align:top}
+  .table th{background:var(--panel2);color:var(--muted);text-transform:uppercase;font-size:12px;letter-spacing:1px}
+  .vehicle{font-weight:700;font-size:15px}
+  .sub{margin-top:4px;color:var(--muted);font-size:12px;line-height:1.45}
+  .chip{display:inline-block;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:700}
+  .chipCritical{background:#fde9e6;color:var(--critical)}
+  .chipWarning{background:#fff1dc;color:var(--warning)}
+  .chipHealthy{background:#e6f5ee;color:var(--healthy)}
+  .trendUp{color:var(--critical);font-weight:700}
+  .trendWatch{color:var(--warning);font-weight:700}
+  .trendStable{color:var(--healthy);font-weight:700}
+  .empty{padding:22px 16px;color:var(--muted);text-align:center;font-size:14px}
+  @media (max-width:1024px){.summaryGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.summaryCard:nth-child(2n){border-right:none}.legend{grid-template-columns:1fr}}
+  @media (max-width:640px){#app{padding:14px 10px 24px}h1{font-size:32px}.summaryGrid{grid-template-columns:1fr}.summaryCard{border-right:none;border-bottom:1px solid #eadfce}.summaryCard:last-child{border-bottom:none}.search{min-width:100%}}
+</style>
+<div id="app">
+  <div class="hero">
+    <div class="brandBar">
+      <img class="brandMark" src="https://marksmith9192-afk.github.io/Geotab/Traxxis%20T%20logo%20(PNG%20file%20with%20transparent%20background).png" alt="Traxxis GPS logo"/>
+      <div class="brandText">
+        <div class="brandName">Traxxis GPS</div>
+        <div class="brandSub">Battery Intelligence</div>
+      </div>
+    </div>
+    <p class="eyebrow">Fleet Maintenance</p>
+    <h1>Battery Cranking Health</h1>
+    <p class="copy">Review six months of cranking voltage history, spot vehicles trending weaker, and prioritize batteries before they become roadside failures.</p>
+    <div class="actions">
+      <button id="refreshButton" class="btn btnPrimary">Refresh Analysis</button>
+      <button id="retryButton" class="btn btnSecondary hidden">Retry</button>
+      <button id="rulesButton" class="btn btnGhost" type="button">How Status Works</button>
+      <button id="exportButton" class="btn btnSecondary">Export CSV</button>
+      <span class="stamp" id="lastUpdatedLabel">Waiting for first analysis</span>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="status" id="statusMessage">Waiting for Geotab connection...</div>
+    <div class="helper" id="statusHelper">Final version with duplicate cleanup, tighter scoring, group filtering, and CSV export.</div>
+    <div id="debugBox" class="debug hidden"></div>
+    <div id="rulesPanel" class="rulesPanel hidden">
+      <p class="rulesTitle">Status Logic</p>
+      <ul class="rulesList">
+        <li><strong>Needs Attention</strong>: triggered if the recent 45-day average is 10.8 V or lower, or 25% or more of recent reads are weak, or there are 10 or more severe low reads at 9.4 V or lower, or the recent average dropped by 0.6 V or more versus the prior 45 days.</li>
+        <li><strong>Watch List</strong>: triggered if the recent 45-day average is 11.4 V or lower, or 12% or more of recent reads are weak, or the recent average dropped by 0.3 V or more versus the prior 45 days.</li>
+        <li><strong>Healthy</strong>: shown when none of the Needs Attention or Watch List thresholds are reached in the recent 45-day window.</li>
+        <li><strong>Weak read</strong>: any cranking-voltage reading at or below 10.2 V during the recent 45-day window.</li>
+        <li><strong>Inactivity context</strong>: low-voltage events are compared with recent trip gaps. If most weak reads happen after 7 or more idle days and very few happen after normal use, the vehicle is marked as storage-influenced instead of being escalated as aggressively.</li>
+        <li><strong>Lowest</strong> and <strong>6-month average</strong> are shown for context only. They do not trigger the status by themselves.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="summaryGrid">
+    <div class="summaryCard neutral"><div class="labelRow"><p class="label">Vehicles Reviewed</p></div><p class="value" id="vehiclesReviewed">0</p></div>
+    <div class="summaryCard criticalBg"><div class="labelRow"><p class="label">Needs Attention</p></div><p class="value" id="criticalVehicles">0</p></div>
+    <div class="summaryCard warningBg"><div class="labelRow"><p class="label">Watch List</p></div><p class="value" id="warningVehicles">0</p></div>
+    <div class="summaryCard healthyBg"><div class="labelRow"><p class="label">Healthy</p></div><p class="value" id="healthyVehicles">0</p></div>
+  </div>
+  <div class="panel">
+    <div class="controls">
+      <span class="controlLabel">Group</span>
+      <select id="groupFilter" class="select"></select>
+      <span class="controlLabel">Search</span>
+      <input id="searchFilter" class="search" type="text" placeholder="Search vehicle..." />
+    </div>
+  </div>
+  <div class="tableWrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Vehicle</th>
+          <th>Status</th>
+          <th>Recent Avg</th>
+          <th>6-Month Avg</th>
+          <th>Lowest</th>
+          <th>Weak Reads</th>
+          <th>Inactivity Context</th>
+          <th>Trend</th>
+          <th>Recommended Action</th>
+        </tr>
+      </thead>
+      <tbody id="vehicleTableBody">
+        <tr><td colspan="9" class="empty">No analysis has been run yet.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<script>
+var batteryFinal=(function(){var api=null,loaded=false,isLoading=false,DEBUG=true,allVehicles=[],filteredVehicles=[],deviceMeta={};var SIX_MONTHS=183,RECENT_DAYS=45,LOW=9.4,WEAK_READ=10.2,RECENT_AVG_WARN=11.4,RECENT_AVG_CRIT=10.8,WEAK_WARN=.12,WEAK_CRIT=.25,DROP_WARN=.3,DROP_CRIT=.6,RECENT_CRIT_COUNT=10,MIN_POINTS=8,BATCH_SIZE=10,DEVICE_CAP=80,IDLE_NORMAL_DAYS=3,IDLE_LONG_DAYS=7,IDLE_EXTENDED_DAYS=14,STORAGE_SHARE=.7;
+function byId(id){return document.getElementById(id)} function fmtV(v){return(v===null||v===undefined||isNaN(v))?'N/A':Number(v).toFixed(2)+' V'} function fmtD(d){return d?new Date(d).toLocaleString():'Unknown'} function daysAgo(days){var d=new Date();d.setDate(d.getDate()-days);return d} function avg(arr){var i,t=0;if(!arr.length)return null;for(i=0;i<arr.length;i++)t+=arr[i];return t/arr.length} function esc(v){return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\\"/g,'&quot;').replace(/'/g,'&#39;')} function diffDays(a,b){return (new Date(a)-new Date(b))/86400000}
+function setDebug(msg){var el=byId('debugBox');if(!DEBUG){el.className='debug hidden';return;}el.className='debug';el.textContent=msg}
+function setStatus(msg,helper,retry){byId('statusMessage').textContent=msg;byId('statusHelper').textContent=helper||'';byId('retryButton').className=retry?'btn btnSecondary':'btn btnSecondary hidden'}
+function setLoading(v){isLoading=v;byId('refreshButton').disabled=v;byId('retryButton').disabled=v;byId('exportButton').disabled=v}
+function updateSummary(rows){var t={reviewed:0,critical:0,warning:0,healthy:0},i;for(i=0;i<rows.length;i++){t.reviewed+=1;t[rows[i].severity]+=1;}byId('vehiclesReviewed').textContent=t.reviewed;byId('criticalVehicles').textContent=t.critical;byId('warningVehicles').textContent=t.warning;byId('healthyVehicles').textContent=t.healthy}
+function sevChip(sev){if(sev==='critical')return '<span class="chip chipCritical">Needs Attention</span>';if(sev==='warning')return '<span class="chip chipWarning">Watch List</span>';return '<span class="chip chipHealthy">Healthy</span>'}
+function trendClass(v){if(v.displayChange>=DROP_CRIT)return'trendUp';if(v.displayChange>=DROP_WARN||v.recentWeakShare>=WEAK_WARN)return'trendWatch';return'trendStable'} function trendText(v){if(v.displayChange>=DROP_CRIT)return'Dropping quickly';if(v.displayChange>=DROP_WARN)return'Gradually weakening';if(v.recentWeakShare>=WEAK_WARN)return'Weak reads elevated';return'Stable'} function changeText(v){if(Math.abs(v.displayChange)<.005)return'No meaningful change';if(v.displayChange>0)return v.displayChange.toFixed(2)+' V worse';return Math.abs(v.displayChange).toFixed(2)+' V better'}
+function render(rows){var i,h='';if(!rows.length){byId('vehicleTableBody').innerHTML='<tr><td colspan="9" class="empty">No vehicles match the current filters.</td></tr>';return;}for(i=0;i<rows.length;i++){h+='<tr><td><div class="vehicle">'+esc(rows[i].name)+'</div><div class="sub">Group: '+esc(rows[i].groupName||'Ungrouped')+'</div><div class="sub">Last sample: '+esc(fmtD(rows[i].lastSeen))+'</div></td><td>'+sevChip(rows[i].severity)+'</td><td>'+esc(fmtV(rows[i].recentAverage))+'<div class="sub">Last '+RECENT_DAYS+' days</div></td><td>'+esc(fmtV(rows[i].overallAverage))+'<div class="sub">'+rows[i].sampleCount+' readings</div></td><td>'+esc(fmtV(rows[i].lowestVoltage))+'</td><td>'+rows[i].recentWeakCount+'<div class="sub">'+Math.round(rows[i].recentWeakShare*100)+'% of recent reads</div></td><td>'+esc(rows[i].inactivityLabel)+'<div class="sub">'+esc(rows[i].inactivityDetail)+'</div></td><td><span class="'+trendClass(rows[i])+'">'+trendText(rows[i])+'</span><div class="sub">Change vs prior 45 days: '+changeText(rows[i])+'</div></td><td>'+esc(rows[i].recommendation)+'</td></tr>'; }byId('vehicleTableBody').innerHTML=h}
+function errText(e){if(!e)return'Unknown error';if(typeof e==='string')return e;if(e.message)return e.message;try{return JSON.stringify(e)}catch(x){return String(e)}}
+function findDiagnostics(done,fail){api.call('Get',{typeName:'Diagnostic',search:{}},function(diags){var i,n,matches=[];diags=diags||[];for(i=0;i<diags.length;i++){n=(diags[i].name||'').toLowerCase();if(n==='cranking voltage'||(n.indexOf('cranking')!==-1&&n.indexOf('voltage')!==-1))matches.push(diags[i]);}if(matches.length)return done(matches);fail('Could not find any diagnostics matching Cranking voltage.');},function(e){fail('Diagnostic lookup failed: '+errText(e));})}
+function dedupeRows(rows){var seen={},out=[],i,key,stamp,val;for(i=0;i<rows.length;i++){if(!(rows[i]&&rows[i].data!==null&&rows[i].data!==undefined&&!isNaN(Number(rows[i].data))))continue;stamp=new Date(rows[i].dateTime);stamp.setMilliseconds(0);val=Number(rows[i].data).toFixed(2);key=stamp.toISOString()+'|'+val;if(!seen[key]){seen[key]=1;out.push({dateTime:rows[i].dateTime,value:Number(rows[i].data)})}}return out}
+function normalizeTrips(trips){var out=[],i,start,stop;for(i=0;i<(trips||[]).length;i++){start=trips[i].start||trips[i].startDate||trips[i].dateTime;stop=trips[i].stop||trips[i].stopDate||trips[i].dateTime;if(start&&stop)out.push({start:new Date(start),stop:new Date(stop)});}out.sort(function(a,b){return a.start-b.start});return out}
+function gapBefore(date,trips){var i,prevStop=null,target=new Date(date);for(i=0;i<trips.length;i++){if(trips[i].start>target)break;prevStop=trips[i].stop;}if(!prevStop||prevStop>target)return null;return diffDays(target,prevStop)}
+function inactivitySummary(recentRows,trips){var weakWithGap=0,weakAfterLong=0,weakAfterNormal=0,maxGap=0,gapTotal=0,i,gap,val,label='Normal use pattern',detail='No strong inactivity signal.',storageInfluenced=false;for(i=0;i<recentRows.length;i++){gap=gapBefore(recentRows[i].dateTime,trips);val=recentRows[i].value;if(gap!==null&&gap>maxGap)maxGap=gap;if(val<=WEAK_READ&&gap!==null){weakWithGap+=1;gapTotal+=gap;if(gap>=IDLE_LONG_DAYS)weakAfterLong+=1;if(gap<IDLE_NORMAL_DAYS)weakAfterNormal+=1;}}if(weakAfterLong>=3&&weakWithGap&&weakAfterLong/weakWithGap>=STORAGE_SHARE&&weakAfterNormal<=1){storageInfluenced=true;label='Mostly after long idle';detail='Weak reads mostly follow '+IDLE_LONG_DAYS+'+ day gaps.';}else if(weakAfterNormal>=3){label='Weak during regular use';detail='Low-voltage starts appear even after short idle gaps.';}else if(maxGap>=IDLE_EXTENDED_DAYS){label='Long idle exposure';detail='Vehicle had a recent idle gap of '+maxGap.toFixed(1)+' days.';}return{storageInfluenced:storageInfluenced,label:label,detail:detail,weakAfterLong:weakAfterLong,weakAfterNormal:weakAfterNormal,avgGapBeforeWeak:weakWithGap?gapTotal/weakWithGap:null,maxGap:maxGap}}
+function analyzeVehicle(device,rows,trips){var sorted=dedupeRows(rows),recentRows=[],recentValues=[],prior=[],overall=[],recentCutoff=daysAgo(RECENT_DAYS),priorCutoff=daysAgo(RECENT_DAYS*2),i,overallAvg,recentAvg,priorAvg,roundedRecentAvg,roundedPriorAvg,lowest,recentWeakCount=0,recentCritCount=0,recentWeakShare=0,recentDrop=0,displayChange=0,severity='healthy',recommendation='Continue monitoring during routine maintenance.',tripSummary;sorted.sort(function(a,b){return new Date(a.dateTime)-new Date(b.dateTime)});if(sorted.length<MIN_POINTS)return null;for(i=0;i<sorted.length;i++){overall.push(sorted[i].value);if(new Date(sorted[i].dateTime)>=recentCutoff){recentRows.push(sorted[i]);recentValues.push(sorted[i].value);}else if(new Date(sorted[i].dateTime)>=priorCutoff){prior.push(sorted[i].value);}}overallAvg=avg(overall);recentAvg=avg(recentValues.length?recentValues:overall);priorAvg=avg(prior);roundedRecentAvg=recentAvg!==null?Number(recentAvg.toFixed(2)):null;roundedPriorAvg=priorAvg!==null?Number(priorAvg.toFixed(2)):roundedRecentAvg;lowest=Math.min.apply(null,overall);for(i=0;i<recentValues.length;i++){if(recentValues[i]<=WEAK_READ)recentWeakCount+=1;if(recentValues[i]<=LOW)recentCritCount+=1}recentWeakShare=recentValues.length?recentWeakCount/recentValues.length:0;recentDrop=priorAvg!==null?priorAvg-recentAvg:0;displayChange=roundedPriorAvg!==null&&roundedRecentAvg!==null?Number((roundedPriorAvg-roundedRecentAvg).toFixed(2)):0;tripSummary=inactivitySummary(recentRows,normalizeTrips(trips||[]));if(recentAvg<=RECENT_AVG_CRIT||recentWeakShare>=WEAK_CRIT||recentCritCount>=RECENT_CRIT_COUNT||recentDrop>=DROP_CRIT){severity='critical';recommendation='Schedule a battery and charging system test soon.';}else if(recentAvg<=RECENT_AVG_WARN||recentWeakShare>=WEAK_WARN||recentDrop>=DROP_WARN){severity='warning';recommendation='Inspect battery health at the next service visit.';}if(tripSummary.storageInfluenced&&severity==='critical'){severity='warning';recommendation='Charge the battery, review idle time, and retest after normal use.';}else if(tripSummary.storageInfluenced&&severity==='warning'){recommendation='Review long idle periods and battery maintenance before replacing the battery.';}return{name:device.name||device.serialNumber||'Unnamed vehicle',groupName:device.primaryGroupName||'Ungrouped',lastSeen:sorted[sorted.length-1].dateTime,sampleCount:sorted.length,overallAverage:overallAvg,recentAverage:recentAvg,lowestVoltage:lowest,recentWeakCount:recentWeakCount,recentWeakShare:recentWeakShare,recentDrop:recentDrop,displayChange:displayChange,severity:severity,recommendation:recommendation,inactivityLabel:tripSummary.label,inactivityDetail:tripSummary.detail}}
+function runBatch(calls,start,done,fail,accum){var batch=calls.slice(start,start+BATCH_SIZE);if(!batch.length){done(accum);return;}api.multiCall(batch,function(results){runBatch(calls,start+BATCH_SIZE,done,fail,accum.concat(results||[]));},function(e){fail(e);});}
+function buildGroupOptions(devices){var select=byId('groupFilter'),names={},i,j,groups,name,options=['<option value="__all__">All groups</option>'];for(i=0;i<devices.length;i++){groups=devices[i].groups||[];for(j=0;j<groups.length;j++){name=groups[j].name||groups[j].id;if(name)names[name]=1;}}var keys=Object.keys(names).sort();for(i=0;i<keys.length;i++)options.push('<option value="'+esc(keys[i])+'">'+esc(keys[i])+'</option>');select.innerHTML=options.join('');}
+function applyFilters(){var group=byId('groupFilter').value,q=(byId('searchFilter').value||'').toLowerCase(),out=[],i,row;for(i=0;i<allVehicles.length;i++){row=allVehicles[i];if(group!=='__all__'&&row.groupName!==group)continue;if(q&&row.name.toLowerCase().indexOf(q)===-1)continue;out.push(row);}filteredVehicles=out;updateSummary(out);render(out);}
+function exportCsv(){var rows=filteredVehicles.length?filteredVehicles:allVehicles,i,lines=['Vehicle,Group,Status,Recent Avg,6-Month Avg,Lowest,Recent Weak Reads,Recent Weak Share,Inactivity Context,Recent Drop,Recommendation'];for(i=0;i<rows.length;i++){lines.push('"'+rows[i].name.replace(/"/g,'""')+'","'+String(rows[i].groupName||'').replace(/"/g,'""')+'","'+rows[i].severity+'",'+rows[i].recentAverage.toFixed(2)+','+rows[i].overallAverage.toFixed(2)+','+rows[i].lowestVoltage.toFixed(2)+','+rows[i].recentWeakCount+','+rows[i].recentWeakShare.toFixed(4)+',"'+rows[i].inactivityLabel.replace(/"/g,'""')+'",'+rows[i].recentDrop.toFixed(2)+',"'+rows[i].recommendation.replace(/"/g,'""')+'"');}var blob=new Blob([lines.join('\\r\\n')],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='battery-cranking-health.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);}
+function run(){if(isLoading||!api)return;setLoading(true);setStatus('Loading six months of cranking voltage data...','Comparison build adds inactivity context from trip gaps.',false);setDebug('Starting analysis...');var fromDate=daysAgo(SIX_MONTHS),toDate=new Date();api.call('Get',{typeName:'Device',search:{},resultsLimit:1000},function(devices){devices=(devices||[]).slice(0,DEVICE_CAP);buildGroupOptions(devices);findDiagnostics(function(diags){var calls=[],i,j,rows=0,vehicles=[],analysis,idx=0,res,resultsByDevice={},tripCalls=[],tripIdx=0,tripResultsByDevice={},names=[];for(i=0;i<diags.length;i++)names.push(diags[i].id+': '+diags[i].name);for(i=0;i<devices.length;i++){devices[i].primaryGroupName=(devices[i].groups&&devices[i].groups.length&&devices[i].groups[0].name)?devices[i].groups[0].name:'Ungrouped';for(j=0;j<diags.length;j++){calls.push(['Get',{typeName:'StatusData',search:{deviceSearch:{id:devices[i].id},diagnosticSearch:{id:diags[j].id},fromDate:fromDate,toDate:toDate},resultsLimit:5000}]);}tripCalls.push(['Get',{typeName:'Trip',search:{deviceSearch:{id:devices[i].id},fromDate:fromDate,toDate:toDate},resultsLimit:2000}]);}setDebug('Matching diagnostics: '+diags.length+'\\n'+names.join('\\n')+'\\nDevices: '+devices.length+'\\nStatusData calls: '+calls.length+'\\nTrip calls: '+tripCalls.length+'\\nBatch size: '+BATCH_SIZE);if(!calls.length){allVehicles=[];applyFilters();setStatus('No devices found.','No vehicles were returned by the Device query.',true);setLoading(false);return;}runBatch(calls,0,function(allResults){for(i=0;i<devices.length;i++){resultsByDevice[devices[i].id]=[];for(j=0;j<diags.length;j++){res=allResults[idx]||[];rows+=res.length;resultsByDevice[devices[i].id]=resultsByDevice[devices[i].id].concat(res);idx+=1;}}runBatch(tripCalls,0,function(allTripResults){for(i=0;i<devices.length;i++){tripResultsByDevice[devices[i].id]=allTripResults[tripIdx]||[];tripIdx+=1;}for(i=0;i<devices.length;i++){analysis=analyzeVehicle(devices[i],resultsByDevice[devices[i].id]||[],tripResultsByDevice[devices[i].id]||[]);if(analysis)vehicles.push(analysis);}vehicles.sort(function(a,b){var order={critical:0,warning:1,healthy:2};if(order[a.severity]!==order[b.severity])return order[a.severity]-order[b.severity];return b.recentDrop-a.recentDrop});allVehicles=vehicles;applyFilters();byId('lastUpdatedLabel').textContent='Last updated '+fmtD(new Date());setDebug('Matching diagnostics: '+diags.length+'\\nStatusData rows: '+rows+'\\nVehicles with usable data: '+vehicles.length+'\\nQueried vehicles: '+devices.length+'\\nTrip context loaded: '+devices.length);if(vehicles.length){setStatus('Comparison analysis complete. '+byId('criticalVehicles').textContent+' vehicle(s) still need attention.','This version adds inactivity context so you can compare storage-related low voltage against the current model.',false);}else{setStatus('No qualifying cranking voltage data was found in the last six months.','The comparison query returned no usable rows.',true);}setLoading(false);},function(e){allVehicles=[];applyFilters();setStatus('Could not load trip inactivity context.','Trip query failed: '+errText(e),true);setDebug('Trip query failed: '+errText(e));setLoading(false);},[]);},function(e){allVehicles=[];applyFilters();setStatus('Could not read cranking voltage data.','Final query failed: '+errText(e),true);setDebug('Final query failed: '+errText(e));setLoading(false);},[]);},function(msg){allVehicles=[];applyFilters();setStatus('Could not find the cranking voltage measurement.',msg,true);setDebug(msg);setLoading(false);});},function(e){allVehicles=[];applyFilters();setStatus('Could not load vehicles from Geotab.',errText(e),true);setDebug('Device lookup failed: '+errText(e));setLoading(false);});}
+return{init:function(a){api=a;byId('refreshButton').onclick=run;byId('retryButton').onclick=run;byId('exportButton').onclick=exportCsv;byId('rulesButton').onclick=function(){var panel=byId('rulesPanel');panel.className=panel.className.indexOf('hidden')!==-1?'rulesPanel':'rulesPanel hidden';};byId('groupFilter').onchange=applyFilters;byId('searchFilter').oninput=applyFilters;setStatus('Ready to analyze battery cranking health.','Comparison build adds inactivity context from trip history.',false);buildGroupOptions([]);},focus:function(a){api=a;if(!loaded){loaded=true;run();}}};}());
+geotab.addin=geotab.addin||{};geotab.addin.batteryCrankingHealth=function(){return{initialize:function(api,state,cb){batteryFinal.init(api);if(typeof cb==='function')cb();},focus:function(api){batteryFinal.focus(api);},blur:function(){}};};
+</script>
+</body>
+</html>
