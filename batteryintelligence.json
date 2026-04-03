@@ -1,0 +1,16 @@
+{
+  "name": "batteryintelligence",
+  "supportEmail": "support@yourcompany.com",
+  "version": "1.0.0",
+  "items": [
+    {
+      "url": "https://marksmith9192-afk.github.io/Geotab/batteryintelligence.html",
+      "path": "EngineMaintenanceLink/",
+      "category": "MaintenanceId",
+      "menuName": {
+        "en": "Battery Intelligence"
+      }
+    }
+  ],
+  "isSigned": false
+}
