@@ -2,6 +2,7 @@ import { Router } from "express";
 import multer from "multer";
 import { z } from "zod";
 import { ReportCatalogService } from "../services/reportCatalogService.js";
+import { MutationGuardService } from "../services/mutationGuardService.js";
 import { UploadService } from "../services/uploadService.js";
 import type { GeotabProvider } from "../types/api.js";
 
@@ -16,7 +17,8 @@ const createCustomReportSchema = z.object({
 export function createReportRoutes(
   catalog: ReportCatalogService,
   provider: GeotabProvider,
-  uploads: UploadService
+  uploads: UploadService,
+  guard: MutationGuardService
 ): Router {
   const router = Router();
 
@@ -29,8 +31,27 @@ export function createReportRoutes(
     }
   });
 
+  router.post("/refresh", async (_req, res, next) => {
+    try {
+      void catalog.refreshReports();
+      res.status(202).json({
+        started: true,
+        message: "Live report discovery started. Poll /api/reports for refreshed results."
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
   router.post("/custom", upload.single("template"), async (req, res, next) => {
     try {
+      const restrictionReason = guard.getCustomReportCreationRestrictionReason();
+
+      if (restrictionReason) {
+        res.status(403).json({ message: restrictionReason });
+        return;
+      }
+
       const body = createCustomReportSchema.parse(req.body);
       const file = req.file;
 

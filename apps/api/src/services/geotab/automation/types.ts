@@ -20,6 +20,7 @@ export interface AutomationVerificationResult {
 }
 
 export interface GeotabAutomationStrategy {
+  discoverCustomReports(): Promise<GeotabCustomReport[]>;
   createCustomReport(input: AutomationCreateReportInput): Promise<AutomationVerificationResult>;
   replaceTemplate(input: AutomationReplaceTemplateInput): Promise<AutomationVerificationResult>;
 }

@@ -2,16 +2,26 @@ import { config } from "dotenv";
 import fs from "node:fs/promises";
 import path from "node:path";
 import initSqlJs from "sql.js";
+import { fileURLToPath } from "node:url";
 
-config({ path: path.resolve(process.cwd(), "../../.env") });
-config({ path: path.resolve(process.cwd(), ".env") });
+const scriptDir = path.dirname(fileURLToPath(import.meta.url));
+const apiRoot = path.resolve(scriptDir, "..");
+const repoRoot = path.resolve(apiRoot, "..", "..");
+
+config({ path: path.resolve(repoRoot, ".env") });
+config({ path: path.resolve(apiRoot, ".env") });
 
 function resolveDatabaseFile(databaseUrl: string): string {
   const normalized = databaseUrl.replace(/^file:/, "");
-  return path.isAbsolute(normalized) ? normalized : path.resolve(process.cwd(), normalized);
+  if (path.isAbsolute(normalized)) {
+    return normalized;
+  }
+
+  // Match Prisma SQLite path resolution relative to the schema directory.
+  return path.resolve(repoRoot, "prisma", normalized);
 }
 
-const databaseUrl = process.env.DATABASE_URL ?? "file:./prisma/dev.db";
+const databaseUrl = process.env.DATABASE_URL ?? "file:./dev.db";
 const dbPath = resolveDatabaseFile(databaseUrl);
 const SQL = await initSqlJs();
 

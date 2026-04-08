@@ -109,6 +109,7 @@ Core models:
 ### Report discovery
 
 - `GET /api/reports`
+- `POST /api/reports/refresh`
 - `POST /api/reports/custom`
 
 ### Bulk update jobs
@@ -207,7 +208,7 @@ npm run automation:install
 ## Local Runtime Notes
 
 - Root `.env` is the intended source of runtime configuration.
-- SQLite defaults to `apps/api/prisma/dev.db` when running the API workspace locally.
+- SQLite defaults to [prisma/dev.db](C:/Users/MarkSmith/Documents/Playground/Geotab-git/prisma/dev.db) so Prisma and the local bootstrap script resolve the same file.
 - Mock mode is the safest default for day-to-day UI and workflow development.
 - Live mode should only be enabled after you populate the Geotab env vars and understand the browser automation selector requirements.
 
@@ -236,6 +237,44 @@ This enables:
 - post-action verification before success is returned
 
 You still need to provide stable selectors in `.env` for your MyGeotab environment.
+
+## Hosted Team Deployment Controls
+
+For a usable internal team pilot, configure these env vars before hosting:
+
+- `ADMIN_ACCESS_TOKEN`
+  - shared app-level access token required before the UI can call protected API routes
+- `APP_WEB_ORIGIN`
+  - allowed frontend origin for CORS, for example `https://geotab-admin.internal.example.com`
+- `GEOTAB_ALLOWED_REPORT_NAMES`
+  - optional comma-separated allowlist of custom report names that are approved for live replacement
+- `GEOTAB_ALLOW_CUSTOM_REPORT_CREATION`
+  - set to `false` if you want hosted users to replace approved reports but not create new ones
+
+Recommended hosted pilot settings:
+
+```bash
+GEOTAB_PROVIDER_MODE=live
+GEOTAB_LIVE_MUTATION_MODE=browser-automation
+ADMIN_ACCESS_TOKEN=replace-with-a-shared-secret
+APP_WEB_ORIGIN=https://your-internal-hostname
+GEOTAB_ALLOWED_REPORT_NAMES=Average_Fuel_Economy_with_Region_Fixed_1
+GEOTAB_ALLOW_CUSTOM_REPORT_CREATION=true
+```
+
+This gives the team:
+
+- app-level access control
+- quick live report loading after the first warm-cache run
+- live replacements limited to approved custom reports
+- optional ability to create new custom reports from uploaded templates
+
+## Hosting Notes
+
+- Dockerfiles now run production-style commands instead of dev watchers.
+- `docker-compose.yml` is suitable for a single internal host or VM pilot.
+- SQLite remains acceptable for a single hosted instance, but move to Postgres before broader multi-user rollout.
+- The first live catalog warm-up can still take a few minutes. After that, the API serves cached report data on restart from `.runtime/live-report-cache.json`.
 
 ## Testing
 

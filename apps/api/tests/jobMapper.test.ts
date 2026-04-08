@@ -3,7 +3,7 @@ import { toJobSummary } from "../src/services/jobs/jobMapper.js";
 
 describe("job mapper", () => {
   it("maps Prisma-like job records into API summaries", () => {
-    const now = new Date("2026-04-07T12:00:00.000Z");
+    const now = "2026-04-07T12:00:00.000Z";
     const summary = toJobSummary({
       id: "job-1",
       status: "completed",

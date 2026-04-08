@@ -42,6 +42,10 @@ export class MockGeotabProvider implements GeotabProvider {
     return mockReports;
   }
 
+  async refreshReports(): Promise<GeotabCustomReport[]> {
+    return mockReports;
+  }
+
   async createCustomReportFromTemplate(input: {
     name: string;
     category?: string;

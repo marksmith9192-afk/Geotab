@@ -131,4 +131,8 @@ export interface LoginConfig {
 export interface ApiHealth {
   ok: boolean;
   providerMode: ProviderMode;
+  liveMutationMode?: "disabled" | "browser-automation";
+  requiresAdminAccess?: boolean;
+  customReportCreationEnabled?: boolean;
+  allowedMutationReportNames?: string[];
 }

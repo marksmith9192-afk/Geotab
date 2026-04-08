@@ -1,19 +1,37 @@
 import type { BulkUpdateRequest, ReportUpdatePlan } from "@geotab-report-admin/shared";
+import { env } from "../config/env.js";
 import { prisma } from "./prisma.js";
 import type { GeotabProvider } from "../types/api.js";
 import { AuditLogService } from "./auditLogService.js";
 import { InMemoryJobQueue } from "./jobs/jobQueue.js";
+import { MutationGuardService } from "./mutationGuardService.js";
 
 export class JobOrchestrator {
   constructor(
     private readonly provider: GeotabProvider,
     private readonly queue: InMemoryJobQueue,
-    private readonly auditLog: AuditLogService
+    private readonly auditLog: AuditLogService,
+    private readonly guard: MutationGuardService
   ) {}
 
   async createJob(input: BulkUpdateRequest & { templateUploadId: string; templatePath: string }): Promise<{ jobId: string }> {
+    const now = new Date().toISOString();
     const reports = await this.provider.listReports();
-    const selectedReports = reports.filter((report) => input.reportIds.includes(report.id));
+    const selectedReports = reports
+      .filter((report) => input.reportIds.includes(report.id))
+      .map((report) => {
+        const restrictionReason = this.guard.getReportRestrictionReason(report);
+
+        if (!restrictionReason) {
+          return report;
+        }
+
+        return {
+          ...report,
+          canReplaceTemplate: false,
+          replacementEligibilityReason: restrictionReason
+        };
+      });
 
     const job = await prisma.job.create({
       data: {
@@ -23,6 +41,8 @@ export class JobOrchestrator {
         templateFileName: input.templateFileName,
         selectedCount: selectedReports.length,
         templateUploadId: input.templateUploadId,
+        createdAt: now,
+        updatedAt: now,
         items: {
           create: selectedReports.map((report) => ({
             reportId: report.id,
@@ -34,7 +54,9 @@ export class JobOrchestrator {
               : report.canReplaceTemplate
                 ? "pending"
                 : "skipped",
-            details: report.canReplaceTemplate ? null : report.replacementEligibilityReason
+            details: report.canReplaceTemplate ? null : report.replacementEligibilityReason,
+            createdAt: now,
+            updatedAt: now
           }))
         }
       }
@@ -64,23 +86,32 @@ export class JobOrchestrator {
     const reports = await this.provider.listReports();
     return reports
       .filter((report) => request.reportIds.includes(report.id))
-      .map((report) => ({
-        reportId: report.id,
-        reportName: report.name,
-        reportKind: report.kind,
-        eligible: report.canReplaceTemplate,
-        targetTemplateFileName: request.templateFileName,
-        willUseAutomationFallback: false,
-        warnings: report.canReplaceTemplate
-          ? [
-              "Live Geotab replacement path is not yet validated in this MVP.",
-              "Post-update verification should confirm name, schedule, and distribution settings."
-            ]
-          : [
-              report.replacementEligibilityReason ??
-                "Only custom reports can receive uploaded replacement templates."
-            ]
-      }));
+      .map((report) => {
+        const restrictionReason = this.guard.getReportRestrictionReason(report);
+        const eligible = report.canReplaceTemplate && !restrictionReason;
+
+        return {
+          reportId: report.id,
+          reportName: report.name,
+          reportKind: report.kind,
+          eligible,
+          targetTemplateFileName: request.templateFileName,
+          willUseAutomationFallback:
+            env.GEOTAB_PROVIDER_MODE === "live" && env.GEOTAB_LIVE_MUTATION_MODE === "browser-automation",
+          warnings: eligible
+            ? [
+                env.GEOTAB_PROVIDER_MODE === "live"
+                  ? "Replacement will use the browser automation fallback because a documented public template replacement API was not confirmed."
+                  : "Mock mode will simulate the replacement without mutating Geotab.",
+                "Post-update verification will confirm the final report name, and schedule/distribution metadata remains a follow-up hardening item."
+              ]
+            : [
+                restrictionReason ??
+                  report.replacementEligibilityReason ??
+                  "Only custom reports can receive uploaded replacement templates."
+              ]
+        };
+      });
   }
 
   async rollback(jobItemId: string): Promise<void> {
@@ -93,19 +124,22 @@ export class JobOrchestrator {
     }
 
     const result = await this.provider.restore(jobItem.backupId);
+    const restoredAt = new Date().toISOString();
     await prisma.jobItem.update({
       where: { id: jobItem.id },
       data: {
         status: result.restored ? "rolled-back" : jobItem.status,
-        details: result.details
+        details: result.details,
+        updatedAt: restoredAt
       }
     });
   }
 
   private async runJob(jobId: string, templatePath: string, templateFileName: string): Promise<void> {
+    const startedAt = new Date().toISOString();
     await prisma.job.update({
       where: { id: jobId },
-      data: { status: "in-progress" }
+      data: { status: "in-progress", updatedAt: startedAt }
     });
 
     const job = await prisma.job.findUnique({
@@ -125,25 +159,32 @@ export class JobOrchestrator {
       const report = reports.find((candidate) => candidate.id === item.reportId);
 
       if (!report) {
+        const failedAt = new Date().toISOString();
         failureCount += 1;
         await prisma.jobItem.update({
           where: { id: item.id },
           data: {
             status: "failed",
-            errorMessage: "Report no longer available in provider catalog."
+            errorMessage: "Report no longer available in provider catalog.",
+            updatedAt: failedAt
           }
         });
         continue;
       }
 
-      if (!report.canReplaceTemplate) {
+      const restrictionReason = this.guard.getReportRestrictionReason(report);
+
+      if (!report.canReplaceTemplate || restrictionReason) {
+        const skippedAt = new Date().toISOString();
         await prisma.jobItem.update({
           where: { id: item.id },
           data: {
             status: "skipped",
             details:
+              restrictionReason ??
               report.replacementEligibilityReason ??
-              "Only custom reports can receive uploaded replacement templates."
+              "Only custom reports can receive uploaded replacement templates.",
+            updatedAt: skippedAt
           }
         });
         await this.auditLog.write({
@@ -153,6 +194,7 @@ export class JobOrchestrator {
           level: "warn",
           action: "report.skipped",
           message:
+            restrictionReason ??
             report.replacementEligibilityReason ??
             "Only custom reports can receive uploaded replacement templates."
         });
@@ -176,10 +218,12 @@ export class JobOrchestrator {
             templateFileName: report.templateName ?? null,
             backupPayload: backup.payload as unknown as object,
             storagePath: null,
-            restorable: true
+            restorable: true,
+            createdAt: new Date().toISOString()
           }
         });
 
+        const updatedAt = new Date().toISOString();
         await prisma.jobItem.update({
           where: { id: item.id },
           data: {
@@ -187,7 +231,8 @@ export class JobOrchestrator {
             details: replacement.details,
             backupId: backupRecord.id,
             beforeSnapshot: backup.payload as unknown as object,
-            afterSnapshot: replacement.afterSnapshot as object
+            afterSnapshot: replacement.afterSnapshot as object,
+            updatedAt
           }
         });
 
@@ -205,13 +250,15 @@ export class JobOrchestrator {
 
         successCount += 1;
       } catch (error) {
+        const failedAt = new Date().toISOString();
         failureCount += 1;
         const message = error instanceof Error ? error.message : "Unknown update error";
         await prisma.jobItem.update({
           where: { id: item.id },
           data: {
             status: "failed",
-            errorMessage: message
+            errorMessage: message,
+            updatedAt: failedAt
           }
         });
         await this.auditLog.write({
@@ -225,13 +272,15 @@ export class JobOrchestrator {
       }
     }
 
+    const finishedAt = new Date().toISOString();
     await prisma.job.update({
       where: { id: jobId },
       data: {
         status: failureCount > 0 ? "completed-with-errors" : "completed",
         successCount,
         failureCount,
-        completedAt: new Date()
+        completedAt: finishedAt,
+        updatedAt: finishedAt
       }
     });
   }

@@ -8,6 +8,7 @@ import type {
 
 export interface ReportDiscoveryService {
   listReports(): Promise<GeotabCustomReport[]>;
+  refreshReports(): Promise<GeotabCustomReport[]>;
 }
 
 export interface GeotabAuthService {

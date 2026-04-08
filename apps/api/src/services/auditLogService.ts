@@ -11,6 +11,7 @@ export class AuditLogService {
     message: string;
     metadata?: Record<string, unknown>;
   }): Promise<void> {
+    const now = new Date().toISOString();
     await prisma.auditEntry.create({
       data: {
         jobId: input.jobId,
@@ -19,7 +20,8 @@ export class AuditLogService {
         level: input.level,
         action: input.action,
         message: input.message,
-        metadata: input.metadata as Prisma.InputJsonValue | undefined
+        metadata: input.metadata as Prisma.InputJsonValue | undefined,
+        createdAt: now
       }
     });
   }

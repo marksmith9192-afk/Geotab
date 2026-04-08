@@ -11,6 +11,7 @@ export class UploadService {
     templatePath: string;
     fileName: string;
   }> {
+    const now = new Date().toISOString();
     await this.storage.ensureRuntimeDirs();
     const storedName = `${Date.now()}-${file.originalname}`;
     const targetPath = this.storage.resolveUploadPath(storedName);
@@ -22,7 +23,8 @@ export class UploadService {
         storedName,
         mimeType: file.mimetype,
         sizeBytes: file.size,
-        storagePath: path.relative(process.cwd(), targetPath)
+        storagePath: path.relative(process.cwd(), targetPath),
+        createdAt: now
       }
     });
 

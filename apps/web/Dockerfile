@@ -15,4 +15,4 @@ RUN npm run build:web
 
 EXPOSE 5173
 
-CMD ["npm", "run", "dev:web"]
+CMD ["npm", "--workspace", "@geotab-report-admin/web", "run", "preview"]

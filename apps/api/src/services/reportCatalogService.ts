@@ -7,4 +7,8 @@ export class ReportCatalogService {
   async listReports(): Promise<GeotabCustomReport[]> {
     return this.provider.listReports();
   }
+
+  async refreshReports(): Promise<GeotabCustomReport[]> {
+    return this.provider.refreshReports();
+  }
 }

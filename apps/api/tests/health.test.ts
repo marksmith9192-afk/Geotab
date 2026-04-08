@@ -14,5 +14,7 @@ describe("health routes", () => {
 
     expect(response.status).toBe(200);
     expect(response.body.ok).toBe(true);
+    expect(response.body).toHaveProperty("requiresAdminAccess");
+    expect(response.body).toHaveProperty("liveMutationMode");
   });
 });

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { JobHistoryService } from "../services/jobHistoryService.js";
 import { JobOrchestrator } from "../services/jobOrchestrator.js";
 import { UploadService } from "../services/uploadService.js";
+import { parseFormBoolean } from "../utils/parseFormBoolean.js";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -19,7 +20,7 @@ const bulkUpdateSchema = z.object({
 
     return value;
   }, z.array(z.string()).min(1)),
-  dryRun: z.coerce.boolean(),
+  dryRun: z.preprocess(parseFormBoolean, z.boolean()),
   requestedBy: z.string().min(1)
 });
 

@@ -8,8 +8,23 @@ config({ path: path.resolve(process.cwd(), ".env") });
 const envSchema = z.object({
   PORT: z.coerce.number().default(4000),
   DATABASE_URL: z.string().default("file:./dev.db"),
+  APP_WEB_ORIGIN: z.string().default("http://localhost:5173"),
+  ADMIN_ACCESS_TOKEN: z.string().optional(),
   GEOTAB_PROVIDER_MODE: z.enum(["mock", "live"]).default("mock"),
   GEOTAB_LIVE_MUTATION_MODE: z.enum(["disabled", "browser-automation"]).default("disabled"),
+  GEOTAB_ALLOW_CUSTOM_REPORT_CREATION: z
+    .string()
+    .optional()
+    .transform((value) => value !== "false"),
+  GEOTAB_ALLOWED_REPORT_NAMES: z
+    .string()
+    .default("")
+    .transform((value) =>
+      value
+        .split(",")
+        .map((entry) => entry.trim())
+        .filter(Boolean)
+    ),
   GEOTAB_SERVER: z.string().default("my.geotab.com"),
   GEOTAB_DATABASE: z.string().default(""),
   GEOTAB_USERNAME: z.string().default(""),

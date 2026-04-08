@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import path from "node:path";
 import type {
   CreateCustomReportResult,
   GeotabCredentials,
@@ -7,6 +8,7 @@ import type {
   ReportBackupPayload
 } from "@geotab-report-admin/shared";
 import { env } from "../../config/env.js";
+import { runtimePaths } from "../../config/paths.js";
 import type { GeotabProvider } from "../../types/api.js";
 import type { GeotabAutomationStrategy } from "./automation/types.js";
 
@@ -27,6 +29,15 @@ interface LoginResult {
 }
 
 export class LiveGeotabProvider implements GeotabProvider {
+  private readonly reportCachePath = path.join(runtimePaths.storageRoot, "live-report-cache.json");
+  private reportCache:
+    | {
+        reports: GeotabCustomReport[];
+        fetchedAt: number;
+      }
+    | null = null;
+  private reportRefreshPromise: Promise<GeotabCustomReport[]> | null = null;
+
   constructor(private readonly automation: GeotabAutomationStrategy | null) {}
 
   async login(credentials: GeotabCredentials): Promise<GeotabSession> {
@@ -59,9 +70,26 @@ export class LiveGeotabProvider implements GeotabProvider {
   }
 
   async listReports(): Promise<GeotabCustomReport[]> {
-    throw new Error(
-      "Documentation spike result: no clearly documented public MyGeotab API object for report discovery was confirmed. Keep discovery isolated until validated."
-    );
+    const cacheTtlMs = 5 * 60 * 1000;
+    if (this.reportCache && Date.now() - this.reportCache.fetchedAt < cacheTtlMs) {
+      return this.reportCache.reports;
+    }
+
+    if (!this.reportCache) {
+      this.reportCache = await this.readPersistedReportCache();
+    }
+
+    if (this.reportCache) {
+      void this.refreshReportCache();
+      return this.reportCache.reports;
+    }
+
+    void this.refreshReportCache();
+    return [];
+  }
+
+  async refreshReports(): Promise<GeotabCustomReport[]> {
+    return this.refreshReportCache();
   }
 
   async createCustomReportFromTemplate(input: {
@@ -86,6 +114,8 @@ export class LiveGeotabProvider implements GeotabProvider {
       throw new Error(result.details);
     }
 
+    this.invalidateReportCache();
+
     return {
       report: {
         id: `verified-${Date.now()}`,
@@ -108,6 +138,65 @@ export class LiveGeotabProvider implements GeotabProvider {
         "Created through browser automation fallback after documentation spike did not confirm a public upload API."
       ]
     };
+  }
+
+  invalidateReportCache(): void {
+    this.reportCache = null;
+  }
+
+  private async refreshReportCache(): Promise<GeotabCustomReport[]> {
+    if (this.reportRefreshPromise) {
+      return this.reportRefreshPromise;
+    }
+
+    const automation = this.requireAutomation(
+      "Documentation spike result: no clearly documented public MyGeotab API object for report discovery was confirmed. Enable browser automation fallback to discover custom reports."
+    );
+
+    this.reportRefreshPromise = automation
+      .discoverCustomReports()
+      .then((reports) => {
+        this.reportCache = {
+          reports,
+          fetchedAt: Date.now()
+        };
+        return this.persistReportCache(this.reportCache).then(() => reports);
+      })
+      .catch((error) => {
+        if (this.reportCache) {
+          return this.reportCache.reports;
+        }
+
+        throw error;
+      })
+      .finally(() => {
+        this.reportRefreshPromise = null;
+      });
+
+    return this.reportRefreshPromise;
+  }
+
+  private async readPersistedReportCache(): Promise<{
+    reports: GeotabCustomReport[];
+    fetchedAt: number;
+  } | null> {
+    try {
+      const raw = await fs.readFile(this.reportCachePath, "utf-8");
+      return JSON.parse(raw) as {
+        reports: GeotabCustomReport[];
+        fetchedAt: number;
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  private async persistReportCache(cache: {
+    reports: GeotabCustomReport[];
+    fetchedAt: number;
+  }): Promise<void> {
+    await fs.mkdir(runtimePaths.storageRoot, { recursive: true });
+    await fs.writeFile(this.reportCachePath, JSON.stringify(cache, null, 2), "utf-8");
   }
 
   async capture(report: GeotabCustomReport): Promise<{ backupId: string; payload: ReportBackupPayload }> {
@@ -154,6 +243,8 @@ export class LiveGeotabProvider implements GeotabProvider {
     if (!result.verified) {
       throw new Error(result.details);
     }
+
+    this.invalidateReportCache();
 
     return {
       usedFallback: true,

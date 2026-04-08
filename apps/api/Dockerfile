@@ -15,4 +15,4 @@ RUN npm run build
 
 EXPOSE 4000
 
-CMD ["npm", "run", "dev:api"]
+CMD ["node", "apps/api/dist/src/index.js"]

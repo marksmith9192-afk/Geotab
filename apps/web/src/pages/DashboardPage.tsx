@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import type {
+  ApiHealth,
   CreateCustomReportResult,
   GeotabCustomReport,
   JobSummary,
@@ -15,11 +16,12 @@ const initialLogin: LoginConfig = {
   database: "",
   username: "",
   password: "",
-  providerMode: "mock"
+  providerMode: "live"
 };
 
 export function DashboardPage() {
   const [login, setLogin] = useState(initialLogin);
+  const [health, setHealth] = useState<ApiHealth | null>(null);
   const [reports, setReports] = useState<GeotabCustomReport[]>([]);
   const [jobs, setJobs] = useState<JobSummary[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
@@ -34,19 +36,65 @@ export function DashboardPage() {
   const [createMessage, setCreateMessage] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [reportsLoading, setReportsLoading] = useState(false);
 
   useEffect(() => {
+    void loadHealth();
     void loadReports();
     void loadJobs();
   }, []);
+
+  useEffect(() => {
+    if (health?.providerMode !== "live" || reports.length > 0) {
+      return;
+    }
+
+    const retryId = window.setInterval(() => {
+      void loadReports();
+    }, 15000);
+
+    return () => window.clearInterval(retryId);
+  }, [health?.providerMode, reports.length]);
 
   const filteredReports = useMemo(() => {
     return reports.filter((report) => report.name.toLowerCase().includes(query.toLowerCase()));
   }, [reports, query]);
 
   async function loadReports() {
-    const payload = await apiFetch<{ reports: GeotabCustomReport[] }>("/api/reports");
-    setReports(payload.reports);
+    setReportsLoading(true);
+
+    try {
+      const payload = await apiFetch<{ reports: GeotabCustomReport[] }>("/api/reports");
+      setReports(payload.reports);
+
+      if (health?.providerMode === "live" && payload.reports.length === 0) {
+        setStatusMessage("Warming live report catalog. The table will populate automatically when discovery finishes.");
+      }
+    } finally {
+      setReportsLoading(false);
+    }
+  }
+
+  async function startReportRefresh() {
+    setReportsLoading(true);
+
+    try {
+      await apiFetch<{ started: boolean; message: string }>("/api/reports/refresh", {
+        method: "POST"
+      });
+      setStatusMessage("Refreshing live report catalog. This can take a few minutes on a cold start.");
+      await loadReports();
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "Report refresh failed.");
+    } finally {
+      setReportsLoading(false);
+    }
+  }
+
+  async function loadHealth() {
+    const payload = await apiFetch<ApiHealth>("/api/health");
+    setHealth(payload);
+    setLogin((current) => ({ ...current, providerMode: payload.providerMode }));
   }
 
   async function loadJobs() {
@@ -171,6 +219,8 @@ export function DashboardPage() {
 
   const eligibleCount = reports.filter((report) => report.canReplaceTemplate).length;
   const ineligibleCount = reports.length - eligibleCount;
+  const allowedMutationNames = health?.allowedMutationReportNames ?? [];
+  const customReportCreationEnabled = health?.customReportCreationEnabled ?? true;
 
   return (
     <div className="stack">
@@ -178,7 +228,10 @@ export function DashboardPage() {
         <form className="panel stack" onSubmit={handleLogin}>
           <div>
             <h3>1. Login / Config</h3>
-            <p className="inline-note">Credentials can come from env vars later; for MVP the form drives the mock session flow.</p>
+            <p className="inline-note">
+              The backend is currently running in <strong>{health?.providerMode ?? "unknown"}</strong> mode. Use this
+              form to validate credentials against the active backend provider.
+            </p>
           </div>
           <label>
             Server
@@ -197,14 +250,8 @@ export function DashboardPage() {
             <input type="password" value={login.password} onChange={(event) => setLogin({ ...login, password: event.target.value })} />
           </label>
           <label>
-            Provider Mode
-            <select
-              value={login.providerMode}
-              onChange={(event) => setLogin({ ...login, providerMode: event.target.value as LoginConfig["providerMode"] })}
-            >
-              <option value="mock">Mock</option>
-              <option value="live">Live placeholder</option>
-            </select>
+            Runtime Provider
+            <input value={health?.providerMode ?? login.providerMode} readOnly />
           </label>
           <div className="actions">
             <button className="button primary" type="submit" disabled={loading}>
@@ -216,8 +263,16 @@ export function DashboardPage() {
         <section className="panel stack">
           <div>
             <h3>2. Replace Templates On Existing Reports</h3>
-            <p className="inline-note">Only custom reports are eligible. Default reports are shown for awareness but skipped safely.</p>
+            <p className="inline-note">
+              Only custom reports are eligible. In live mode, template replacement uses the validated browser automation
+              fallback and verifies the final report name after save.
+            </p>
           </div>
+          {allowedMutationNames.length > 0 ? (
+            <div className="warning-box">
+              Hosted live mode is currently restricted to these approved reports: {allowedMutationNames.join(", ")}
+            </div>
+          ) : null}
           <label>
             Replacement Template File
             <input type="file" onChange={(event) => setTemplateFile(event.target.files?.[0] ?? null)} />
@@ -241,6 +296,7 @@ export function DashboardPage() {
           <div className="muted">
             Eligible custom reports: {eligibleCount} | Ineligible default reports: {ineligibleCount}
           </div>
+          {reportsLoading ? <div className="muted">Refreshing report catalog...</div> : null}
           <div className="muted">Existing jobs recorded: {jobs.length}</div>
         </section>
       </section>
@@ -248,8 +304,16 @@ export function DashboardPage() {
       <section className="panel stack">
         <div>
           <h3>3. Create A New Custom Report</h3>
-          <p className="inline-note">This is a separate workflow from replacement. It uploads a template and creates a new custom report record through the provider boundary.</p>
+          <p className="inline-note">
+            This is a separate workflow from replacement. In live mode it uploads the template through the MyGeotab UI
+            automation path and verifies the created report before returning success.
+          </p>
         </div>
+        {!customReportCreationEnabled ? (
+          <div className="warning-box">
+            Custom report creation is disabled for this hosted deployment. Replacement flows are still available for approved reports.
+          </div>
+        ) : null}
         <div className="grid-two">
           <label>
             New Custom Report Name
@@ -265,7 +329,12 @@ export function DashboardPage() {
           <input type="file" onChange={(event) => setCreateTemplateFile(event.target.files?.[0] ?? null)} />
         </label>
         <div className="actions">
-          <button className="button primary" type="button" onClick={createCustomReport} disabled={creating}>
+          <button
+            className="button primary"
+            type="button"
+            onClick={createCustomReport}
+            disabled={creating || !customReportCreationEnabled}
+          >
             Create Custom Report
           </button>
         </div>
@@ -281,6 +350,14 @@ export function DashboardPage() {
           Search by report name
           <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search reports" />
         </label>
+        <div className="actions">
+          <button className="button" type="button" onClick={() => void startReportRefresh()} disabled={reportsLoading}>
+            Warm Live Catalog
+          </button>
+          <button className="button" type="button" onClick={() => void loadReports()} disabled={reportsLoading}>
+            Refresh Reports
+          </button>
+        </div>
         <ReportTable
           reports={filteredReports}
           selected={selected}
@@ -299,3 +376,4 @@ export function DashboardPage() {
     </div>
   );
 }
+
