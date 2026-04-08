@@ -4,6 +4,7 @@ import type {
   BatchCreateCustomReportsResult,
   CreateCustomReportResult,
   GeotabCustomReport,
+  JobDetails,
   JobSummary,
   LoginConfig,
   ReportUpdatePlan
@@ -39,6 +40,7 @@ export function DashboardPage() {
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
   const [reportsLoading, setReportsLoading] = useState(false);
+  const [activeJobId, setActiveJobId] = useState<string | null>(null);
 
   useEffect(() => {
     void loadHealth();
@@ -57,6 +59,65 @@ export function DashboardPage() {
 
     return () => window.clearInterval(retryId);
   }, [health?.providerMode, reports.length]);
+
+  useEffect(() => {
+    if (!activeJobId) {
+      return;
+    }
+
+    let cancelled = false;
+
+    async function pollJob() {
+      try {
+        const payload = await apiFetch<{ job: JobDetails }>(`/api/jobs/${activeJobId}`);
+
+        if (cancelled) {
+          return;
+        }
+
+        if (payload.job.status === "queued" || payload.job.status === "in-progress") {
+          setStatusMessage(
+            payload.job.status === "queued"
+              ? `Bulk update job queued: ${payload.job.id}. Waiting for execution to start...`
+              : `Bulk update job in progress: ${payload.job.id}`
+          );
+          return;
+        }
+
+        if (payload.job.status === "completed") {
+          setStatusMessage(
+            `Bulk update completed successfully. ${payload.job.successCount} report${payload.job.successCount === 1 ? "" : "s"} updated.`
+          );
+        } else if (payload.job.status === "completed-with-errors") {
+          setStatusMessage(
+            `Bulk update completed with errors. ${payload.job.successCount} succeeded, ${payload.job.failureCount} failed.`
+          );
+        } else if (payload.job.status === "failed") {
+          setStatusMessage("Bulk update failed. Review job history for details.");
+        } else {
+          setStatusMessage(`Bulk update finished with status: ${payload.job.status}`);
+        }
+
+        setActiveJobId(null);
+        await loadJobs();
+      } catch (error) {
+        if (!cancelled) {
+          setStatusMessage(error instanceof Error ? error.message : "Unable to poll job status.");
+          setActiveJobId(null);
+        }
+      }
+    }
+
+    void pollJob();
+    const pollId = window.setInterval(() => {
+      void pollJob();
+    }, 3000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(pollId);
+    };
+  }, [activeJobId]);
 
   const filteredReports = useMemo(() => {
     return reports.filter((report) => report.name.toLowerCase().includes(query.toLowerCase()));
@@ -186,6 +247,7 @@ export function DashboardPage() {
         });
         setPlans([]);
         setStatusMessage(`Bulk update job queued: ${payload.jobId}`);
+        setActiveJobId(payload.jobId);
         setConfirmText("");
         await loadJobs();
       }
