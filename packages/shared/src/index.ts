@@ -91,6 +91,22 @@ export interface CreateCustomReportResult {
   warnings: string[];
 }
 
+export interface BatchCreateCustomReportItem {
+  sourceFileName: string;
+  targetReportName: string;
+  success: boolean;
+  report?: GeotabCustomReport;
+  details?: string;
+  warnings?: string[];
+  errorMessage?: string;
+}
+
+export interface BatchCreateCustomReportsResult {
+  createdCount: number;
+  failedCount: number;
+  items: BatchCreateCustomReportItem[];
+}
+
 export interface JobSummary {
   id: string;
   status: JobStatus;

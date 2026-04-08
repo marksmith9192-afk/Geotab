@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import type {
   ApiHealth,
+  BatchCreateCustomReportsResult,
   CreateCustomReportResult,
   GeotabCustomReport,
   JobSummary,
@@ -28,9 +29,10 @@ export function DashboardPage() {
   const [query, setQuery] = useState("");
   const [requestedBy, setRequestedBy] = useState("internal-admin");
   const [templateFile, setTemplateFile] = useState<File | null>(null);
-  const [createTemplateFile, setCreateTemplateFile] = useState<File | null>(null);
+  const [createTemplateFiles, setCreateTemplateFiles] = useState<File[]>([]);
   const [newReportName, setNewReportName] = useState("");
   const [newReportCategory, setNewReportCategory] = useState("");
+  const [confirmText, setConfirmText] = useState("");
   const [plans, setPlans] = useState<ReportUpdatePlan[]>([]);
   const [statusMessage, setStatusMessage] = useState<string>("");
   const [createMessage, setCreateMessage] = useState<string>("");
@@ -59,6 +61,11 @@ export function DashboardPage() {
   const filteredReports = useMemo(() => {
     return reports.filter((report) => report.name.toLowerCase().includes(query.toLowerCase()));
   }, [reports, query]);
+  const selectedReports = useMemo(
+    () => reports.filter((report) => selected.includes(report.id)),
+    [reports, selected]
+  );
+  const canExecuteLiveUpdate = selected.length > 0 && templateFile && confirmText === "CONFIRM";
 
   async function loadReports() {
     setReportsLoading(true);
@@ -150,6 +157,11 @@ export function DashboardPage() {
       return;
     }
 
+    if (!dryRun && confirmText !== "CONFIRM") {
+      setStatusMessage("Type CONFIRM before executing a live replacement job.");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("template", templateFile);
     selected.forEach((reportId) => formData.append("reportIds", reportId));
@@ -174,6 +186,7 @@ export function DashboardPage() {
         });
         setPlans([]);
         setStatusMessage(`Bulk update job queued: ${payload.jobId}`);
+        setConfirmText("");
         await loadJobs();
       }
     } catch (error) {
@@ -184,31 +197,47 @@ export function DashboardPage() {
   }
 
   async function createCustomReport() {
-    if (!createTemplateFile || !newReportName.trim()) {
-      setCreateMessage("Provide a custom report name and template file.");
+    if (createTemplateFiles.length === 0) {
+      setCreateMessage("Choose at least one template file.");
       return;
     }
-
-    const formData = new FormData();
-    formData.append("template", createTemplateFile);
-    formData.append("name", newReportName.trim());
-    formData.append("category", newReportCategory.trim());
-    formData.append("requestedBy", requestedBy);
 
     setCreating(true);
     setCreateMessage("");
 
     try {
-      const payload = await apiFetch<CreateCustomReportResult>("/api/reports/custom", {
-        method: "POST",
-        body: formData
-      });
-      setCreateMessage(
-        `Custom report created: ${payload.report.name}. ${payload.warnings.length > 0 ? payload.warnings[0] : payload.details}`
-      );
+      if (createTemplateFiles.length === 1) {
+        const formData = new FormData();
+        formData.append("template", createTemplateFiles[0]);
+        formData.append("name", newReportName.trim() || createTemplateFiles[0].name.replace(/\.[^.]+$/, ""));
+        formData.append("category", newReportCategory.trim());
+        formData.append("requestedBy", requestedBy);
+
+        const payload = await apiFetch<CreateCustomReportResult>("/api/reports/custom", {
+          method: "POST",
+          body: formData
+        });
+        setCreateMessage(
+          `Custom report created: ${payload.report.name}. ${payload.warnings.length > 0 ? payload.warnings[0] : payload.details}`
+        );
+      } else {
+        const formData = new FormData();
+        createTemplateFiles.forEach((file) => formData.append("templates", file));
+        formData.append("category", newReportCategory.trim());
+        formData.append("requestedBy", requestedBy);
+
+        const payload = await apiFetch<BatchCreateCustomReportsResult>("/api/reports/custom/batch", {
+          method: "POST",
+          body: formData
+        });
+        setCreateMessage(
+          `Created ${payload.createdCount} custom reports and failed ${payload.failedCount}. Names are derived from uploaded filenames.`
+        );
+      }
+
       setNewReportName("");
       setNewReportCategory("");
-      setCreateTemplateFile(null);
+      setCreateTemplateFiles([]);
       await loadReports();
     } catch (error) {
       setCreateMessage(error instanceof Error ? error.message : "Custom report creation failed.");
@@ -287,6 +316,18 @@ export function DashboardPage() {
             onToggleAllEligible={toggleSelectAllEligible}
           />
           <div className="muted">Selected eligible reports: {selected.length}</div>
+          {selectedReports.length > 0 ? (
+            <div className="list">
+              {selectedReports.map((report) => (
+                <div className="list-item" key={report.id}>
+                  <strong>{report.name}</strong>
+                  <div className="muted">{report.category ?? "Uncategorized"}</div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="muted">No reports selected yet.</div>
+          )}
           <div className="muted">
             Eligible custom reports: {eligibleCount} | Ineligible default reports: {ineligibleCount}
           </div>
@@ -322,11 +363,33 @@ export function DashboardPage() {
           <div className="muted">
             This action will only affect the {selected.length} selected report{selected.length === 1 ? "" : "s"}.
           </div>
+          {selectedReports.length > 0 ? (
+            <div className="list">
+              {selectedReports.map((report) => (
+                <div className="list-item" key={report.id}>
+                  <strong>{report.name}</strong>
+                </div>
+              ))}
+            </div>
+          ) : null}
+          <label>
+            Type CONFIRM to execute live changes
+            <input
+              value={confirmText}
+              onChange={(event) => setConfirmText(event.target.value)}
+              placeholder="CONFIRM"
+            />
+          </label>
           <div className="actions">
             <button className="button" type="button" onClick={() => submitJob(true)} disabled={loading}>
               Dry Run Selected
             </button>
-            <button className="button primary" type="button" onClick={() => submitJob(false)} disabled={loading}>
+            <button
+              className="button primary"
+              type="button"
+              onClick={() => submitJob(false)}
+              disabled={loading || !canExecuteLiveUpdate}
+            >
               Execute Bulk Update
             </button>
           </div>
@@ -349,7 +412,11 @@ export function DashboardPage() {
         <div className="grid-two">
           <label>
             New Custom Report Name
-            <input value={newReportName} onChange={(event) => setNewReportName(event.target.value)} />
+            <input
+              value={newReportName}
+              onChange={(event) => setNewReportName(event.target.value)}
+              disabled={createTemplateFiles.length > 1}
+            />
           </label>
           <label>
             Category
@@ -358,16 +425,35 @@ export function DashboardPage() {
         </div>
         <label>
           Template File For New Custom Report
-          <input type="file" onChange={(event) => setCreateTemplateFile(event.target.files?.[0] ?? null)} />
+          <input
+            type="file"
+            multiple
+            onChange={(event) => setCreateTemplateFiles(Array.from(event.target.files ?? []))}
+          />
         </label>
+        <div className="muted">
+          {createTemplateFiles.length <= 1
+            ? "Upload one file to create a single custom report. If the name field is blank, the report name will default to the file name."
+            : `Upload ${createTemplateFiles.length} files to create multiple custom reports at once. Report names will be derived from each file name.`}
+        </div>
+        {createTemplateFiles.length > 1 ? (
+          <div className="list">
+            {createTemplateFiles.map((file) => (
+              <div className="list-item" key={file.name}>
+                <strong>{file.name.replace(/\.[^.]+$/, "")}</strong>
+                <div className="muted">Source file: {file.name}</div>
+              </div>
+            ))}
+          </div>
+        ) : null}
         <div className="actions">
           <button
             className="button primary"
             type="button"
             onClick={createCustomReport}
-            disabled={creating || !customReportCreationEnabled}
+            disabled={creating || !customReportCreationEnabled || createTemplateFiles.length === 0}
           >
-            Create Custom Report
+            {createTemplateFiles.length > 1 ? "Create Custom Reports" : "Create Custom Report"}
           </button>
         </div>
         {createMessage ? <div className="badge info">{createMessage}</div> : null}
