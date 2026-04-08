@@ -310,6 +310,7 @@ This repo now includes:
 - CI workflow in [.github/workflows/ci.yml](C:/Users/MarkSmith/Documents/Playground/Geotab-git/.github/workflows/ci.yml)
 - Dockerfiles for API and web
 - [docker-compose.yml](C:/Users/MarkSmith/Documents/Playground/Geotab-git/docker-compose.yml)
+- [docs/deployment-guide.md](C:/Users/MarkSmith/Documents/Playground/Geotab-git/docs/deployment-guide.md)
 - documentation spike notes in [docs/geotab-integration-spike.md](C:/Users/MarkSmith/Documents/Playground/Geotab-git/docs/geotab-integration-spike.md)
 
 ## Hosting Recommendation

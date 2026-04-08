@@ -15,4 +15,4 @@ RUN npm run build
 
 EXPOSE 4000
 
-CMD ["node", "apps/api/dist/src/index.js"]
+CMD ["npm", "--workspace", "@geotab-report-admin/api", "run", "start:bootstrap"]

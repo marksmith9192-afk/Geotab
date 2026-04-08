@@ -9,6 +9,8 @@
     "db:bootstrap": "tsx scripts/bootstrap-sqlite.ts",
     "dev": "tsx watch src/index.ts",
     "build": "tsc -p tsconfig.json",
+    "start": "node dist/src/index.js",
+    "start:bootstrap": "npm run db:bootstrap && npm run start",
     "test": "vitest run --config vitest.config.ts",
     "prisma:generate": "prisma generate --schema ../../prisma/schema.prisma",
     "prisma:migrate": "prisma migrate dev --schema ../../prisma/schema.prisma"
