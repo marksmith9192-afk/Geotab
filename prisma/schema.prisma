@@ -1,0 +1,80 @@
+ generator client {
+   provider = "prisma-client-js"
+ }
+ 
+ datasource db {
+   provider = "sqlite"
+   url      = env("DATABASE_URL")
+ }
+ 
+ model Job {
+   id               String          @id @default(cuid())
+   status           String
+   dryRun           Boolean
+   requestedBy      String
+   templateFileName String
+   selectedCount    Int
+   successCount     Int             @default(0)
+   failureCount     Int             @default(0)
+   createdAt        DateTime        @default(now())
+   updatedAt        DateTime        @updatedAt
+   completedAt      DateTime?
+   templateUpload   TemplateUpload? @relation(fields: [templateUploadId], references: [id])
+   templateUploadId String?
+   items            JobItem[]
+   auditEntries     AuditEntry[]
+ }
+ 
+ model JobItem {
+   id             String        @id @default(cuid())
+   job            Job           @relation(fields: [jobId], references: [id], onDelete: Cascade)
+   jobId          String
+   reportId       String
+   reportName     String
+   status         String
+   details        String?
+   errorMessage   String?
+   beforeSnapshot Json?
+   afterSnapshot  Json?
+   backup         ReportBackup? @relation(fields: [backupId], references: [id])
+   backupId       String?
+   createdAt      DateTime      @default(now())
+   updatedAt      DateTime      @updatedAt
+ }
+ 
+ model ReportBackup {
+   id                 String    @id @default(cuid())
+   reportId           String
+   reportName         String
+   templateFileName   String?
+   backupPayload      Json
+   storagePath        String?
+   restorable         Boolean   @default(false)
+   createdAt          DateTime  @default(now())
+   restoredAt         DateTime?
+   restoredByJobItems JobItem[]
+ }
+ 
+ model AuditEntry {
+   id         String   @id @default(cuid())
+   job        Job?     @relation(fields: [jobId], references: [id], onDelete: Cascade)
+   jobId      String?
+   reportId   String?
+   reportName String?
+   level      String
+   action     String
+   message    String
+   metadata   Json?
+   createdAt  DateTime @default(now())
+ }
+ 
+ model TemplateUpload {
+   id           String   @id @default(cuid())
+   originalName String
+   storedName   String
+   mimeType     String?
+   sizeBytes    Int
+   storagePath  String
+   createdAt    DateTime @default(now())
+   jobs         Job[]
+ }

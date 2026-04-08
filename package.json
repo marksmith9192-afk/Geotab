@@ -1,0 +1,29 @@
+{
+  "name": "geotab-report-admin",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm-run-all --parallel dev:api dev:web",
+    "dev:api": "npm --workspace @geotab-report-admin/api run dev",
+    "dev:web": "npm --workspace @geotab-report-admin/web run dev",
+    "build": "npm run build:shared && npm run build:api && npm run build:web",
+    "build:shared": "npm --workspace @geotab-report-admin/shared run build",
+    "build:api": "npm --workspace @geotab-report-admin/api run build",
+    "build:web": "npm --workspace @geotab-report-admin/web run build",
+    "automation:install": "npm --workspace @geotab-report-admin/api run automation:install",
+    "db:bootstrap": "npm --workspace @geotab-report-admin/api run db:bootstrap",
+    "test": "npm run test:api && npm run test:web",
+    "test:api": "npm --workspace @geotab-report-admin/api run test",
+    "test:web": "npm --workspace @geotab-report-admin/web run test",
+    "prisma:generate": "npm --workspace @geotab-report-admin/api run prisma:generate",
+    "prisma:migrate": "npm --workspace @geotab-report-admin/api run prisma:migrate"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.8.3"
+  }
+}
