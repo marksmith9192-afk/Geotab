@@ -262,12 +262,47 @@ export function DashboardPage() {
 
         <section className="panel stack">
           <div>
-            <h3>2. Replace Templates On Existing Reports</h3>
+            <h3>2. Select Reports To Update</h3>
             <p className="inline-note">
-              Only custom reports are eligible. In live mode, template replacement uses the validated browser automation
-              fallback and verifies the final report name after save.
+              Search reports by name and select only the custom reports you want to update. Nothing is updated unless a
+              report is explicitly selected here.
             </p>
           </div>
+          <label>
+            Search by report name
+            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search reports" />
+          </label>
+          <div className="actions">
+            <button className="button" type="button" onClick={() => void startReportRefresh()} disabled={reportsLoading}>
+              Warm Live Catalog
+            </button>
+            <button className="button" type="button" onClick={() => void loadReports()} disabled={reportsLoading}>
+              Refresh Reports
+            </button>
+          </div>
+          <ReportTable
+            reports={filteredReports}
+            selected={selected}
+            onToggle={toggleSelection}
+            onToggleAllEligible={toggleSelectAllEligible}
+          />
+          <div className="muted">Selected eligible reports: {selected.length}</div>
+          <div className="muted">
+            Eligible custom reports: {eligibleCount} | Ineligible default reports: {ineligibleCount}
+          </div>
+          {reportsLoading ? <div className="muted">Refreshing report catalog...</div> : null}
+          <div className="muted">Existing jobs recorded: {jobs.length}</div>
+        </section>
+      </section>
+
+      <section className="panel stack">
+        <div>
+          <h3>3. Choose Replacement Template And Run</h3>
+          <p className="inline-note">
+            The uploaded template is only applied to the reports selected above. In live mode, replacement uses the
+            validated browser automation fallback and verifies the final report name after save.
+          </p>
+        </div>
           {allowedMutationNames.length > 0 ? (
             <div className="warning-box">
               Hosted live mode is currently restricted to these approved reports: {allowedMutationNames.join(", ")}
@@ -284,6 +319,9 @@ export function DashboardPage() {
           <div className="warning-box">
             Geotab default reports cannot accept uploaded replacement templates. This tool only executes replacements against custom reports.
           </div>
+          <div className="muted">
+            This action will only affect the {selected.length} selected report{selected.length === 1 ? "" : "s"}.
+          </div>
           <div className="actions">
             <button className="button" type="button" onClick={() => submitJob(true)} disabled={loading}>
               Dry Run Selected
@@ -293,17 +331,11 @@ export function DashboardPage() {
             </button>
           </div>
           {statusMessage ? <div className="badge info">{statusMessage}</div> : null}
-          <div className="muted">
-            Eligible custom reports: {eligibleCount} | Ineligible default reports: {ineligibleCount}
-          </div>
-          {reportsLoading ? <div className="muted">Refreshing report catalog...</div> : null}
-          <div className="muted">Existing jobs recorded: {jobs.length}</div>
-        </section>
       </section>
 
       <section className="panel stack">
         <div>
-          <h3>3. Create A New Custom Report</h3>
+          <h3>4. Create A New Custom Report</h3>
           <p className="inline-note">
             This is a separate workflow from replacement. In live mode it uploads the template through the MyGeotab UI
             automation path and verifies the created report before returning success.
@@ -339,31 +371,6 @@ export function DashboardPage() {
           </button>
         </div>
         {createMessage ? <div className="badge info">{createMessage}</div> : null}
-      </section>
-
-      <section className="panel stack">
-        <div>
-          <h3>4. Select Reports</h3>
-          <p className="inline-note">Search reports by name. Only eligible custom reports can be selected for replacement.</p>
-        </div>
-        <label>
-          Search by report name
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search reports" />
-        </label>
-        <div className="actions">
-          <button className="button" type="button" onClick={() => void startReportRefresh()} disabled={reportsLoading}>
-            Warm Live Catalog
-          </button>
-          <button className="button" type="button" onClick={() => void loadReports()} disabled={reportsLoading}>
-            Refresh Reports
-          </button>
-        </div>
-        <ReportTable
-          reports={filteredReports}
-          selected={selected}
-          onToggle={toggleSelection}
-          onToggleAllEligible={toggleSelectAllEligible}
-        />
       </section>
 
       <section className="panel stack">
