@@ -311,6 +311,7 @@ This repo now includes:
 - Dockerfiles for API and web
 - [docker-compose.yml](C:/Users/MarkSmith/Documents/Playground/Geotab-git/docker-compose.yml)
 - [docs/deployment-guide.md](C:/Users/MarkSmith/Documents/Playground/Geotab-git/docs/deployment-guide.md)
+- [docs/office-pc-setup.md](C:/Users/MarkSmith/Documents/Playground/Geotab-git/docs/office-pc-setup.md)
 - documentation spike notes in [docs/geotab-integration-spike.md](C:/Users/MarkSmith/Documents/Playground/Geotab-git/docs/geotab-integration-spike.md)
 
 ## Hosting Recommendation
