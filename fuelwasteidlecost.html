@@ -8,28 +8,221 @@
 <body>
 <style>
   :root{--bg:#f4efe6;--panel:#fffaf3;--panel2:#fff4e7;--text:#1d1b18;--muted:#6c5f4e;--border:#dccdb8;--critical:#b42318;--warning:#9b5f00;--healthy:#1e7c56;--shadow:0 8px 24px rgba(79,57,28,.08)}
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif;min-height:100vh}*{box-sizing:border-box}#app{max-width:1360px;margin:0 auto;padding:24px 18px 36px}.hero,.panel,.tableWrap,.summaryGrid{background:var(--panel);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow)}.hero{padding:24px;margin-bottom:16px}.panel{padding:16px 18px;margin-bottom:16px}.summaryGrid{padding:0;margin-bottom:16px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;overflow:hidden}.summaryCard{padding:18px;min-height:120px;border-right:1px solid #eadfce}.summaryCard:last-child{border-right:none}.neutral{background:#e8eff8}.criticalBg{background:#fde9e6}.warningBg{background:#fff1dc}.healthyBg{background:#e6f5ee}.brandBar{display:flex;align-items:center;gap:14px;margin-bottom:12px}.brandMark{width:64px;height:64px;flex:0 0 64px}.brandText{display:flex;flex-direction:column;gap:2px}.brandName{font-size:18px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#15607d}.brandSub{font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#8b6b49}.eyebrow{margin:0 0 10px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:700}h1{margin:0;font-size:40px;line-height:1.05}.copy{margin:12px 0 0;max-width:900px;color:#5f5648;font-size:16px;line-height:1.5}.actions{margin-top:18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}.btn{border-radius:999px;padding:12px 18px;font-size:14px;font-weight:700;cursor:pointer}.btnPrimary{border:1px solid #245e48;background:#245e48;color:#fff}.btnSecondary{border:1px solid #cfc0aa;background:#fff;color:var(--text)}.btnGhost{border:1px dashed #c9bba7;background:transparent;color:var(--muted)}.btn[disabled]{opacity:.6;cursor:default}.stamp{color:var(--muted);font-size:14px;font-weight:600}.status{font-size:15px;font-weight:600}.helper{margin-top:8px;font-size:13px;color:var(--muted)}.debug{margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--panel2);border:1px solid #eadfce;white-space:pre-wrap;color:var(--muted);font-size:12px;line-height:1.45}.hidden{display:none}.rulesPanel{margin-top:14px;padding:14px 16px;border-radius:14px;background:var(--panel2);border:1px solid #eadfce}.rulesTitle{margin:0 0 8px;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}.rulesList{margin:0;padding-left:18px;color:#5f5648;font-size:13px;line-height:1.55}.rulesList li+li{margin-top:4px}.labelRow{display:flex;align-items:center;gap:6px}.label{margin:0;font-size:12px;color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase}.value{margin:14px 0 0;font-size:40px;font-weight:700}.controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.controlLabel{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}.select,.search,.numberInput{border:1px solid var(--border);background:#fff;border-radius:10px;padding:10px 12px;font-size:14px;color:var(--text)}.search{min-width:220px}.numberInput{width:120px}.settingsGrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-top:12px}.settingCard{background:var(--panel2);border:1px solid #eadfce;border-radius:16px;padding:14px}.settingCard .controlLabel{display:block;margin-bottom:8px}.settingHint{margin-top:8px;font-size:12px;line-height:1.4;color:var(--muted)}.tableWrap{overflow:auto}.table{width:100%;border-collapse:collapse;min-width:1260px}.table th,.table td{padding:14px 16px;text-align:left;border-bottom:1px solid #eadfce;vertical-align:top}.table th{background:var(--panel2);color:var(--muted);text-transform:uppercase;font-size:12px;letter-spacing:1px}.vehicle{font-weight:700;font-size:15px}.vehicleButton{display:block;width:100%;border:none;background:none;padding:0;text-align:left;color:inherit;cursor:pointer}.vehicleButton:hover .vehicle{text-decoration:underline}.sub{margin-top:4px;color:var(--muted);font-size:12px;line-height:1.45}.chip{display:inline-flex;align-items:center;justify-content:center;text-align:center;min-width:110px;min-height:40px;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700;line-height:1.15}.chipCritical{background:#fde9e6;color:var(--critical)}.chipWarning{background:#fff1dc;color:var(--warning)}.chipHealthy{background:#e6f5ee;color:var(--healthy)}.reviewBtn,.closeBtn{border:1px solid var(--border);background:#fff;border-radius:999px;padding:10px 14px;font-size:12px;font-weight:700;color:#245e48;cursor:pointer}.reviewBtn:hover,.closeBtn:hover{background:#f8f2e8}.trendUp{color:var(--critical);font-weight:700}.trendWatch{color:var(--warning);font-weight:700}.trendStable{color:var(--healthy);font-weight:700}.empty{padding:22px 16px;color:var(--muted);text-align:center;font-size:14px}.modalShell{position:fixed;inset:0;background:rgba(20,15,10,.42);display:flex;align-items:flex-start;justify-content:center;padding:30px 16px;z-index:9999;overflow:auto}.modalShell.hidden{display:none}.modalCard{width:min(1180px,100%);background:var(--panel);border:1px solid var(--border);border-radius:22px;box-shadow:0 24px 64px rgba(34,22,9,.22);padding:24px}.modalTop{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:18px}.modalTitle{margin:6px 0 0;font-size:30px;line-height:1.08}.modalCopy{margin:10px 0 0;color:#5f5648;font-size:15px;line-height:1.5;max-width:780px}.reviewMeta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}.reviewGrid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;margin-top:16px}.reviewSection{background:var(--panel2);border:1px solid #eadfce;border-radius:18px;padding:18px}.reviewSection h3{margin:0 0 10px;font-size:16px}.kpiGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.kpi{background:var(--panel);border:1px solid #eadfce;border-radius:16px;padding:14px}.kpiLabel{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}.kpiValue{margin-top:10px;font-size:24px;font-weight:800}.kpiSub{margin-top:6px;color:var(--muted);font-size:12px;line-height:1.4}.chart{width:100%;height:auto;display:block}.narrativeList,.eventList{margin:0;padding-left:18px;color:#4f473d;line-height:1.6;font-size:14px}.narrativeList li+li,.eventList li+li{margin-top:6px}.axisText{font-size:11px;fill:#7a6c59}.gridLine{stroke:#eadfce;stroke-width:1}.barFuel{fill:#cda878}.barIdle{fill:#e7d7c3}.seriesLine{fill:none;stroke:#1f6ea8;stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round}.seriesLineMuted{fill:none;stroke:#245e48;stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round}.eventBadge{display:inline-block;background:#fff;border:1px solid #eadfce;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:700;color:#5f5648}.splitNote{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.noteCard{background:var(--panel);border:1px solid #eadfce;border-radius:16px;padding:14px;font-size:14px;line-height:1.5;color:#4f473d}.noteCard strong{display:block;margin-bottom:6px}@media (max-width:1180px){.settingsGrid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media (max-width:1024px){.summaryGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.summaryCard:nth-child(2n){border-right:none}.reviewGrid{grid-template-columns:1fr}.kpiGrid,.splitNote{grid-template-columns:repeat(2,minmax(0,1fr))}}@media (max-width:640px){#app{padding:14px 10px 24px}h1{font-size:32px}.summaryGrid{grid-template-columns:1fr}.summaryCard{border-right:none;border-bottom:1px solid #eadfce}.summaryCard:last-child{border-bottom:none}.search{min-width:100%}.modalCard{padding:18px}.modalTitle{font-size:24px}.kpiGrid,.splitNote,.settingsGrid{grid-template-columns:1fr}}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif;min-height:100vh}
+  *{box-sizing:border-box}
+  #app{max-width:1360px;margin:0 auto;padding:24px 18px 36px}
+  .hero,.panel,.tableWrap,.summaryGrid{background:var(--panel);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow)}
+  .hero{padding:24px;margin-bottom:16px}
+  .panel{padding:16px 18px;margin-bottom:16px}
+  .summaryGrid{padding:0;margin-bottom:16px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;overflow:hidden}
+  .summaryCard{padding:18px;min-height:120px;border-right:1px solid #eadfce}
+  .summaryCard:last-child{border-right:none}
+  .neutral{background:#e8eff8}
+  .criticalBg{background:#fde9e6}
+  .warningBg{background:#fff1dc}
+  .healthyBg{background:#e6f5ee}
+  .brandBar{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+  .brandMark{width:64px;height:64px;flex:0 0 64px}
+  .brandText{display:flex;flex-direction:column;gap:2px}
+  .brandName{font-size:18px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#15607d}
+  .brandSub{font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#8b6b49}
+  .eyebrow{margin:0 0 10px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:700}
+  h1{margin:0;font-size:40px;line-height:1.05}
+  .copy{margin:12px 0 0;max-width:900px;color:#5f5648;font-size:16px;line-height:1.5}
+  .actions{margin-top:18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .btn{border-radius:999px;padding:12px 18px;font-size:14px;font-weight:700;cursor:pointer}
+  .btnPrimary{border:1px solid #245e48;background:#245e48;color:#fff}
+  .btnSecondary{border:1px solid #cfc0aa;background:#fff;color:var(--text)}
+  .btnGhost{border:1px dashed #c9bba7;background:transparent;color:var(--muted)}
+  .btn[disabled]{opacity:.6;cursor:default}
+  .stamp{color:var(--muted);font-size:14px;font-weight:600}
+  .status{font-size:15px;font-weight:600}
+  .helper{margin-top:8px;font-size:13px;color:var(--muted)}
+  .debug{margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--panel2);border:1px solid #eadfce;white-space:pre-wrap;color:var(--muted);font-size:12px;line-height:1.45}
+  .hidden{display:none}
+  .rulesPanel{margin-top:14px;padding:14px 16px;border-radius:14px;background:var(--panel2);border:1px solid #eadfce}
+  .rulesTitle{margin:0 0 8px;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+  .rulesList{margin:0;padding-left:18px;color:#5f5648;font-size:13px;line-height:1.55}
+  .rulesList li+li{margin-top:4px}
+  .labelRow{display:flex;align-items:center;gap:6px}
+  .label{margin:0;font-size:12px;color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase}
+  .value{margin:14px 0 0;font-size:40px;font-weight:700}
+  .controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .controlLabel{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+  .select,.search,.numberInput{border:1px solid var(--border);background:#fff;border-radius:10px;padding:10px 12px;font-size:14px;color:var(--text)}
+  .search{min-width:220px}
+  .numberInput{width:120px}
+  .settingsGrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-top:12px}
+  .settingCard{background:var(--panel2);border:1px solid #eadfce;border-radius:16px;padding:14px}
+  .settingCard .controlLabel{display:block;margin-bottom:8px}
+  .settingHint{margin-top:8px;font-size:12px;line-height:1.45;color:var(--muted)}
+  .tableWrap{overflow:auto}
+  .table{width:100%;border-collapse:collapse;min-width:1260px}
+  .table th,.table td{padding:14px 16px;text-align:left;border-bottom:1px solid #eadfce;vertical-align:top}
+  .table th{background:var(--panel2);color:var(--muted);text-transform:uppercase;font-size:12px;letter-spacing:1px}
+  .vehicle{font-weight:700;font-size:15px}
+  .vehicleButton{display:block;width:100%;border:none;background:none;padding:0;text-align:left;color:inherit;cursor:pointer}
+  .vehicleButton:hover .vehicle{text-decoration:underline}
+  .sub{margin-top:4px;color:var(--muted);font-size:12px;line-height:1.45}
+  .chip{display:inline-flex;align-items:center;justify-content:center;text-align:center;min-width:110px;min-height:40px;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700;line-height:1.15}
+  .chipCritical{background:#fde9e6;color:var(--critical)}
+  .chipWarning{background:#fff1dc;color:var(--warning)}
+  .chipHealthy{background:#e6f5ee;color:var(--healthy)}
+  .reviewBtn,.closeBtn{border:1px solid var(--border);background:#fff;border-radius:999px;padding:10px 14px;font-size:12px;font-weight:700;color:#245e48;cursor:pointer}
+  .reviewBtn:hover,.closeBtn:hover{background:#f8f2e8}
+  .trendUp{color:var(--critical);font-weight:700}
+  .trendWatch{color:var(--warning);font-weight:700}
+  .trendStable{color:var(--healthy);font-weight:700}
+  .empty{padding:22px 16px;color:var(--muted);text-align:center;font-size:14px}
+  .modalShell{position:fixed;inset:0;background:rgba(20,15,10,.42);display:flex;align-items:flex-start;justify-content:center;padding:30px 16px;z-index:9999;overflow:auto}
+  .modalShell.hidden{display:none}
+  .modalCard{width:min(1180px,100%);background:var(--panel);border:1px solid var(--border);border-radius:22px;box-shadow:0 24px 64px rgba(34,22,9,.22);padding:24px}
+  .modalTop{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:18px}
+  .modalTitle{margin:6px 0 0;font-size:30px;line-height:1.08}
+  .modalCopy{margin:10px 0 0;color:#5f5648;font-size:15px;line-height:1.5;max-width:780px}
+  .reviewMeta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+  .reviewGrid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;margin-top:16px}
+  .reviewSection{background:var(--panel2);border:1px solid #eadfce;border-radius:18px;padding:18px}
+  .reviewSection h3{margin:0 0 10px;font-size:16px}
+  .kpiGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+  .kpi{background:var(--panel);border:1px solid #eadfce;border-radius:16px;padding:14px}
+  .kpiLabel{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+  .kpiValue{margin-top:10px;font-size:24px;font-weight:800}
+  .kpiSub{margin-top:6px;color:var(--muted);font-size:12px;line-height:1.4}
+  .chart{width:100%;height:auto;display:block}
+  .narrativeList,.eventList{margin:0;padding-left:18px;color:#4f473d;line-height:1.6;font-size:14px}
+  .narrativeList li+li,.eventList li+li{margin-top:6px}
+  .axisText{font-size:11px;fill:#7a6c59}
+  .gridLine{stroke:#eadfce;stroke-width:1}
+  .barFuel{fill:#cda878}
+  .barIdle{fill:#e7d7c3}
+  .seriesLine{fill:none;stroke:#1f6ea8;stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round}
+  .seriesLineMuted{fill:none;stroke:#245e48;stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round}
+  .eventBadge{display:inline-block;background:#fff;border:1px solid #eadfce;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:700;color:#5f5648}
+  .splitNote{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .noteCard{background:var(--panel);border:1px solid #eadfce;border-radius:16px;padding:14px;font-size:14px;line-height:1.5;color:#4f473d}
+  .noteCard strong{display:block;margin-bottom:6px}
+  @media (max-width:1180px){.settingsGrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  @media (max-width:1024px){.summaryGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.summaryCard:nth-child(2n){border-right:none}.reviewGrid{grid-template-columns:1fr}.kpiGrid,.splitNote{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media (max-width:640px){#app{padding:14px 10px 24px}h1{font-size:32px}.summaryGrid{grid-template-columns:1fr}.summaryCard{border-right:none;border-bottom:1px solid #eadfce}.summaryCard:last-child{border-bottom:none}.search{min-width:100%}.modalCard{padding:18px}.modalTitle{font-size:24px}.kpiGrid,.splitNote,.settingsGrid{grid-template-columns:1fr}}
 </style>
 <div id="app">
   <div class="hero">
     <div class="brandBar">
       <img class="brandMark" src="https://marksmith9192-afk.github.io/Geotab/Traxxis%20T%20logo%20(PNG%20file%20with%20transparent%20background).png" alt="Traxxis GPS logo"/>
-      <div class="brandText"><div class="brandName">Traxxis GPS</div><div class="brandSub">Traxxis Fuel Waste &amp; Idle Cost</div></div>
+      <div class="brandText">
+        <div class="brandName">Traxxis GPS</div>
+        <div class="brandSub">Traxxis Fuel Waste &amp; Idle Cost</div>
+      </div>
     </div>
     <p class="eyebrow">Fleet Efficiency</p>
     <h1>Fuel waste, idle cost, and emissions in one daily view.</h1>
     <p class="copy">Track 30 days of fleet fuel usage, estimated or actual idle fuel waste, week-over-week cost movement, carbon output, and the vehicles creating the most unnecessary spend.</p>
-    <div class="actions"><button id="refreshButton" class="btn btnPrimary">Refresh Analysis</button><button id="retryButton" class="btn btnSecondary hidden">Retry</button><button id="rulesButton" class="btn btnGhost" type="button">How Calculations Work</button><button id="exportButton" class="btn btnSecondary">Export CSV</button><span class="stamp" id="lastUpdatedLabel">Waiting for first analysis</span></div>
+    <div class="actions">
+      <button id="refreshButton" class="btn btnPrimary">Refresh Analysis</button>
+      <button id="retryButton" class="btn btnSecondary hidden">Retry</button>
+      <button id="rulesButton" class="btn btnGhost" type="button">How Calculations Work</button>
+      <button id="exportButton" class="btn btnSecondary">Export CSV</button>
+      <span class="stamp" id="lastUpdatedLabel">Waiting for first analysis</span>
+    </div>
   </div>
-  <div class="panel"><div class="status" id="statusMessage">Waiting for Geotab connection...</div><div class="helper" id="statusHelper">This dashboard mirrors the Battery Intelligence layout and adds fuel, idle, cost, and CO2 visibility with editable assumptions.</div><div id="debugBox" class="debug hidden"></div><div id="rulesPanel" class="rulesPanel hidden"><p class="rulesTitle">Calculation Logic</p><ul class="rulesList"><li><strong>Total fuel used</strong>: summed from the Geotab <code>FuelUsed</code> entity over the last 30 days when available.</li><li><strong>Idle fuel used</strong>: uses Geotab <code>TotalIdlingFuelUsedL</code> when present. If that value is missing, the dashboard estimates idle fuel using idle hours multiplied by the editable idle burn rate.</li><li><strong>Idle cost</strong>: calculated from idle fuel used multiplied by the editable fuel price. Fuel price can be entered per gallon or per liter.</li><li><strong>CO2 produced</strong>: calculated from total fuel volume using an emissions factor tied to fuel type. Gasoline uses 8.887 kg CO2 per gallon. Diesel uses 10.180 kg CO2 per gallon.</li><li><strong>Worst offenders</strong>: ranked by idle cost over the last 30 days, then by idle hours when costs are tied.</li><li><strong>Trend windows</strong>: the week-over-week chart groups the last 30 days into rolling 7-day buckets so the movement is easy to compare at a glance.</li></ul></div></div>
-  <div class="summaryGrid"><div class="summaryCard neutral"><div class="labelRow"><p class="label">Fleet Fuel Used</p></div><p class="value" id="fleetFuelUsed">0 L</p><div class="sub" id="fleetFuelSub">Last 30 days</div></div><div class="summaryCard criticalBg"><div class="labelRow"><p class="label">Fuel Cost</p></div><p class="value" id="fleetFuelCost">$0</p><div class="sub" id="fleetCostSub">Based on current settings</div></div><div class="summaryCard warningBg"><div class="labelRow"><p class="label">Idle Cost</p></div><p class="value" id="fleetIdleCost">$0</p><div class="sub" id="fleetIdleSub">Idle waste over 30 days</div></div><div class="summaryCard healthyBg"><div class="labelRow"><p class="label">CO2 Produced</p></div><p class="value" id="fleetCo2">0 kg</p><div class="sub" id="fleetCo2Sub">Tailpipe estimate</div></div></div>
-  <div class="panel"><div class="controls"><span class="controlLabel">Group</span><select id="groupFilter" class="select"></select><span class="controlLabel">Offender View</span><select id="statusFilter" class="select"><option value="__all__">All vehicles</option><option value="high">High idle cost</option><option value="medium">Watch list</option><option value="low">Lower waste</option></select><span class="controlLabel">Search</span><input id="searchFilter" class="search" type="text" placeholder="Search vehicle..." /></div><div class="settingsGrid"><div class="settingCard"><span class="controlLabel">Fuel Type</span><select id="fuelTypeInput" class="select"><option value="diesel">Diesel</option><option value="gasoline">Gasoline</option></select><div class="settingHint">Used for the CO2 factor and to label the pricing assumption.</div></div><div class="settingCard"><span class="controlLabel">Fuel Price</span><input id="fuelPriceInput" class="numberInput" type="number" step="0.01" min="0" value="4.75" /><div class="settingHint">Editable fleet-wide price assumption.</div></div><div class="settingCard"><span class="controlLabel">Price Unit</span><select id="priceUnitInput" class="select"><option value="gallon">Per gallon</option><option value="liter">Per liter</option></select><div class="settingHint">Geotab fuel records are stored in liters, so gallon prices are converted automatically.</div></div><div class="settingCard"><span class="controlLabel">Idle Burn Rate</span><input id="idleBurnRateInput" class="numberInput" type="number" step="0.1" min="0" value="3.5" /><div class="settingHint">Liters per hour when actual idle fuel is unavailable.</div></div><div class="settingCard"><span class="controlLabel">Apply Changes</span><button id="applySettingsButton" class="btn btnSecondary" type="button">Update Metrics</button><div class="settingHint" id="settingsSummary">Current assumptions drive the cost and CO2 totals shown below.</div></div></div></div>
-  <div class="panel"><p class="eyebrow">Week Over Week</p><div id="fleetTrendChart"></div></div>
-  <div class="tableWrap"><table class="table"><thead><tr><th>Vehicle</th><th>Offender Rank</th><th>Fuel Used</th><th>Fuel Cost</th><th>Idle Hours</th><th>Idle Fuel</th><th>Idle Cost</th><th>CO2</th><th>Idle Share</th><th>Trend</th><th>Review</th></tr></thead><tbody id="vehicleTableBody"><tr><td colspan="11" class="empty">No analysis has been run yet.</td></tr></tbody></table></div>
+  <div class="panel">
+    <div class="status" id="statusMessage">Waiting for Geotab connection...</div>
+    <div class="helper" id="statusHelper">This dashboard mirrors the Battery Intelligence layout and adds fuel, idle, cost, and CO2 visibility with editable assumptions.</div>
+    <div id="debugBox" class="debug hidden"></div>
+    <div id="rulesPanel" class="rulesPanel hidden">
+      <p class="rulesTitle">Calculation Logic</p>
+      <ul class="rulesList">
+        <li><strong>Total fuel used</strong>: summed from the Geotab <code>FuelUsed</code> entity over the last 30 days when available.</li>
+        <li><strong>Idle fuel used</strong>: uses Geotab <code>TotalIdlingFuelUsedL</code> when present. If that value is missing, the dashboard estimates idle fuel using idle hours multiplied by the editable idle burn rate.</li>
+        <li><strong>Idle cost</strong>: calculated from idle fuel used multiplied by the editable fuel price. Fuel price can be entered per gallon or per liter.</li>
+        <li><strong>CO2 produced</strong>: calculated from total fuel volume using an emissions factor tied to fuel type. Gasoline uses 8.887 kg CO2 per gallon. Diesel uses 10.180 kg CO2 per gallon.</li>
+        <li><strong>Worst offenders</strong>: ranked by idle cost over the last 30 days, then by idle hours when costs are tied.</li>
+        <li><strong>Trend windows</strong>: the week-over-week chart groups the last 30 days into rolling 7-day buckets so the movement is easy to compare at a glance.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="summaryGrid">
+    <div class="summaryCard neutral"><div class="labelRow"><p class="label">Fleet Fuel Used</p></div><p class="value" id="fleetFuelUsed">0 L</p><div class="sub" id="fleetFuelSub">Last 30 days</div></div>
+    <div class="summaryCard criticalBg"><div class="labelRow"><p class="label">Fuel Cost</p></div><p class="value" id="fleetFuelCost">$0</p><div class="sub" id="fleetCostSub">Based on current settings</div></div>
+    <div class="summaryCard warningBg"><div class="labelRow"><p class="label">Idle Cost</p></div><p class="value" id="fleetIdleCost">$0</p><div class="sub" id="fleetIdleSub">Idle waste over 30 days</div></div>
+    <div class="summaryCard healthyBg"><div class="labelRow"><p class="label">CO2 Produced</p></div><p class="value" id="fleetCo2">0 kg</p><div class="sub" id="fleetCo2Sub">Tailpipe estimate</div></div>
+  </div>
+  <div class="panel">
+    <div class="controls">
+      <span class="controlLabel">Group</span>
+      <select id="groupFilter" class="select"></select>
+      <span class="controlLabel">Offender View</span>
+      <select id="statusFilter" class="select">
+        <option value="__all__">All vehicles</option>
+        <option value="high">High idle cost</option>
+        <option value="medium">Watch list</option>
+        <option value="low">Lower waste</option>
+      </select>
+      <span class="controlLabel">Search</span>
+      <input id="searchFilter" class="search" type="text" placeholder="Search vehicle..." />
+    </div>
+    <div class="settingsGrid">
+      <div class="settingCard"><span class="controlLabel">Fuel Type</span><select id="fuelTypeInput" class="select"><option value="diesel">Diesel</option><option value="gasoline">Gasoline</option></select><div class="settingHint">Used for the CO2 factor and to label the pricing assumption.</div></div>
+      <div class="settingCard"><span class="controlLabel">Fuel Price</span><input id="fuelPriceInput" class="numberInput" type="number" step="0.01" min="0" value="4.75" /><div class="settingHint">Editable fleet-wide price assumption.</div></div>
+      <div class="settingCard"><span class="controlLabel">Price Unit</span><select id="priceUnitInput" class="select"><option value="gallon">Per gallon</option><option value="liter">Per liter</option></select><div class="settingHint">Geotab fuel records are stored in liters, so gallon prices are converted automatically.</div></div>
+      <div class="settingCard"><span class="controlLabel">Idle Burn Rate</span><input id="idleBurnRateInput" class="numberInput" type="number" step="0.1" min="0" value="3.5" /><div class="settingHint">Liters per hour when actual idle fuel is unavailable.</div></div>
+      <div class="settingCard"><span class="controlLabel">Apply Changes</span><button id="applySettingsButton" class="btn btnSecondary" type="button">Update Metrics</button><div class="settingHint" id="settingsSummary">Current assumptions drive the cost and CO2 totals shown below.</div></div>
+    </div>
+  </div>
+  <div class="panel">
+    <p class="eyebrow">Week Over Week</p>
+    <div id="fleetTrendChart"></div>
+  </div>
+  <div class="tableWrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Vehicle</th>
+          <th>Offender Rank</th>
+          <th>Fuel Used</th>
+          <th>Fuel Cost</th>
+          <th>Idle Hours</th>
+          <th>Idle Fuel</th>
+          <th>Idle Cost</th>
+          <th>CO2</th>
+          <th>Idle Share</th>
+          <th>Trend</th>
+          <th>Review</th>
+        </tr>
+      </thead>
+      <tbody id="vehicleTableBody">
+        <tr><td colspan="11" class="empty">No analysis has been run yet.</td></tr>
+      </tbody>
+    </table>
+  </div>
 </div>
-<div id="reviewModal" class="modalShell hidden" aria-hidden="true"><div class="modalCard"><div class="modalTop"><div><p class="eyebrow">Vehicle Fuel Review</p><h2 id="reviewTitle" class="modalTitle">Select a vehicle</h2><div id="reviewMeta" class="reviewMeta"></div><p id="reviewCopy" class="modalCopy">Click a vehicle row to open a deeper breakdown of fuel usage, idle cost, emissions, and weekly movement.</p></div><div class="reviewMeta"><button id="closeReviewButton" class="closeBtn" type="button">Close Review</button></div></div><div class="kpiGrid"><div class="kpi"><div class="kpiLabel">Fuel Used</div><div id="reviewFuelUsed" class="kpiValue">N/A</div><div class="kpiSub">Last 30 days</div></div><div class="kpi"><div class="kpiLabel">Fuel Cost</div><div id="reviewFuelCost" class="kpiValue">N/A</div><div class="kpiSub">Based on current pricing</div></div><div class="kpi"><div class="kpiLabel">Idle Cost</div><div id="reviewIdleCost" class="kpiValue">N/A</div><div class="kpiSub">Estimated or actual idle fuel</div></div><div class="kpi"><div class="kpiLabel">CO2</div><div id="reviewCo2" class="kpiValue">N/A</div><div class="kpiSub">Tailpipe estimate</div></div></div><div class="reviewGrid"><div class="reviewSection"><h3>Weekly Fuel and Idle Cost</h3><div id="reviewTrendChart"></div></div><div class="reviewSection"><h3>Interpretation</h3><ul id="reviewNarrative" class="narrativeList"></ul></div><div class="reviewSection"><h3>Daily Fuel and Idle Timeline</h3><div id="reviewDailyChart"></div></div><div class="reviewSection"><h3>Notable Efficiency Signals</h3><ul id="reviewEvents" class="eventList"></ul></div><div class="reviewSection" style="grid-column:1 / -1"><h3>Recommended Action Split</h3><div id="reviewSplit" class="splitNote"></div></div></div></div></div>
+<div id="reviewModal" class="modalShell hidden" aria-hidden="true">
+  <div class="modalCard">
+    <div class="modalTop">
+      <div>
+        <p class="eyebrow">Vehicle Fuel Review</p>
+        <h2 id="reviewTitle" class="modalTitle">Select a vehicle</h2>
+        <div id="reviewMeta" class="reviewMeta"></div>
+        <p id="reviewCopy" class="modalCopy">Click a vehicle row to open a deeper breakdown of fuel usage, idle cost, emissions, and weekly movement.</p>
+      </div>
+      <div class="reviewMeta"><button id="closeReviewButton" class="closeBtn" type="button">Close Review</button></div>
+    </div>
+    <div class="kpiGrid">
+      <div class="kpi"><div class="kpiLabel">Fuel Used</div><div id="reviewFuelUsed" class="kpiValue">N/A</div><div class="kpiSub">Last 30 days</div></div>
+      <div class="kpi"><div class="kpiLabel">Fuel Cost</div><div id="reviewFuelCost" class="kpiValue">N/A</div><div class="kpiSub">Based on current pricing</div></div>
+      <div class="kpi"><div class="kpiLabel">Idle Cost</div><div id="reviewIdleCost" class="kpiValue">N/A</div><div class="kpiSub">Estimated or actual idle fuel</div></div>
+      <div class="kpi"><div class="kpiLabel">CO2</div><div id="reviewCo2" class="kpiValue">N/A</div><div class="kpiSub">Tailpipe estimate</div></div>
+    </div>
+    <div class="reviewGrid">
+      <div class="reviewSection"><h3>Weekly Fuel and Idle Cost</h3><div id="reviewTrendChart"></div></div>
+      <div class="reviewSection"><h3>Interpretation</h3><ul id="reviewNarrative" class="narrativeList"></ul></div>
+      <div class="reviewSection"><h3>Daily Fuel and Idle Timeline</h3><div id="reviewDailyChart"></div></div>
+      <div class="reviewSection"><h3>Notable Efficiency Signals</h3><ul id="reviewEvents" class="eventList"></ul></div>
+      <div class="reviewSection" style="grid-column:1 / -1"><h3>Recommended Action Split</h3><div id="reviewSplit" class="splitNote"></div></div>
+    </div>
+  </div>
+</div>
 <script src="fuelwasteidlecost.js"></script>
 </body>
 </html>
-
-
