@@ -15,6 +15,11 @@
   .hero{padding:24px;margin-bottom:16px}
   .panel{padding:16px 18px;margin-bottom:16px}
   .summaryGrid{padding:0;margin-bottom:16px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;overflow:hidden}
+  .storyGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+  .storyCard{background:var(--panel);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);padding:16px}
+  .storyLabel{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+  .storyValue{margin-top:10px;font-size:24px;font-weight:800;color:#2b2118}
+  .storyCopy{margin-top:8px;font-size:13px;line-height:1.5;color:#5f5648}
   .summaryCard{padding:18px;min-height:120px;border-right:1px solid #eadfce}
   .summaryCard:last-child{border-right:none}
   .neutral{background:#e8eff8}
@@ -112,9 +117,9 @@
   .splitNote{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
   .noteCard{background:var(--panel);border:1px solid #eadfce;border-radius:16px;padding:14px;font-size:14px;line-height:1.5;color:#4f473d}
   .noteCard strong{display:block;margin-bottom:6px}
-  @media (max-width:1180px){.settingsGrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  @media (max-width:1180px){.settingsGrid{grid-template-columns:repeat(3,minmax(0,1fr))}.storyGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
   @media (max-width:1024px){.summaryGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.summaryCard:nth-child(2n){border-right:none}.reviewGrid{grid-template-columns:1fr}.kpiGrid,.splitNote{grid-template-columns:repeat(2,minmax(0,1fr))}}
-  @media (max-width:640px){#app{padding:14px 10px 24px}h1{font-size:32px}.summaryGrid{grid-template-columns:1fr}.summaryCard{border-right:none;border-bottom:1px solid #eadfce}.summaryCard:last-child{border-bottom:none}.search{min-width:100%}.modalCard{padding:18px}.modalTitle{font-size:24px}.kpiGrid,.splitNote,.settingsGrid{grid-template-columns:1fr}}
+  @media (max-width:640px){#app{padding:14px 10px 24px}h1{font-size:32px}.summaryGrid,.storyGrid{grid-template-columns:1fr}.summaryCard{border-right:none;border-bottom:1px solid #eadfce}.summaryCard:last-child{border-bottom:none}.search{min-width:100%}.modalCard{padding:18px}.modalTitle{font-size:24px}.kpiGrid,.splitNote,.settingsGrid{grid-template-columns:1fr}}
 </style>
 <div id="app">
   <div class="hero">
@@ -133,8 +138,12 @@
       <button id="retryButton" class="btn btnSecondary hidden">Retry</button>
       <button id="rulesButton" class="btn btnGhost" type="button">How This Dashboard Works</button>
       <button id="exportButton" class="btn btnSecondary">Export CSV</button>
+      <button id="exportPdfButton" class="btn btnSecondary">Export PDF</button>
       <span class="stamp" id="lastUpdatedLabel">Waiting for first analysis</span>
     </div>
+  </div>
+  <div id="storyStrip" class="storyGrid">
+    <div class="storyCard"><div class="storyLabel">Fleet story</div><div class="storyValue">Run analysis</div><div class="storyCopy">The summary story strip will highlight your biggest cost drivers once data loads.</div></div>
   </div>
   <div class="panel">
     <div class="status" id="statusMessage">Waiting for Geotab connection...</div>
@@ -184,6 +193,26 @@
     <p class="eyebrow">Six-Month Trend</p>
     <div class="sortHint">The top chart shows fuel used by month. The bottom chart shows idle cost by month. In the table, click any arrow to sort.</div>
     <div id="fleetTrendChart"></div>
+  </div>
+  <div class="panel">
+    <p class="eyebrow">Idle Hot Spots</p>
+    <div class="helper">These locations show where your fleet is spending the most time idling while stopped.</div>
+    <div class="tableWrap" style="margin-top:12px">
+      <table class="table" style="min-width:760px">
+        <thead>
+          <tr>
+            <th>Location</th>
+            <th>Idle Cost</th>
+            <th>Idle Hours</th>
+            <th>Vehicles</th>
+            <th>Stops</th>
+          </tr>
+        </thead>
+        <tbody id="hotspotBody">
+          <tr><td colspan="5" class="empty">No idle hot spots are available yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
   <div class="tableWrap">
     <table class="table">
