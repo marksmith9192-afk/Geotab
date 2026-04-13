@@ -60,6 +60,9 @@
   .table{width:100%;border-collapse:collapse;min-width:1260px}
   .table th,.table td{padding:14px 16px;text-align:left;border-bottom:1px solid #eadfce;vertical-align:top}
   .table th{background:var(--panel2);color:var(--muted);text-transform:uppercase;font-size:12px;letter-spacing:1px}
+  .sortHead{display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:inherit;font:inherit;text-transform:inherit;letter-spacing:inherit;background:none;border:none;padding:0}
+  .sortArrow{font-size:11px;color:#8b6b49;min-width:12px}
+  .sortHint{margin-top:8px;font-size:12px;color:var(--muted)}
   .vehicle{font-weight:700;font-size:15px}
   .vehicleButton{display:block;width:100%;border:none;background:none;padding:0;text-align:left;color:inherit;cursor:pointer}
   .vehicleButton:hover .vehicle{text-decoration:underline}
@@ -172,22 +175,23 @@
   </div>
   <div class="panel">
     <p class="eyebrow">Six-Month Trend</p>
+    <div class="sortHint">Fuel used is shown as bars. Idle cost is shown as the blue line on the right-hand dollar axis.</div>
     <div id="fleetTrendChart"></div>
   </div>
   <div class="tableWrap">
     <table class="table">
       <thead>
         <tr>
-          <th><button class="reviewBtn" type="button" data-sort="name">Vehicle</button></th>
-          <th><button class="reviewBtn" type="button" data-sort="offenderLevel">Offender Rank</button></th>
-          <th><button class="reviewBtn" type="button" data-sort="fuelLiters">Fuel Used</button></th>
-          <th><button class="reviewBtn" type="button" data-sort="fuelCost">Fuel Cost</button></th>
-          <th><button class="reviewBtn" type="button" data-sort="idleHours">Idle Hours</button></th>
-          <th><button class="reviewBtn" type="button" data-sort="idleFuelLiters">Idle Fuel</button></th>
-          <th><button class="reviewBtn" type="button" data-sort="idleCost">Idle Cost</button></th>
-          <th><button class="reviewBtn" type="button" data-sort="co2Kg">CO2</button></th>
-          <th><button class="reviewBtn" type="button" data-sort="idleShare">Idle Share</button></th>
-          <th><button class="reviewBtn" type="button" data-sort="weeklyIdleDelta">Trend</button></th>
+          <th><button class="sortHead" type="button" data-sort="name"><span>Vehicle</span><span class="sortArrow"></span></button></th>
+          <th><button class="sortHead" type="button" data-sort="offenderLevel"><span>Offender Rank</span><span class="sortArrow"></span></button></th>
+          <th><button class="sortHead" type="button" data-sort="fuelLiters"><span>Fuel Used</span><span class="sortArrow"></span></button></th>
+          <th><button class="sortHead" type="button" data-sort="fuelCost"><span>Fuel Cost</span><span class="sortArrow"></span></button></th>
+          <th><button class="sortHead" type="button" data-sort="idleHours"><span>Idle Hours</span><span class="sortArrow"></span></button></th>
+          <th><button class="sortHead" type="button" data-sort="idleFuelLiters"><span>Idle Fuel</span><span class="sortArrow"></span></button></th>
+          <th><button class="sortHead" type="button" data-sort="idleCost"><span>Idle Cost</span><span class="sortArrow"></span></button></th>
+          <th><button class="sortHead" type="button" data-sort="co2Kg"><span>CO2</span><span class="sortArrow"></span></button></th>
+          <th><button class="sortHead" type="button" data-sort="idleShare"><span>Idle Share</span><span class="sortArrow"></span></button></th>
+          <th><button class="sortHead" type="button" data-sort="idleCostDelta"><span>Trend</span><span class="sortArrow"></span></button></th>
           <th>Review</th>
         </tr>
       </thead>
