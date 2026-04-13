@@ -72,6 +72,14 @@
   .trendPanel{background:var(--panel2);border:1px solid #eadfce;border-radius:18px;padding:16px}
   .trendPanelTitle{font-size:14px;font-weight:800;letter-spacing:0.8px;text-transform:uppercase;color:#5b4128}
   .trendPanelCopy{margin-top:6px;margin-bottom:10px;font-size:12px;line-height:1.5;color:var(--muted)}
+  .hotspotToggle{display:inline-flex;align-items:center;gap:8px;background:none;border:none;padding:0;color:#2b2118;font:inherit;font-weight:700;cursor:pointer}
+  .hotspotArrow{display:inline-block;font-size:11px;color:#8b6b49;transition:transform .15s ease}
+  .hotspotDetailRow.hidden{display:none}
+  .hotspotDetail{background:#fffaf3;border:1px solid #eadfce;border-radius:14px;padding:14px}
+  .hotspotDetailTitle{font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#6c5f4e;margin-bottom:10px}
+  .hotspotDetailTable{width:100%;border-collapse:collapse}
+  .hotspotDetailTable th,.hotspotDetailTable td{padding:8px 10px;text-align:left;border-bottom:1px solid #eadfce;font-size:13px}
+  .hotspotDetailTable th{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#6c5f4e;background:#fff4e7}
   .vehicle{font-weight:700;font-size:15px}
   .vehicleButton{display:block;width:100%;border:none;background:none;padding:0;text-align:left;color:inherit;cursor:pointer}
   .vehicleButton:hover .vehicle{text-decoration:underline}
@@ -196,7 +204,7 @@
   </div>
   <div class="panel">
     <p class="eyebrow">Idle Hot Spots</p>
-    <div class="helper">These locations show where your fleet is spending the most time idling while stopped.</div>
+    <div class="helper">These locations show where your fleet is spending the most time idling while stopped. Click a row to see which vehicles are driving the total.</div>
     <div class="tableWrap" style="margin-top:12px">
       <table class="table" style="min-width:760px">
         <thead>
