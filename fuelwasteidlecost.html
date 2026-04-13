@@ -124,28 +124,28 @@
     </div>
     <p class="eyebrow">Fleet Efficiency</p>
       <h1>Fuel waste, idle cost, and emissions in one six-month view.</h1>
-    <p class="copy">Track 6 months of fleet fuel usage, estimated or actual idle fuel waste, month-over-month cost movement, carbon output, and the vehicles creating the most unnecessary spend.</p>
+    <p class="copy">See how much fuel your fleet is using, how much idling may be costing, and which vehicles are creating the biggest fuel waste over the last 6 months.</p>
     <div class="actions">
       <button id="refreshButton" class="btn btnPrimary">Refresh Analysis</button>
       <button id="retryButton" class="btn btnSecondary hidden">Retry</button>
-      <button id="rulesButton" class="btn btnGhost" type="button">How Calculations Work</button>
+      <button id="rulesButton" class="btn btnGhost" type="button">How This Dashboard Works</button>
       <button id="exportButton" class="btn btnSecondary">Export CSV</button>
       <span class="stamp" id="lastUpdatedLabel">Waiting for first analysis</span>
     </div>
   </div>
   <div class="panel">
     <div class="status" id="statusMessage">Waiting for Geotab connection...</div>
-    <div class="helper" id="statusHelper">This dashboard mirrors the Battery Intelligence layout and adds fuel, idle, cost, and CO2 visibility with editable assumptions.</div>
+    <div class="helper" id="statusHelper">Use this dashboard to review fleet fuel use, idle cost, and emissions with your own pricing settings.</div>
     <div id="debugBox" class="debug hidden"></div>
     <div id="rulesPanel" class="rulesPanel hidden">
-      <p class="rulesTitle">Calculation Logic</p>
+      <p class="rulesTitle">How the numbers are built</p>
       <ul class="rulesList">
-        <li><strong>Total fuel used</strong>: summed from the Geotab <code>FuelUsed</code> entity across the last 6 months.</li>
-        <li><strong>Idle fuel used</strong>: uses Geotab <code>TotalIdlingFuelUsedL</code> when present. If that value is missing, the dashboard estimates idle fuel using idle hours multiplied by the editable idle burn rate.</li>
-        <li><strong>Idle cost</strong>: calculated from idle fuel used multiplied by the editable fuel price. Fuel price can be entered per gallon or per liter.</li>
-        <li><strong>CO2 produced</strong>: calculated from total fuel volume using an emissions factor tied to fuel type. Gasoline uses 8.887 kg CO2 per gallon. Diesel uses 10.180 kg CO2 per gallon.</li>
-        <li><strong>Worst offenders</strong>: ranked by idle cost across the last 6 months, then by idle hours when costs are tied.</li>
-        <li><strong>Trend windows</strong>: the chart groups the last 6 months into monthly buckets so the movement is easy to compare at a glance.</li>
+        <li><strong>Total fuel used</strong>: adds up fuel use across the last 6 months.</li>
+        <li><strong>Idle fuel used</strong>: uses recorded idle fuel when available. If it is missing, the dashboard estimates idle fuel from idle time and the burn rate you set.</li>
+        <li><strong>Idle cost</strong>: multiplies idle fuel by the fuel price you choose.</li>
+        <li><strong>CO2 produced</strong>: estimates emissions from the fuel used and the fuel type you select.</li>
+        <li><strong>Vehicle ranking</strong>: puts the biggest idle-cost opportunities near the top of the list.</li>
+        <li><strong>Trending</strong>: compares this month's current pace with last month so you can quickly see whether costs are heading up or down.</li>
       </ul>
     </div>
   </div>
@@ -159,7 +159,7 @@
     <div class="controls">
       <span class="controlLabel">Group</span>
       <select id="groupFilter" class="select"></select>
-      <span class="controlLabel">Offender View</span>
+      <span class="controlLabel">Vehicle View</span>
       <select id="statusFilter" class="select">
         <option value="__all__">All vehicles</option>
         <option value="high">High idle cost</option>
@@ -170,16 +170,16 @@
       <input id="searchFilter" class="search" type="text" placeholder="Search vehicle..." />
     </div>
     <div class="settingsGrid">
-      <div class="settingCard"><span class="controlLabel">Fuel Type</span><select id="fuelTypeInput" class="select"><option value="diesel">Diesel</option><option value="gasoline">Gasoline</option></select><div class="settingHint">Used for the CO2 factor and to label the pricing assumption.</div></div>
-      <div class="settingCard"><span class="controlLabel">Fuel Price</span><input id="fuelPriceInput" class="numberInput" type="number" step="0.01" min="0" value="4.75" /><div class="settingHint">Editable fleet-wide price assumption.</div></div>
-      <div class="settingCard"><span class="controlLabel">Price Unit</span><select id="priceUnitInput" class="select"><option value="gallon">Per gallon</option><option value="liter">Per liter</option></select><div class="settingHint" id="priceUnitHint">Select imperial or metric fuel units for this dashboard.</div></div>
-      <div class="settingCard"><span class="controlLabel">Idle Burn Rate</span><input id="idleBurnRateInput" class="numberInput" type="number" step="0.1" min="0" value="0.9" /><div class="settingHint" id="idleBurnRateHint">Gallons per hour when actual idle fuel is unavailable.</div></div>
-      <div class="settingCard"><span class="controlLabel">Apply Changes</span><button id="applySettingsButton" class="btn btnSecondary" type="button">Update Metrics</button><div class="settingHint" id="settingsSummary">Current assumptions drive the cost and CO2 totals shown below.</div></div>
+      <div class="settingCard"><span class="controlLabel">Fuel Type</span><select id="fuelTypeInput" class="select"><option value="diesel">Diesel</option><option value="gasoline">Gasoline</option></select><div class="settingHint">This helps estimate emissions for the fuel your fleet uses.</div></div>
+      <div class="settingCard"><span class="controlLabel">Fuel Price</span><input id="fuelPriceInput" class="numberInput" type="number" step="0.01" min="0" value="4.75" /><div class="settingHint">Set the fuel price you want this dashboard to use.</div></div>
+      <div class="settingCard"><span class="controlLabel">Units</span><select id="priceUnitInput" class="select"><option value="gallon">Per gallon</option><option value="liter">Per liter</option></select><div class="settingHint" id="priceUnitHint">Choose imperial or metric units for the dashboard.</div></div>
+      <div class="settingCard"><span class="controlLabel">Idle Burn Rate</span><input id="idleBurnRateInput" class="numberInput" type="number" step="0.1" min="0" value="0.9" /><div class="settingHint" id="idleBurnRateHint">Use this when recorded idle fuel is not available.</div></div>
+      <div class="settingCard"><span class="controlLabel">Update Dashboard</span><button id="applySettingsButton" class="btn btnSecondary" type="button">Refresh Totals</button><div class="settingHint" id="settingsSummary">These settings change the cost and emissions shown in the dashboard.</div></div>
     </div>
   </div>
   <div class="panel">
     <p class="eyebrow">Six-Month Trend</p>
-    <div class="sortHint">The top chart shows fuel used by month. The bottom chart shows idle cost by month. Click any header arrow to sort the table.</div>
+    <div class="sortHint">The top chart shows fuel used by month. The bottom chart shows idle cost by month. In the table, click any arrow to sort.</div>
     <div id="fleetTrendChart"></div>
   </div>
   <div class="tableWrap">
@@ -195,7 +195,7 @@
           <th><button class="sortHead" type="button" data-sort="idleCost"><span>Idle Cost</span><span class="sortArrow"></span></button></th>
           <th><button class="sortHead" type="button" data-sort="co2Kg"><span>CO2</span><span class="sortArrow"></span></button></th>
           <th><button class="sortHead" type="button" data-sort="idleShare"><span>Idle Share</span><span class="sortArrow"></span></button></th>
-          <th><button class="sortHead" type="button" data-sort="idleCostDelta"><span>Trend</span><span class="sortArrow"></span></button></th>
+          <th><button class="sortHead" type="button" data-sort="idleCostTrendDelta"><span>Trend</span><span class="sortArrow"></span></button></th>
           <th>Review</th>
         </tr>
       </thead>
@@ -212,7 +212,7 @@
         <p class="eyebrow">Vehicle Fuel Review</p>
         <h2 id="reviewTitle" class="modalTitle">Select a vehicle</h2>
         <div id="reviewMeta" class="reviewMeta"></div>
-        <p id="reviewCopy" class="modalCopy">Click a vehicle row to open a deeper breakdown of fuel usage, idle cost, emissions, and monthly movement.</p>
+        <p id="reviewCopy" class="modalCopy">Open a vehicle to see where fuel is being used, how much idling may be costing, and whether this month is trending up or down.</p>
       </div>
       <div class="reviewMeta"><button id="closeReviewButton" class="closeBtn" type="button">Close Review</button></div>
     </div>
@@ -224,10 +224,10 @@
     </div>
     <div class="reviewGrid">
       <div class="reviewSection"><h3>Monthly Fuel Used</h3><div id="reviewTrendChart"></div></div>
-      <div class="reviewSection"><h3>Interpretation</h3><ul id="reviewNarrative" class="narrativeList"></ul></div>
+      <div class="reviewSection"><h3>What This Means</h3><ul id="reviewNarrative" class="narrativeList"></ul></div>
       <div class="reviewSection"><h3>Monthly Idle Cost</h3><div id="reviewDailyChart"></div></div>
-      <div class="reviewSection"><h3>Notable Efficiency Signals</h3><ul id="reviewEvents" class="eventList"></ul></div>
-      <div class="reviewSection" style="grid-column:1 / -1"><h3>Recommended Action Split</h3><div id="reviewSplit" class="splitNote"></div></div>
+      <div class="reviewSection"><h3>Key Takeaways</h3><ul id="reviewEvents" class="eventList"></ul></div>
+      <div class="reviewSection" style="grid-column:1 / -1"><h3>Recommended Next Steps</h3><div id="reviewSplit" class="splitNote"></div></div>
     </div>
   </div>
 </div>
