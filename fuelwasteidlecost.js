@@ -37,7 +37,7 @@ var fuelWasteDashboard=(function(){
   function groupNameFromRef(ref,map){var id,name;if(!ref)return'';if(typeof ref==='string')return map[ref]||ref;id=ref.id||'';name=ref.name||'';return map[id]||name||id||''}
   function isBuiltInGroupName(name){return !name||/^Group[A-Z]/.test(name)||/^b[0-9A-F]+$/i.test(name)||name==='Company group'||name==='Asset Information'||name==='Driver activity'}
   function resolveDeviceGroupName(device,groupMap){var groups=device.groups||[],i,name,fallback='';for(i=0;i<groups.length;i++){name=groupNameFromRef(groups[i],groupMap);if(name&&!isBuiltInGroupName(name))return name;if(name&&!fallback)fallback=name;}return fallback&&!isBuiltInGroupName(fallback)?fallback:'Ungrouped'}
-  function offenderClass(row){if(row.idleCost>=400||row.idleShare>=0.35)return'high';if(row.idleCost>=150||row.idleShare>=0.18)return'medium';return'low'}
+  function offenderClass(row){if(row.idleCost>=250||row.idleShare>=0.30)return'high';if(row.idleCost>=100||row.idleShare>=0.15)return'medium';return'low'}
   function sevChip(level){if(level==='high')return '<span class="chip chipCritical">Top priority</span>';if(level==='medium')return '<span class="chip chipWarning">Monitor</span>';return '<span class="chip chipHealthy">Strong efficiency</span>'}
   function trendDirectionText(value){if(Math.abs(value)<0.005)return'about the same as';return value>0?fmtCurrency(Math.abs(value))+' higher than':fmtCurrency(Math.abs(value))+' lower than'}
   function trendLine(label,value){return label+' trending '+trendDirectionText(value)+' last month'}
