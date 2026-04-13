@@ -1,0 +1,16 @@
+{
+  "name": "traxxisfuelwasteidlecost",
+  "supportEmail": "support@yourcompany.com",
+  "version": "1.0.0",
+  "items": [
+    {
+      "url": "https://marksmith9192-afk.github.io/Geotab/fuelwasteidlecost.html",
+      "path": "FuelWasteIdleCostLink/",
+      "category": "MaintenanceId",
+      "menuName": {
+        "en": "Traxxis Fuel Waste & Idle Cost"
+      }
+    }
+  ],
+  "isSigned": false
+}
