@@ -77,9 +77,12 @@
   .chipHealthy{background:#e6f5ee;color:var(--healthy)}
   .reviewBtn,.closeBtn{border:1px solid var(--border);background:#fff;border-radius:999px;padding:10px 14px;font-size:12px;font-weight:700;color:#245e48;cursor:pointer}
   .reviewBtn:hover,.closeBtn:hover{background:#f8f2e8}
-  .trendUp{color:var(--critical);font-weight:700}
-  .trendWatch{color:var(--warning);font-weight:700}
-  .trendStable{color:var(--healthy);font-weight:700}
+  .trendMetric{display:flex;align-items:flex-start;gap:8px;font-size:14px;line-height:1.45;color:#352d25}
+  .trendMetric + .trendMetric{margin-top:6px}
+  .trendArrowIcon{display:inline-flex;align-items:center;justify-content:center;min-width:14px;font-size:12px;font-weight:800;line-height:1;margin-top:2px}
+  .trendUpIcon{color:var(--critical)}
+  .trendDownIcon{color:var(--healthy)}
+  .trendFlat{color:#8b6b49}
   .empty{padding:22px 16px;color:var(--muted);text-align:center;font-size:14px}
   .modalShell{position:fixed;inset:0;background:rgba(20,15,10,.42);display:flex;align-items:flex-start;justify-content:center;padding:30px 16px;z-index:9999;overflow:auto}
   .modalShell.hidden{display:none}
