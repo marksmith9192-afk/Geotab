@@ -14,7 +14,7 @@
   .hero,.panel,.tableWrap,.summaryGrid{background:var(--panel);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow)}
   .hero{padding:24px;margin-bottom:16px}
   .panel{padding:16px 18px;margin-bottom:16px}
-  .summaryGrid{padding:0;margin-bottom:16px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;overflow:hidden}
+  .summaryGrid{padding:0;margin-bottom:16px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;overflow:hidden}
   .storyGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
   .storyCard{background:var(--panel);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);padding:16px}
   .storyLabel{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
@@ -107,7 +107,7 @@
   .reviewGrid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;margin-top:16px}
   .reviewSection{background:var(--panel2);border:1px solid #eadfce;border-radius:18px;padding:18px}
   .reviewSection h3{margin:0 0 10px;font-size:16px}
-  .kpiGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+  .kpiGrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
   .kpi{background:var(--panel);border:1px solid #eadfce;border-radius:16px;padding:14px}
   .kpiLabel{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
   .kpiValue{margin-top:10px;font-size:24px;font-weight:800}
@@ -174,6 +174,7 @@
     <div class="summaryCard criticalBg"><div class="labelRow"><p class="label">Fuel Cost</p></div><p class="value" id="fleetFuelCost">$0</p><div class="sub" id="fleetCostSub">Based on current settings</div></div>
     <div class="summaryCard warningBg"><div class="labelRow"><p class="label">Idle Cost</p></div><p class="value" id="fleetIdleCost">$0</p><div class="sub" id="fleetIdleSub">Idle waste over 6 months</div></div>
     <div class="summaryCard healthyBg"><div class="labelRow"><p class="label">CO2 Produced</p></div><p class="value" id="fleetCo2">0 kg</p><div class="sub" id="fleetCo2Sub">Tailpipe estimate</div></div>
+    <div class="summaryCard neutral"><div class="labelRow"><p class="label">Fleet MPG</p></div><p class="value" id="fleetMpg">N/A</p><div class="sub" id="fleetMpgSub">Waiting for trip distance data</div></div>
   </div>
   <div class="panel">
     <div class="controls">
@@ -229,6 +230,7 @@
           <th><button class="sortHead" type="button" data-sort="name"><span>Vehicle</span><span class="sortArrow"></span></button></th>
           <th><button class="sortHead" type="button" data-sort="offenderLevel"><span>Offender Rank</span><span class="sortArrow"></span></button></th>
           <th><button class="sortHead" type="button" data-sort="fuelLiters"><span>Fuel Used</span><span class="sortArrow"></span></button></th>
+          <th><button class="sortHead" type="button" data-sort="mpg"><span>MPG</span><span class="sortArrow"></span></button></th>
           <th><button class="sortHead" type="button" data-sort="fuelCost"><span>Fuel Cost</span><span class="sortArrow"></span></button></th>
           <th><button class="sortHead" type="button" data-sort="idleHours"><span>Idle Hours</span><span class="sortArrow"></span></button></th>
           <th><button class="sortHead" type="button" data-sort="idleFuelLiters"><span>Idle Fuel</span><span class="sortArrow"></span></button></th>
@@ -240,7 +242,7 @@
         </tr>
       </thead>
       <tbody id="vehicleTableBody">
-        <tr><td colspan="11" class="empty">No analysis has been run yet.</td></tr>
+        <tr><td colspan="12" class="empty">No analysis has been run yet.</td></tr>
       </tbody>
     </table>
   </div>
@@ -258,6 +260,7 @@
     </div>
     <div class="kpiGrid">
       <div class="kpi"><div class="kpiLabel">Fuel Used</div><div id="reviewFuelUsed" class="kpiValue">N/A</div><div class="kpiSub">Last 6 months</div></div>
+      <div class="kpi"><div class="kpiLabel">MPG</div><div id="reviewMpg" class="kpiValue">N/A</div><div class="kpiSub">Trip distance vs fuel used</div></div>
       <div class="kpi"><div class="kpiLabel">Fuel Cost</div><div id="reviewFuelCost" class="kpiValue">N/A</div><div class="kpiSub">Based on current pricing</div></div>
       <div class="kpi"><div class="kpiLabel">Idle Cost</div><div id="reviewIdleCost" class="kpiValue">N/A</div><div class="kpiSub">Estimated or actual idle fuel</div></div>
       <div class="kpi"><div class="kpiLabel">CO2</div><div id="reviewCo2" class="kpiValue">N/A</div><div class="kpiSub">Tailpipe estimate</div></div>
