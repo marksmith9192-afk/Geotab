@@ -63,6 +63,10 @@
   .sortHead{display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:inherit;font:inherit;text-transform:inherit;letter-spacing:inherit;background:none;border:none;padding:0}
   .sortArrow{font-size:11px;color:#8b6b49;min-width:12px}
   .sortHint{margin-top:8px;font-size:12px;color:var(--muted)}
+  .trendStack{display:grid;gap:18px}
+  .trendPanel{background:var(--panel2);border:1px solid #eadfce;border-radius:18px;padding:16px}
+  .trendPanelTitle{font-size:14px;font-weight:800;letter-spacing:0.8px;text-transform:uppercase;color:#5b4128}
+  .trendPanelCopy{margin-top:6px;margin-bottom:10px;font-size:12px;line-height:1.5;color:var(--muted)}
   .vehicle{font-weight:700;font-size:15px}
   .vehicleButton{display:block;width:100%;border:none;background:none;padding:0;text-align:left;color:inherit;cursor:pointer}
   .vehicleButton:hover .vehicle{text-decoration:underline}
@@ -119,7 +123,7 @@
       </div>
     </div>
     <p class="eyebrow">Fleet Efficiency</p>
-    <h1>Fuel waste, idle cost, and emissions in one daily view.</h1>
+      <h1>Fuel waste, idle cost, and emissions in one six-month view.</h1>
     <p class="copy">Track 6 months of fleet fuel usage, estimated or actual idle fuel waste, month-over-month cost movement, carbon output, and the vehicles creating the most unnecessary spend.</p>
     <div class="actions">
       <button id="refreshButton" class="btn btnPrimary">Refresh Analysis</button>
@@ -175,7 +179,7 @@
   </div>
   <div class="panel">
     <p class="eyebrow">Six-Month Trend</p>
-    <div class="sortHint">Fuel used is shown as bars. Idle cost is shown as the blue line on the right-hand dollar axis. Click a header arrow to sort.</div>
+    <div class="sortHint">The top chart shows fuel used by month. The bottom chart shows idle cost by month. Click any header arrow to sort the table.</div>
     <div id="fleetTrendChart"></div>
   </div>
   <div class="tableWrap">
@@ -208,7 +212,7 @@
         <p class="eyebrow">Vehicle Fuel Review</p>
         <h2 id="reviewTitle" class="modalTitle">Select a vehicle</h2>
         <div id="reviewMeta" class="reviewMeta"></div>
-        <p id="reviewCopy" class="modalCopy">Click a vehicle row to open a deeper breakdown of fuel usage, idle cost, emissions, and weekly movement.</p>
+        <p id="reviewCopy" class="modalCopy">Click a vehicle row to open a deeper breakdown of fuel usage, idle cost, emissions, and monthly movement.</p>
       </div>
       <div class="reviewMeta"><button id="closeReviewButton" class="closeBtn" type="button">Close Review</button></div>
     </div>
@@ -219,9 +223,9 @@
       <div class="kpi"><div class="kpiLabel">CO2</div><div id="reviewCo2" class="kpiValue">N/A</div><div class="kpiSub">Tailpipe estimate</div></div>
     </div>
     <div class="reviewGrid">
-      <div class="reviewSection"><h3>Weekly Fuel and Idle Cost</h3><div id="reviewTrendChart"></div></div>
+      <div class="reviewSection"><h3>Monthly Fuel Used</h3><div id="reviewTrendChart"></div></div>
       <div class="reviewSection"><h3>Interpretation</h3><ul id="reviewNarrative" class="narrativeList"></ul></div>
-      <div class="reviewSection"><h3>Daily Fuel and Idle Timeline</h3><div id="reviewDailyChart"></div></div>
+      <div class="reviewSection"><h3>Monthly Idle Cost</h3><div id="reviewDailyChart"></div></div>
       <div class="reviewSection"><h3>Notable Efficiency Signals</h3><ul id="reviewEvents" class="eventList"></ul></div>
       <div class="reviewSection" style="grid-column:1 / -1"><h3>Recommended Action Split</h3><div id="reviewSplit" class="splitNote"></div></div>
     </div>
