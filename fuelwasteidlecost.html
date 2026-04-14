@@ -23,6 +23,7 @@
   .summaryCard{padding:18px;min-height:120px;border-right:1px solid #eadfce}
   .summaryCard:last-child{border-right:none}
   .neutral{background:#e8eff8}
+  .infoBg{background:#e8f5f0}
   .criticalBg{background:#fde9e6}
   .warningBg{background:#fff1dc}
   .healthyBg{background:#e6f5ee}
@@ -171,10 +172,10 @@
   </div>
   <div class="summaryGrid">
     <div class="summaryCard neutral"><div class="labelRow"><p class="label">Fleet Fuel Used</p></div><p class="value" id="fleetFuelUsed">0 gal</p><div class="sub" id="fleetFuelSub">Last 6 months</div></div>
+    <div class="summaryCard infoBg"><div class="labelRow"><p class="label">Fleet MPG</p></div><p class="value" id="fleetMpg">N/A</p><div class="sub" id="fleetMpgSub">Waiting for trip distance data</div></div>
     <div class="summaryCard criticalBg"><div class="labelRow"><p class="label">Fuel Cost</p></div><p class="value" id="fleetFuelCost">$0</p><div class="sub" id="fleetCostSub">Based on current settings</div></div>
     <div class="summaryCard warningBg"><div class="labelRow"><p class="label">Idle Cost</p></div><p class="value" id="fleetIdleCost">$0</p><div class="sub" id="fleetIdleSub">Idle waste over 6 months</div></div>
     <div class="summaryCard healthyBg"><div class="labelRow"><p class="label">CO2 Produced</p></div><p class="value" id="fleetCo2">0 kg</p><div class="sub" id="fleetCo2Sub">Tailpipe estimate</div></div>
-    <div class="summaryCard neutral"><div class="labelRow"><p class="label">Fleet MPG</p></div><p class="value" id="fleetMpg">N/A</p><div class="sub" id="fleetMpgSub">Waiting for trip distance data</div></div>
   </div>
   <div class="panel">
     <div class="controls">
