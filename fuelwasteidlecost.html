@@ -161,14 +161,18 @@
     <div class="helper" id="statusHelper">Use this dashboard to review fleet fuel use, idle cost, and emissions with your own pricing settings.</div>
     <div id="debugBox" class="debug hidden"></div>
     <div id="rulesPanel" class="rulesPanel hidden">
-      <p class="rulesTitle">How the numbers are built</p>
+      <p class="rulesTitle">How This Dashboard Works</p>
       <ul class="rulesList">
-        <li><strong>Total fuel used</strong>: adds up fuel use across the last 6 months.</li>
+        <li><strong>Date range</strong>: the dashboard reviews the last 6 months of fuel, trip, idle, and stop activity.</li>
+        <li><strong>Current view</strong>: every card, chart, hot spot, and vehicle result updates to match the group and efficiency filters you choose.</li>
+        <li><strong>Total fuel used</strong>: adds up recorded fuel use across the current 6-month view.</li>
+        <li><strong>Fleet MPG and vehicle MPG</strong>: uses trip distance divided by total fuel used, so idling affects MPG the same way it affects real-world fuel economy.</li>
         <li><strong>Idle fuel used</strong>: uses recorded idle fuel when available. If it is missing, the dashboard estimates idle fuel from idle time and the burn rate you set.</li>
         <li><strong>Idle cost</strong>: multiplies idle fuel by the fuel price you choose.</li>
-        <li><strong>CO2 produced</strong>: estimates emissions from the fuel used and the fuel type you select.</li>
-        <li><strong>Vehicle ranking</strong>: puts the biggest idle-cost opportunities near the top of the list.</li>
-        <li><strong>Trending</strong>: compares this month's current pace with last month so you can quickly see whether costs are heading up or down.</li>
+        <li><strong>Idle hot spots</strong>: groups stopped locations where idling happened most often and lets you open each location to see which vehicles are driving the total.</li>
+        <li><strong>Efficiency status</strong>: <strong>Top priority</strong> means idle cost is at least $250 or idle share is at least 30%. <strong>Monitor</strong> means idle cost is at least $100 or idle share is at least 15%. <strong>Strong efficiency</strong> means the vehicle is below those thresholds.</li>
+        <li><strong>Trending</strong>: compares this month&rsquo;s projected full-month pace with last month so you can quickly see whether fuel cost and idle cost are heading up or down.</li>
+        <li><strong>CO2 produced</strong>: estimates tailpipe emissions from the fuel used and the fuel type you select.</li>
       </ul>
     </div>
   </div>
@@ -183,7 +187,7 @@
     <div class="controls">
       <span class="controlLabel">Group</span>
       <select id="groupFilter" class="select"></select>
-      <span class="controlLabel">Vehicle View</span>
+      <span class="controlLabel">Efficiency</span>
       <select id="statusFilter" class="select">
         <option value="__all__">All vehicles</option>
         <option value="high">Top priority</option>
@@ -231,7 +235,7 @@
       <thead>
         <tr>
           <th><button class="sortHead" type="button" data-sort="name"><span>Vehicle</span><span class="sortArrow"></span></button></th>
-          <th><button class="sortHead" type="button" data-sort="offenderLevel"><span>Priority</span><span class="sortArrow"></span></button></th>
+          <th><button class="sortHead" type="button" data-sort="offenderLevel"><span>Efficiency</span><span class="sortArrow"></span></button></th>
           <th><button class="sortHead" type="button" data-sort="fuelLiters"><span>Fuel Used</span><span class="sortArrow"></span></button></th>
           <th><button class="sortHead" type="button" data-sort="mpg"><span>MPG</span><span class="sortArrow"></span></button></th>
           <th><button class="sortHead" type="button" data-sort="fuelCost"><span>Fuel Cost</span><span class="sortArrow"></span></button></th>
