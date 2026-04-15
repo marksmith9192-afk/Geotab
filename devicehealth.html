@@ -212,6 +212,12 @@ var deviceHealthDashboard = (function() {
   var DEBUG = true;
   var DEVICE_CAP = 120;
   var BATCH_SIZE = 10;
+  var REQUESTS_PER_MINUTE_LIMIT = 1000;
+  var SAFETY_REQUEST_BUDGET = 900;
+  var DEVICE_BASE_CALLS = 3;
+  var MAX_DIAGNOSTICS_PER_CATEGORY = 2;
+  var MAX_TOTAL_DIAGNOSTICS = 6;
+  var THROTTLE_DELAY_MS = 7000;
   var REVIEW_DAYS = 30;
   var STATUS_LIMIT = 250;
   var LOG_LIMIT = 250;
@@ -339,6 +345,15 @@ var deviceHealthDashboard = (function() {
     var batch = calls.slice(start, start + BATCH_SIZE);
     if (!batch.length) { done(accum); return; }
     api.multiCall(batch, function(results) { runBatch(calls, start + BATCH_SIZE, done, fail, accum.concat(results || [])); }, function(error) { fail(error); });
+  }
+  function delayedRunBatch(calls, start, done, fail, accum) {
+    var batch = calls.slice(start, start + BATCH_SIZE);
+    if (!batch.length) { done(accum); return; }
+    api.multiCall(batch, function(results) {
+      window.setTimeout(function() {
+        delayedRunBatch(calls, start + BATCH_SIZE, done, fail, accum.concat(results || []));
+      }, THROTTLE_DELAY_MS);
+    }, function(error) { fail(error); });
   }
   function groupNameFromRef(ref, map) {
     var id, name;
@@ -628,15 +643,31 @@ var deviceHealthDashboard = (function() {
   function fetchDiagnostics(done, fail) {
     api.call("Get", { typeName: "Diagnostic", search: {}, resultsLimit: 5000 }, function(rows) {
       var diagnostics = rows || [], matches = [], i, groups;
+      var buckets = { gps: [], cellular: [], engine: [], device: [] };
+      var ordered = [];
       for (i = 0; i < diagnostics.length; i += 1) {
         groups = matchDiagnosticGroups(diagnostics[i]);
         if (groups.gps || groups.cellular || groups.engine || groups.device) {
           diagnostics[i].matchedGroups = groups;
-          matches.push(diagnostics[i]);
+          if (groups.gps) { buckets.gps.push(diagnostics[i]); }
+          if (groups.cellular) { buckets.cellular.push(diagnostics[i]); }
+          if (groups.engine) { buckets.engine.push(diagnostics[i]); }
+          if (groups.device) { buckets.device.push(diagnostics[i]); }
         }
       }
+      ["cellular", "gps", "engine", "device"].forEach(function(category) {
+        buckets[category].slice(0, MAX_DIAGNOSTICS_PER_CATEGORY).forEach(function(item) {
+          if (ordered.indexOf(item) === -1) { ordered.push(item); }
+        });
+      });
+      matches = ordered.slice(0, MAX_TOTAL_DIAGNOSTICS);
       done(matches);
     }, function(error) { fail("Diagnostic lookup failed: " + errText(error)); });
+  }
+  function estimateSafeDeviceCap(diagnosticCount) {
+    var perDevice = DEVICE_BASE_CALLS + diagnosticCount;
+    if (perDevice <= 0) { return DEVICE_CAP; }
+    return Math.max(10, Math.min(DEVICE_CAP, Math.floor(SAFETY_REQUEST_BUDGET / perDevice)));
   }
   function buildVehicleRequests(devices, diagnostics, fromDate, toDate) {
     var calls = [], meta = [], i, j;
@@ -694,18 +725,20 @@ var deviceHealthDashboard = (function() {
         var i;
         devices.forEach(function(device) { device.primaryGroupName = resolveDeviceGroupName(device, groupMap || {}); });
         fetchDiagnostics(function(diagnostics) {
-          var requestBundle = buildVehicleRequests(devices, diagnostics, fromDate, toDate), rows = [], payloads, debugMessage;
-          debugMessage = "Devices: " + devices.length + "\nMatched diagnostics: " + diagnostics.length + "\nMultiCall requests: " + requestBundle.calls.length + "\nBatch size: " + BATCH_SIZE;
+          var safeDeviceCap = estimateSafeDeviceCap(diagnostics.length);
+          var limitedDevices = devices.slice(0, safeDeviceCap);
+          var requestBundle = buildVehicleRequests(limitedDevices, diagnostics, fromDate, toDate), rows = [], payloads, debugMessage;
+          debugMessage = "Devices available: " + devices.length + "\nDevices analyzed this pass: " + limitedDevices.length + "\nMatched diagnostics: " + diagnostics.length + "\nEstimated requests: " + requestBundle.calls.length + "\nRequest budget: " + SAFETY_REQUEST_BUDGET + " / " + REQUESTS_PER_MINUTE_LIMIT + " per minute" + "\nBatch size: " + BATCH_SIZE + "\nThrottle delay: " + THROTTLE_DELAY_MS + " ms";
           if (groupWarning) { debugMessage += "\n" + groupWarning; }
           setDebug(debugMessage);
-          runBatch(requestBundle.calls, 0, function(results) {
-            payloads = buildVehiclePayloads(devices, results, requestBundle.meta);
-            for (i = 0; i < devices.length; i += 1) {
-              var analyzed = analyzeVehicle(devices[i], payloads[devices[i].id].diagnostics, payloads[devices[i].id].faults, payloads[devices[i].id].logs, payloads[devices[i].id].trips);
+          delayedRunBatch(requestBundle.calls, 0, function(results) {
+            payloads = buildVehiclePayloads(limitedDevices, results, requestBundle.meta);
+            for (i = 0; i < limitedDevices.length; i += 1) {
+              var analyzed = analyzeVehicle(limitedDevices[i], payloads[limitedDevices[i].id].diagnostics, payloads[limitedDevices[i].id].faults, payloads[limitedDevices[i].id].logs, payloads[limitedDevices[i].id].trips);
               if (analyzed) { rows.push(analyzed); }
             }
             sortRows(rows);
-            finishAnalysis(devices, rows);
+            finishAnalysis(limitedDevices, rows);
           }, function(error) {
             allVehicles = [];
             hydrateVehicleMap();
