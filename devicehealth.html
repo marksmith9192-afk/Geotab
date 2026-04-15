@@ -210,19 +210,16 @@ var deviceHealthDashboard = (function() {
   var loaded = false;
   var isLoading = false;
   var DEBUG = true;
-  var DEVICE_CAP = 120;
+  var DEVICE_CAP = 80;
   var BATCH_SIZE = 10;
   var REQUESTS_PER_MINUTE_LIMIT = 1000;
-  var SAFETY_REQUEST_BUDGET = 900;
-  var DEVICE_BASE_CALLS = 3;
-  var MAX_DIAGNOSTICS_PER_CATEGORY = 2;
+  var SAFETY_REQUEST_BUDGET = 850;
+  var DEVICE_BASE_CALLS = 1;
+  var MAX_DIAGNOSTICS_PER_CATEGORY = 1;
   var MAX_TOTAL_DIAGNOSTICS = 6;
-  var THROTTLE_DELAY_MS = 7000;
   var REVIEW_DAYS = 30;
   var STATUS_LIMIT = 250;
-  var LOG_LIMIT = 250;
   var TRIP_LIMIT = 250;
-  var FAULT_LIMIT = 250;
   var STALE_WARNING_HOURS = 24;
   var STALE_CRITICAL_HOURS = 72;
   var ENGINE_STALE_WARNING_HOURS = 48;
@@ -309,6 +306,15 @@ var deviceHealthDashboard = (function() {
     if (!raw || isNaN(new Date(raw).getTime())) { return null; }
     return new Date(raw).toISOString();
   }
+  function deviceTimestamp(device, fieldNames) {
+    var values = [];
+    fieldNames.forEach(function(field) {
+      values.push(device && device[field]);
+      values.push(device && device[field.charAt(0).toUpperCase() + field.slice(1)]);
+    });
+    values.push(null);
+    return dateValue({ dateTime: firstValue.apply(null, values) });
+  }
   function latestTimestamp(items) {
     var latest = null, i, stamp;
     for (i = 0; i < (items || []).length; i += 1) {
@@ -345,15 +351,6 @@ var deviceHealthDashboard = (function() {
     var batch = calls.slice(start, start + BATCH_SIZE);
     if (!batch.length) { done(accum); return; }
     api.multiCall(batch, function(results) { runBatch(calls, start + BATCH_SIZE, done, fail, accum.concat(results || [])); }, function(error) { fail(error); });
-  }
-  function delayedRunBatch(calls, start, done, fail, accum) {
-    var batch = calls.slice(start, start + BATCH_SIZE);
-    if (!batch.length) { done(accum); return; }
-    api.multiCall(batch, function(results) {
-      window.setTimeout(function() {
-        delayedRunBatch(calls, start + BATCH_SIZE, done, fail, accum.concat(results || []));
-      }, THROTTLE_DELAY_MS);
-    }, function(error) { fail(error); });
   }
   function groupNameFromRef(ref, map) {
     var id, name;
@@ -538,43 +535,68 @@ var deviceHealthDashboard = (function() {
     }
     return { topIssue: issues[0] || "Needs investigation", possibleIssues: issues, recommendedAction: recommended };
   }
-  function analyzeVehicle(device, diagnostics, faults, logs, trips) {
-    var normalizedDiagnostics = diagnostics.map(normalizeDiagnosticRow).filter(function(item) { return !!item.dateTime; });
+  function analyzeVehicle(device, faults) {
     var normalizedFaults = faults.map(normalizeFaultRow).filter(function(item) { return !!item.dateTime; });
-    var normalizedLogs = logs.map(normalizeLogRow).filter(function(item) { return !!item.dateTime; });
-    var normalizedTrips = trips.map(normalizeTripRow);
-    var deviceCommunication = dateValue(device);
-    var gpsMeasurements = measurementSnippet(normalizedDiagnostics, function(item) { return item.categories.gps; });
-    var cellMeasurements = measurementSnippet(normalizedDiagnostics, function(item) { return item.categories.cellular || item.categories.device; });
-    var engineMeasurements = measurementSnippet(normalizedDiagnostics, function(item) { return item.categories.engine; });
-    var lastGps = latestTimestamp(normalizedLogs) || latestTimestamp(gpsMeasurements);
-    var lastEngine = latestTimestamp(engineMeasurements) || latestTimestamp(normalizedTrips.map(function(item) { return { dateTime: item.stop || item.start }; }));
-    var lastCellular = deviceCommunication || latestTimestamp(cellMeasurements) || latestTimestamp(normalizedFaults) || latestTimestamp(normalizedLogs);
-    var lastAny = latestTimestamp([{ dateTime: deviceCommunication }].concat(gpsMeasurements).concat(cellMeasurements).concat(engineMeasurements).concat(normalizedFaults).concat(normalizedLogs).concat(normalizedTrips.map(function(item) { return { dateTime: item.stop || item.start }; })));
+    var lastCommunication = deviceTimestamp(device, ["lastCommunication", "lastCommunicationDateTime", "lastCommunicated"]);
+    var lastGps = deviceTimestamp(device, ["lastGpsDateTime", "lastValidGpsDateTime", "gpsDateTime"]);
+    var lastEngine = deviceTimestamp(device, ["lastEngineDateTime", "engineDateTime", "lastEngineDataDateTime"]);
     var combinedFaultText = normalizedFaults.map(function(item) { return item.name + " " + item.code; }).join(" || ");
     var flags = classifyText(combinedFaultText);
+    var gpsFaults = normalizedFaults.filter(function(item) { return item.tags.gps; });
+    var cellularFaults = normalizedFaults.filter(function(item) { return item.tags.cellular || item.tags.unplugged; });
+    var engineFaults = normalizedFaults.filter(function(item) { return item.tags.engine || item.tags.install; });
+    var deviceFaults = normalizedFaults.filter(function(item) { return item.tags.device; });
+    var lastCellular = lastCommunication || latestTimestamp(normalizedFaults);
+    var lastAny = latestTimestamp([{ dateTime: lastCommunication }, { dateTime: lastGps }, { dateTime: lastEngine }].concat(normalizedFaults));
+    var staleHours = lastCommunication ? hoursSince(lastCommunication) : null;
     var gpsMismatchHours = hoursBetween(lastCellular, lastGps);
-    var cellularStatus = statusFromAge(lastCellular, STALE_WARNING_HOURS, STALE_CRITICAL_HOURS, "Current", "No recent cellular communication found.");
-    var gpsStatus = statusFromAge(lastGps, STALE_WARNING_HOURS, STALE_CRITICAL_HOURS, "Recent GPS evidence", "No recent GPS evidence found.");
-    var engineStatus = statusFromAge(lastEngine, ENGINE_STALE_WARNING_HOURS, ENGINE_STALE_CRITICAL_HOURS, "Recent engine evidence", "No recent engine evidence found.");
-    var diagnosis, summary = [], severity = "warning";
-    if (gpsMismatchHours !== null && lastCellular && lastGps && gpsMismatchHours >= GPS_MISMATCH_CRITICAL_HOURS) {
-      gpsStatus = { level: "critical", detail: "GPS trails cellular by " + gpsMismatchHours.toFixed(1) + " hours." };
-    } else if (gpsMismatchHours !== null && lastCellular && lastGps && gpsMismatchHours >= GPS_MISMATCH_WARNING_HOURS && gpsStatus.level === "healthy") {
-      gpsStatus = { level: "warning", detail: "GPS trails cellular by " + gpsMismatchHours.toFixed(1) + " hours." };
+    var cellularStatus = statusFromAge(lastCellular, 24 * 7, 24 * 10, "Communicated recently", "No recent device communication found.");
+    var gpsStatus = statusFromAge(lastGps, 24 * 7, 24 * 10, "Recent GPS timestamp", "No recent GPS timestamp found.");
+    var engineStatus = statusFromAge(lastEngine, 24 * 7, 24 * 10, "Recent engine timestamp", "No recent engine timestamp found.");
+    var diagnosis;
+    var summary = [];
+    var severity = "warning";
+
+    if (!lastCommunication || (staleHours !== null && staleHours >= 24 * 10)) {
+      cellularStatus = { level: "critical", detail: lastCommunication ? fmtAgeHours(lastCommunication) : "No communication timestamp found." };
+    } else if (staleHours !== null && staleHours >= 24 * 7) {
+      cellularStatus = { level: "warning", detail: fmtAgeHours(lastCommunication) };
     }
-    if (flags.gps && gpsStatus.level === "healthy") { gpsStatus = { level: "warning", detail: "GPS-related faults were matched even though recent GPS evidence exists." }; }
-    if (flags.engine && engineStatus.level === "healthy") { engineStatus = { level: "warning", detail: "Engine-related faults were matched even though recent engine evidence exists." }; }
-    if (flags.cellular && cellularStatus.level === "healthy") { cellularStatus = { level: "warning", detail: "Communication-related faults were matched even though recent activity exists." }; }
-    diagnosis = pickTopIssue({ lastAny: lastAny, lastGps: lastGps, lastEngine: lastEngine, faults: normalizedFaults, flags: flags, gpsStatus: gpsStatus, engineStatus: engineStatus, cellularStatus: cellularStatus });
+
+    if (gpsFaults.length && gpsStatus.level === "healthy") {
+      gpsStatus = { level: "warning", detail: "GPS-related fault data matched." };
+    }
+    if (engineFaults.length && engineStatus.level === "healthy") {
+      engineStatus = { level: "warning", detail: "Engine or install-related fault data matched." };
+    }
+    if (cellularFaults.length && cellularStatus.level === "healthy") {
+      cellularStatus = { level: "warning", detail: "Communication-related fault data matched." };
+    }
+    if (deviceFaults.length >= 2) {
+      cellularStatus = cellularStatus.level === "critical" ? cellularStatus : { level: "warning", detail: cellularStatus.detail };
+    }
+    if (gpsMismatchHours !== null && gpsMismatchHours >= 24 * 7 && gpsStatus.level === "healthy") {
+      gpsStatus = { level: "warning", detail: "GPS timestamp trails communication by " + gpsMismatchHours.toFixed(1) + " hours." };
+    }
+
+    diagnosis = pickTopIssue({
+      lastAny: lastAny,
+      lastGps: lastGps,
+      lastEngine: lastEngine,
+      faults: normalizedFaults,
+      flags: flags,
+      gpsStatus: gpsStatus,
+      engineStatus: engineStatus,
+      cellularStatus: cellularStatus
+    });
     if (!diagnosis.possibleIssues.length) { return null; }
     if (diagnosis.topIssue === "Device unplugged" || diagnosis.topIssue === "Possible device failure" || cellularStatus.level === "critical") { severity = "critical"; }
     summary.push("Top diagnosis: " + diagnosis.topIssue + ".");
-    summary.push("Last cellular evidence: " + (lastCellular ? fmtDate(lastCellular) : "not found") + ".");
-    summary.push("Last GPS evidence: " + (lastGps ? fmtDate(lastGps) : "not found") + ".");
-    summary.push("Last engine evidence: " + (lastEngine ? fmtDate(lastEngine) : "not found") + ".");
-    if (gpsMismatchHours !== null && gpsMismatchHours >= GPS_MISMATCH_WARNING_HOURS) { summary.push("GPS is lagging cellular communication by " + gpsMismatchHours.toFixed(1) + " hours."); }
-    if (normalizedFaults.length) { summary.push("Matched " + normalizedFaults.length + " recent fault row" + (normalizedFaults.length === 1 ? "" : "s") + "."); } else { summary.push("No recent fault rows matched, so the diagnosis leans more on timing and measurement evidence."); }
+    summary.push("Last communication: " + (lastCommunication ? fmtDate(lastCommunication) : "not found") + ".");
+    summary.push("Last GPS timestamp: " + (lastGps ? fmtDate(lastGps) : "not found") + ".");
+    summary.push("Last engine timestamp: " + (lastEngine ? fmtDate(lastEngine) : "not found") + ".");
+    if (normalizedFaults.length) { summary.push("Matched " + normalizedFaults.length + " recent fault row" + (normalizedFaults.length === 1 ? "" : "s") + "."); }
+    else { summary.push("No recent fault rows matched, so this row is being flagged mainly from stale communication timing."); }
     return {
       deviceId: device.id,
       name: device.name || device.serialNumber || "Unnamed vehicle",
@@ -584,7 +606,7 @@ var deviceHealthDashboard = (function() {
       topIssue: diagnosis.topIssue,
       possibleIssues: diagnosis.possibleIssues,
       recommendedAction: diagnosis.recommendedAction,
-      lastCellular: lastCellular,
+      lastCellular: lastCommunication,
       lastGps: lastGps,
       lastEngine: lastEngine,
       cellularStatus: cellularStatus,
@@ -593,7 +615,7 @@ var deviceHealthDashboard = (function() {
       gpsMismatchHours: gpsMismatchHours,
       summary: summary,
       faults: faultSnippet(normalizedFaults),
-      measurements: [].concat(cellMeasurements.slice(0, 3)).concat(gpsMeasurements.slice(0, 3)).concat(engineMeasurements.slice(0, 3))
+      measurements: []
     };
   }
   function fillReviewList(targetId, items) {
@@ -640,61 +662,26 @@ var deviceHealthDashboard = (function() {
     byId("reviewModal").className = "modalShell hidden";
     byId("reviewModal").setAttribute("aria-hidden", "true");
   }
-  function fetchDiagnostics(done, fail) {
-    api.call("Get", { typeName: "Diagnostic", search: {}, resultsLimit: 5000 }, function(rows) {
-      var diagnostics = rows || [], matches = [], i, groups;
-      var buckets = { gps: [], cellular: [], engine: [], device: [] };
-      var ordered = [];
-      for (i = 0; i < diagnostics.length; i += 1) {
-        groups = matchDiagnosticGroups(diagnostics[i]);
-        if (groups.gps || groups.cellular || groups.engine || groups.device) {
-          diagnostics[i].matchedGroups = groups;
-          if (groups.gps) { buckets.gps.push(diagnostics[i]); }
-          if (groups.cellular) { buckets.cellular.push(diagnostics[i]); }
-          if (groups.engine) { buckets.engine.push(diagnostics[i]); }
-          if (groups.device) { buckets.device.push(diagnostics[i]); }
-        }
-      }
-      ["cellular", "gps", "engine", "device"].forEach(function(category) {
-        buckets[category].slice(0, MAX_DIAGNOSTICS_PER_CATEGORY).forEach(function(item) {
-          if (ordered.indexOf(item) === -1) { ordered.push(item); }
-        });
-      });
-      matches = ordered.slice(0, MAX_TOTAL_DIAGNOSTICS);
-      done(matches);
-    }, function(error) { fail("Diagnostic lookup failed: " + errText(error)); });
-  }
-  function estimateSafeDeviceCap(diagnosticCount) {
-    var perDevice = DEVICE_BASE_CALLS + diagnosticCount;
+  function estimateSafeDeviceCap() {
+    var perDevice = DEVICE_BASE_CALLS;
     if (perDevice <= 0) { return DEVICE_CAP; }
     return Math.max(10, Math.min(DEVICE_CAP, Math.floor(SAFETY_REQUEST_BUDGET / perDevice)));
   }
-  function buildVehicleRequests(devices, diagnostics, fromDate, toDate) {
-    var calls = [], meta = [], i, j;
+  function buildVehicleRequests(devices, fromDate, toDate) {
+    var calls = [], meta = [], i;
     for (i = 0; i < devices.length; i += 1) {
       meta.push({ deviceId: devices[i].id, kind: "faults" });
-      calls.push(["Get", { typeName: "FaultData", search: { deviceSearch: { id: devices[i].id }, fromDate: fromDate, toDate: toDate }, resultsLimit: FAULT_LIMIT }]);
-      meta.push({ deviceId: devices[i].id, kind: "logs" });
-      calls.push(["Get", { typeName: "LogRecord", search: { deviceSearch: { id: devices[i].id }, fromDate: fromDate, toDate: toDate }, resultsLimit: LOG_LIMIT }]);
-      meta.push({ deviceId: devices[i].id, kind: "trips" });
-      calls.push(["Get", { typeName: "Trip", search: { deviceSearch: { id: devices[i].id }, fromDate: fromDate, toDate: toDate }, resultsLimit: TRIP_LIMIT }]);
-      for (j = 0; j < diagnostics.length; j += 1) {
-        meta.push({ deviceId: devices[i].id, kind: "diagnostic" });
-        calls.push(["Get", { typeName: "StatusData", search: { deviceSearch: { id: devices[i].id }, diagnosticSearch: { id: diagnostics[j].id }, fromDate: fromDate, toDate: toDate }, resultsLimit: STATUS_LIMIT }]);
-      }
+      calls.push(["Get", { typeName: "FaultData", search: { deviceSearch: { id: devices[i].id }, fromDate: fromDate, toDate: toDate }, resultsLimit: STATUS_LIMIT }]);
     }
     return { calls: calls, meta: meta };
   }
   function buildVehiclePayloads(devices, responses, meta) {
     var byDevice = {}, i, deviceId;
-    for (i = 0; i < devices.length; i += 1) { byDevice[devices[i].id] = { diagnostics: [], faults: [], logs: [], trips: [] }; }
+    for (i = 0; i < devices.length; i += 1) { byDevice[devices[i].id] = { faults: [] }; }
     for (i = 0; i < responses.length; i += 1) {
       deviceId = meta[i].deviceId;
       if (!byDevice[deviceId]) { continue; }
       if (meta[i].kind === "faults") { byDevice[deviceId].faults = responses[i] || []; }
-      else if (meta[i].kind === "logs") { byDevice[deviceId].logs = responses[i] || []; }
-      else if (meta[i].kind === "trips") { byDevice[deviceId].trips = responses[i] || []; }
-      else if (meta[i].kind === "diagnostic") { byDevice[deviceId].diagnostics = byDevice[deviceId].diagnostics.concat(responses[i] || []); }
     }
     return byDevice;
   }
@@ -724,37 +711,28 @@ var deviceHealthDashboard = (function() {
       function continueAnalysis(groupMap, groupWarning) {
         var i;
         devices.forEach(function(device) { device.primaryGroupName = resolveDeviceGroupName(device, groupMap || {}); });
-        fetchDiagnostics(function(diagnostics) {
-          var safeDeviceCap = estimateSafeDeviceCap(diagnostics.length);
-          var limitedDevices = devices.slice(0, safeDeviceCap);
-          var requestBundle = buildVehicleRequests(limitedDevices, diagnostics, fromDate, toDate), rows = [], payloads, debugMessage;
-          debugMessage = "Devices available: " + devices.length + "\nDevices analyzed this pass: " + limitedDevices.length + "\nMatched diagnostics: " + diagnostics.length + "\nEstimated requests: " + requestBundle.calls.length + "\nRequest budget: " + SAFETY_REQUEST_BUDGET + " / " + REQUESTS_PER_MINUTE_LIMIT + " per minute" + "\nBatch size: " + BATCH_SIZE + "\nThrottle delay: " + THROTTLE_DELAY_MS + " ms";
-          if (groupWarning) { debugMessage += "\n" + groupWarning; }
-          setDebug(debugMessage);
-          delayedRunBatch(requestBundle.calls, 0, function(results) {
-            payloads = buildVehiclePayloads(limitedDevices, results, requestBundle.meta);
-            for (i = 0; i < limitedDevices.length; i += 1) {
-              var analyzed = analyzeVehicle(limitedDevices[i], payloads[limitedDevices[i].id].diagnostics, payloads[limitedDevices[i].id].faults, payloads[limitedDevices[i].id].logs, payloads[limitedDevices[i].id].trips);
-              if (analyzed) { rows.push(analyzed); }
-            }
-            sortRows(rows);
-            finishAnalysis(limitedDevices, rows);
-          }, function(error) {
-            allVehicles = [];
-            hydrateVehicleMap();
-            applyFilters();
-            setStatus("We could not complete the device-health review.", errText(error), true);
-            setDebug("Batch query failed: " + errText(error));
-            setLoading(false);
-          }, []);
-        }, function(message) {
+        var safeDeviceCap = estimateSafeDeviceCap();
+        var limitedDevices = devices.slice(0, safeDeviceCap);
+        var requestBundle = buildVehicleRequests(limitedDevices, fromDate, toDate), rows = [], payloads, debugMessage;
+        debugMessage = "Devices available: " + devices.length + "\nDevices analyzed this pass: " + limitedDevices.length + "\nEstimated requests: " + requestBundle.calls.length + "\nRequest budget: " + SAFETY_REQUEST_BUDGET + " / " + REQUESTS_PER_MINUTE_LIMIT + " per minute" + "\nBatch size: " + BATCH_SIZE + "\nQuery types: Device + FaultData";
+        if (groupWarning) { debugMessage += "\n" + groupWarning; }
+        setDebug(debugMessage);
+        runBatch(requestBundle.calls, 0, function(results) {
+          payloads = buildVehiclePayloads(limitedDevices, results, requestBundle.meta);
+          for (i = 0; i < limitedDevices.length; i += 1) {
+            var analyzed = analyzeVehicle(limitedDevices[i], payloads[limitedDevices[i].id].faults);
+            if (analyzed) { rows.push(analyzed); }
+          }
+          sortRows(rows);
+          finishAnalysis(limitedDevices, rows);
+        }, function(error) {
           allVehicles = [];
           hydrateVehicleMap();
           applyFilters();
-          setStatus("Diagnostic lookup failed.", message, true);
-          setDebug(message);
+          setStatus("We could not complete the device-health review.", errText(error), true);
+          setDebug("Batch query failed: " + errText(error));
           setLoading(false);
-        });
+        }, []);
       }
       loadGroups(function(groupMap) {
         continueAnalysis(groupMap, "");
