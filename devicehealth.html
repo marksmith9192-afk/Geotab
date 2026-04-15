@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Traxxis Device Health</title>
+</head>
+<body>
+<style>
+  :root {
+    --bg: #f2efe8;
+    --panel: #fffdf8;
+    --panelAlt: #f7f1e6;
+    --border: #dccdb7;
+    --text: #221d17;
+    --muted: #6e6253;
+    --brand: #145f7b;
+    --accent: #94643a;
+    --criticalBg: #fde9e6;
+    --criticalText: #b42318;
+    --warningBg: #fff1dc;
+    --warningText: #9b5f00;
+    --healthyBg: #e6f5ee;
+    --healthyText: #1e7c56;
+    --shadow: 0 10px 28px rgba(64, 45, 20, 0.08);
+  }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: "Segoe UI", Arial, sans-serif; min-height: 100vh; }
+  * { box-sizing: border-box; }
+  #app { max-width: 1400px; margin: 0 auto; padding: 24px 18px 36px; }
+  .hero, .panel, .summaryGrid, .tableWrap { background: var(--panel); border: 1px solid var(--border); border-radius: 20px; box-shadow: var(--shadow); }
+  .hero { padding: 24px; margin-bottom: 16px; }
+  .panel { padding: 16px 18px; margin-bottom: 16px; }
+  .brandBar { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+  .brandMark { width: 64px; height: 64px; flex: 0 0 64px; }
+  .brandName { font-size: 18px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: var(--brand); }
+  .brandSub { font-size: 12px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); }
+  .eyebrow { margin: 0 0 10px; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  h1 { margin: 0; font-size: 40px; line-height: 1.05; }
+  .copy { margin: 12px 0 0; max-width: 900px; color: #5e5448; font-size: 16px; line-height: 1.5; }
+  .actions, .controls, .reviewMeta { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .actions { margin-top: 18px; }
+  .btn, .reviewBtn, .closeBtn { border-radius: 999px; padding: 12px 18px; font-size: 14px; font-weight: 700; cursor: pointer; }
+  .btnPrimary { border: 1px solid #245e48; background: #245e48; color: #fff; }
+  .btnSecondary, .reviewBtn, .closeBtn { border: 1px solid #cfc0aa; background: #fff; color: var(--text); }
+  .btnGhost { border: 1px dashed #c8baa6; background: transparent; color: var(--muted); }
+  .btn[disabled] { opacity: 0.6; cursor: default; }
+  .stamp { color: var(--muted); font-size: 14px; font-weight: 600; }
+  .status { font-size: 15px; font-weight: 600; }
+  .helper, .subValue, .sub, .kpiSub, .codeMeta { margin-top: 6px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+  .debug { margin-top: 12px; padding: 12px 14px; border-radius: 12px; background: var(--panelAlt); border: 1px solid #eadfce; white-space: pre-wrap; color: var(--muted); font-size: 12px; line-height: 1.45; }
+  .hidden { display: none; }
+  .rulesPanel, .reviewSection { margin-top: 14px; padding: 14px 16px; border-radius: 14px; background: var(--panelAlt); border: 1px solid #eadfce; }
+  .rulesTitle, .kpiLabel, .label, .controlLabel { margin: 0 0 8px; font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+  .rulesList, .issueList, .detailList { margin: 0; padding-left: 18px; color: #5f5648; font-size: 13px; line-height: 1.55; }
+  .summaryGrid { margin-bottom: 16px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); overflow: hidden; }
+  .summaryCard { padding: 18px; min-height: 118px; border-right: 1px solid #eadfce; }
+  .summaryCard:last-child { border-right: none; }
+  .neutral { background: #edf1f7; }
+  .criticalBg { background: var(--criticalBg); }
+  .warningBg { background: var(--warningBg); }
+  .healthyBg { background: var(--healthyBg); }
+  .value, .kpiValue { margin: 14px 0 0; font-size: 40px; font-weight: 700; }
+  .controls { gap: 10px 12px; }
+  .select, .search { border: 1px solid var(--border); background: #fff; border-radius: 10px; padding: 10px 12px; font-size: 14px; color: var(--text); }
+  .search { min-width: 240px; }
+  .tableWrap { overflow: auto; }
+  .table { width: 100%; min-width: 1360px; border-collapse: collapse; }
+  .table th, .table td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #eadfce; vertical-align: top; }
+  .table th { background: var(--panelAlt); color: var(--muted); text-transform: uppercase; font-size: 12px; letter-spacing: 1px; }
+  .vehicle { font-weight: 700; font-size: 15px; }
+  .vehicleButton { display: block; width: 100%; border: none; background: none; padding: 0; text-align: left; color: inherit; cursor: pointer; }
+  .vehicleButton:hover .vehicle { text-decoration: underline; }
+  .chip { display: inline-flex; align-items: center; justify-content: center; min-width: 116px; min-height: 38px; border-radius: 999px; padding: 6px 12px; font-size: 12px; font-weight: 700; line-height: 1.15; }
+  .chipCritical { background: var(--criticalBg); color: var(--criticalText); }
+  .chipWarning { background: var(--warningBg); color: var(--warningText); }
+  .chipHealthy { background: var(--healthyBg); color: var(--healthyText); }
+  .empty { padding: 22px 16px; color: var(--muted); text-align: center; font-size: 14px; }
+  .modalShell { position: fixed; inset: 0; background: rgba(20, 15, 10, 0.42); display: flex; align-items: flex-start; justify-content: center; padding: 30px 16px; z-index: 9999; overflow: auto; }
+  .modalShell.hidden { display: none; }
+  .modalCard { width: min(1200px, 100%); background: var(--panel); border: 1px solid var(--border); border-radius: 22px; box-shadow: 0 24px 64px rgba(34, 22, 9, 0.22); padding: 24px; }
+  .modalTop { display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; margin-bottom: 18px; }
+  .modalTitle { margin: 6px 0 0; font-size: 30px; line-height: 1.08; }
+  .modalCopy { margin: 10px 0 0; color: #5f5648; font-size: 15px; line-height: 1.5; max-width: 820px; }
+  .reviewGrid, .kpiGrid { display: grid; gap: 16px; margin-top: 16px; }
+  .reviewGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kpiGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .kpi { background: var(--panel); border: 1px solid #eadfce; border-radius: 16px; padding: 14px; }
+  .codeList { display: grid; gap: 8px; }
+  .codeItem { background: #fff; border: 1px solid #e3d8c8; border-radius: 12px; padding: 10px 12px; }
+  .codeName { font-size: 13px; font-weight: 700; }
+  @media (max-width: 1024px) {
+    .summaryGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .summaryCard:nth-child(2n) { border-right: none; }
+    .reviewGrid, .kpiGrid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px) {
+    #app { padding: 14px 10px 24px; }
+    h1 { font-size: 32px; }
+    .summaryGrid { grid-template-columns: 1fr; }
+    .summaryCard { border-right: none; border-bottom: 1px solid #eadfce; }
+    .summaryCard:last-child { border-bottom: none; }
+    .search { min-width: 100%; }
+    .modalCard { padding: 18px; }
+    .modalTitle { font-size: 24px; }
+  }
+</style>
+<div id="app">
+  <div class="hero">
+    <div class="brandBar">
+      <img class="brandMark" src="https://marksmith9192-afk.github.io/Geotab/Traxxis%20T%20logo%20(PNG%20file%20with%20transparent%20background).png" alt="Traxxis GPS logo" />
+      <div>
+        <div class="brandName">Traxxis GPS</div>
+        <div class="brandSub">Device Health</div>
+      </div>
+    </div>
+    <p class="eyebrow">Fleet Diagnostics</p>
+    <p class="copy">Review only the vehicles that appear to have telematics issues. The add-in compares recent cellular activity, GPS activity, engine data signals, and matched fault measurements to flag likely unplugged devices, install problems, subsystem issues, and replace candidates.</p>
+    <div class="actions">
+      <button id="refreshButton" class="btn btnPrimary">Refresh Analysis</button>
+      <button id="retryButton" class="btn btnSecondary hidden">Retry</button>
+      <button id="rulesButton" class="btn btnGhost" type="button">How Diagnosis Works</button>
+      <button id="exportButton" class="btn btnSecondary">Export CSV</button>
+      <span class="stamp" id="lastUpdatedLabel">Waiting for first analysis</span>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="status" id="statusMessage">Waiting for Geotab connection...</div>
+    <div class="helper" id="statusHelper">This first-pass version uses configurable keyword matching against diagnostics and faults so we can tighten the rules once we see more of your live data.</div>
+    <div id="debugBox" class="debug hidden"></div>
+    <div id="rulesPanel" class="rulesPanel hidden">
+      <p class="rulesTitle">Diagnosis Logic</p>
+      <ul class="rulesList">
+        <li><strong>Issue-only list</strong>: healthy vehicles are intentionally excluded so the dashboard stays focused on the units that need action.</li>
+        <li><strong>Cellular status</strong>: based on the most recent communication evidence we can find from the device record plus matching communication-related measurements and faults.</li>
+        <li><strong>GPS status</strong>: based on recent log records, GPS-related measurements, and GPS-related fault text. If cellular appears current but GPS is old or missing, the add-in flags that mismatch.</li>
+        <li><strong>Engine status</strong>: based on recent trip context, engine-related measurements, and engine or harness fault text.</li>
+        <li><strong>Possible issues</strong>: the top diagnosis is chosen from the strongest evidence, but the detail view also shows the other issue candidates that matched.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="summaryGrid">
+    <div class="summaryCard neutral"><p class="label">Vehicles With Issues</p><p class="value" id="vehiclesFlagged">0</p><div class="subValue">Only problem vehicles appear in this dashboard.</div></div>
+    <div class="summaryCard criticalBg"><p class="label">Likely Unplugged</p><p class="value" id="unpluggedCount">0</p><div class="subValue">No recent communication with evidence suggesting disconnect or power loss.</div></div>
+    <div class="summaryCard warningBg"><p class="label">Likely Install Issues</p><p class="value" id="installCount">0</p><div class="subValue">Subsystem mismatch points to harness, power, grounding, or placement trouble.</div></div>
+    <div class="summaryCard healthyBg"><p class="label">Replace Candidates</p><p class="value" id="replaceCount">0</p><div class="subValue">Device-level faults or multiple subsystem failures suggest hardware replacement.</div></div>
+  </div>
+  <div class="panel">
+    <div class="controls">
+      <span class="controlLabel">Group</span>
+      <select id="groupFilter" class="select"></select>
+      <span class="controlLabel">Issue Type</span>
+      <select id="issueFilter" class="select">
+        <option value="__all__">All issue types</option>
+        <option value="Device unplugged">Device unplugged</option>
+        <option value="Likely bad install">Likely bad install</option>
+        <option value="GPS issue">GPS issue</option>
+        <option value="Engine data issue">Engine data issue</option>
+        <option value="Cellular issue">Cellular issue</option>
+        <option value="Possible device failure">Possible device failure</option>
+      </select>
+      <span class="controlLabel">Severity</span>
+      <select id="severityFilter" class="select">
+        <option value="__all__">All severities</option>
+        <option value="critical">Critical</option>
+        <option value="warning">Warning</option>
+      </select>
+      <span class="controlLabel">Search</span>
+      <input id="searchFilter" class="search" type="text" placeholder="Search vehicle..." />
+    </div>
+  </div>
+  <div class="tableWrap">
+    <table class="table">
+      <thead>
+        <tr><th>Vehicle</th><th>Overall</th><th>Last Cellular</th><th>GPS</th><th>Engine</th><th>Cellular</th><th>Possible Issues</th><th>Suggested Action</th><th>Review</th></tr>
+      </thead>
+      <tbody id="vehicleTableBody">
+        <tr><td colspan="9" class="empty">No device-health analysis has been run yet.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<div id="reviewModal" class="modalShell hidden" aria-hidden="true">
+  <div class="modalCard">
+    <div class="modalTop">
+      <div>
+        <p class="eyebrow">Vehicle Device Health Review</p>
+        <h2 id="reviewTitle" class="modalTitle">Select a vehicle</h2>
+        <div id="reviewMeta" class="reviewMeta"></div>
+        <p id="reviewCopy" class="modalCopy">Click a vehicle row to open a deeper breakdown of the evidence used to flag the issue.</p>
+      </div>
+      <div class="reviewMeta"><button id="closeReviewButton" class="closeBtn" type="button">Close Review</button></div>
+    </div>
+    <div class="kpiGrid">
+      <div class="kpi"><div class="kpiLabel">Last Cellular</div><div id="reviewLastCellular" class="kpiValue">N/A</div><div class="kpiSub">Most recent communication evidence</div></div>
+      <div class="kpi"><div class="kpiLabel">Last GPS</div><div id="reviewLastGps" class="kpiValue">N/A</div><div class="kpiSub">Latest log or GPS-related evidence</div></div>
+      <div class="kpi"><div class="kpiLabel">Last Engine</div><div id="reviewLastEngine" class="kpiValue">N/A</div><div class="kpiSub">Latest trip or engine-related evidence</div></div>
+      <div class="kpi"><div class="kpiLabel">Top Diagnosis</div><div id="reviewDiagnosis" class="kpiValue">N/A</div><div class="kpiSub">First-pass rules based on live evidence</div></div>
+    </div>
+    <div class="reviewGrid">
+      <div class="reviewSection"><h3>Diagnosis Summary</h3><ul id="reviewSummary" class="detailList"></ul></div>
+      <div class="reviewSection"><h3>Recommended Next Step</h3><ul id="reviewActions" class="detailList"></ul></div>
+      <div class="reviewSection"><h3>Matched Faults</h3><div id="reviewFaults" class="codeList"></div></div>
+      <div class="reviewSection"><h3>Recent Measurements</h3><div id="reviewMeasurements" class="codeList"></div></div>
+    </div>
+  </div>
+</div>
+<script>
+var deviceHealthDashboard = (function() {
+  var api = null;
+  var loaded = false;
+  var isLoading = false;
+  var DEBUG = true;
+  var DEVICE_CAP = 120;
+  var BATCH_SIZE = 10;
+  var REVIEW_DAYS = 30;
+  var STATUS_LIMIT = 250;
+  var LOG_LIMIT = 250;
+  var TRIP_LIMIT = 250;
+  var FAULT_LIMIT = 250;
+  var STALE_WARNING_HOURS = 24;
+  var STALE_CRITICAL_HOURS = 72;
+  var ENGINE_STALE_WARNING_HOURS = 48;
+  var ENGINE_STALE_CRITICAL_HOURS = 168;
+  var GPS_MISMATCH_WARNING_HOURS = 24;
+  var GPS_MISMATCH_CRITICAL_HOURS = 72;
+  var allVehicles = [];
+  var filteredVehicles = [];
+  var vehicleMap = {};
+
+  var DIAGNOSTIC_PATTERNS = {
+    gps: ["gps", "latitude", "longitude", "location", "satellite", "position"],
+    cellular: ["cell", "cellular", "network", "signal", "modem", "lte", "gsm", "communication"],
+    engine: ["engine", "rpm", "odometer", "coolant", "ignition", "can", "j1939", "j1708", "obd", "ecu", "speed"],
+    device: ["device", "go unit", "hardware", "power", "voltage", "accelerometer"]
+  };
+
+  var ISSUE_KEYWORDS = {
+    unplugged: ["unplug", "disconnect", "disconnected", "removed", "no power", "power lost", "lost power"],
+    install: ["install", "harness", "wiring", "wire", "ground", "ignition", "splice", "obd", "connector", "connection"],
+    gps: ["gps", "satellite", "antenna", "location", "position"],
+    cellular: ["cell", "cellular", "network", "signal", "modem", "lte", "gsm", "communication"],
+    engine: ["engine", "ignition", "rpm", "can", "j1939", "j1708", "obd", "ecu", "odometer", "speed"],
+    device: ["hardware", "internal", "device failure", "unit failure", "memory", "firmware", "go device", "modem failure"]
+  };
+
+  function byId(id) { return document.getElementById(id); }
+  function esc(value) {
+    return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+  function firstValue() {
+    var i;
+    for (i = 0; i < arguments.length; i += 1) {
+      if (arguments[i] !== undefined && arguments[i] !== null && String(arguments[i]).trim() !== "") { return arguments[i]; }
+    }
+    return null;
+  }
+  function errText(error) {
+    if (!error) { return "Unknown error"; }
+    if (typeof error === "string") { return error; }
+    if (error.message) { return error.message; }
+    try { return JSON.stringify(error); } catch (_unused) { return String(error); }
+  }
+  function setDebug(message) {
+    var el = byId("debugBox");
+    if (!DEBUG) { el.className = "debug hidden"; return; }
+    el.className = "debug";
+    el.textContent = message;
+  }
+  function setStatus(message, helper, retry) {
+    byId("statusMessage").textContent = message;
+    byId("statusHelper").textContent = helper || "";
+    byId("retryButton").className = retry ? "btn btnSecondary" : "btn btnSecondary hidden";
+  }
+  function setLoading(value) {
+    isLoading = value;
+    byId("refreshButton").disabled = value;
+    byId("retryButton").disabled = value;
+    byId("exportButton").disabled = value;
+  }
+  function fmtDate(value) { return value ? new Date(value).toLocaleString() : "N/A"; }
+  function hoursSince(value) { return (Date.now() - new Date(value).getTime()) / 3600000; }
+  function fmtAgeHours(value) {
+    var hours;
+    if (!value) { return "No recent data"; }
+    hours = hoursSince(value);
+    if (hours < 1) { return "under 1 hour ago"; }
+    if (hours < 24) { return hours.toFixed(1) + " hours ago"; }
+    return (hours / 24).toFixed(1) + " days ago";
+  }
+  function hoursBetween(later, earlier) {
+    if (!later || !earlier) { return null; }
+    return Math.abs(new Date(later).getTime() - new Date(earlier).getTime()) / 3600000;
+  }
+  function dateValue(item) {
+    var raw = firstValue(
+      item && item.dateTime, item && item.DateTime, item && item.time, item && item.Time,
+      item && item.start, item && item.Start, item && item.stop, item && item.Stop,
+      item && item.activeFrom, item && item.ActiveFrom, item && item.lastCommunication, item && item.LastCommunication,
+      item && item.lastCommunicationDateTime, item && item.LastCommunicationDateTime, item && item.lastCommunicated,
+      item && item.LastCommunicated, item && item.lastGpsDateTime, item && item.LastGpsDateTime,
+      item && item.lastValidGpsDateTime, item && item.LastValidGpsDateTime
+    );
+    if (!raw || isNaN(new Date(raw).getTime())) { return null; }
+    return new Date(raw).toISOString();
+  }
+  function latestTimestamp(items) {
+    var latest = null, i, stamp;
+    for (i = 0; i < (items || []).length; i += 1) {
+      stamp = dateValue(items[i]);
+      if (stamp && (!latest || new Date(stamp) > new Date(latest))) { latest = stamp; }
+    }
+    return latest;
+  }
+  function keywordMatch(text, keywords) {
+    var lower = String(text || "").toLowerCase(), i;
+    for (i = 0; i < keywords.length; i += 1) { if (lower.indexOf(keywords[i]) !== -1) { return true; } }
+    return false;
+  }
+  function classifyText(text) {
+    return {
+      unplugged: keywordMatch(text, ISSUE_KEYWORDS.unplugged),
+      install: keywordMatch(text, ISSUE_KEYWORDS.install),
+      gps: keywordMatch(text, ISSUE_KEYWORDS.gps),
+      cellular: keywordMatch(text, ISSUE_KEYWORDS.cellular),
+      engine: keywordMatch(text, ISSUE_KEYWORDS.engine),
+      device: keywordMatch(text, ISSUE_KEYWORDS.device)
+    };
+  }
+  function matchDiagnosticGroups(diagnostic) {
+    var name = String(firstValue(diagnostic && diagnostic.name, diagnostic && diagnostic.Name, "")).toLowerCase();
+    return {
+      gps: keywordMatch(name, DIAGNOSTIC_PATTERNS.gps),
+      cellular: keywordMatch(name, DIAGNOSTIC_PATTERNS.cellular),
+      engine: keywordMatch(name, DIAGNOSTIC_PATTERNS.engine),
+      device: keywordMatch(name, DIAGNOSTIC_PATTERNS.device)
+    };
+  }
+  function runBatch(calls, start, done, fail, accum) {
+    var batch = calls.slice(start, start + BATCH_SIZE);
+    if (!batch.length) { done(accum); return; }
+    api.multiCall(batch, function(results) { runBatch(calls, start + BATCH_SIZE, done, fail, accum.concat(results || [])); }, function(error) { fail(error); });
+  }
+  function groupNameFromRef(ref, map) {
+    var id, name;
+    if (!ref) { return ""; }
+    if (typeof ref === "string") { return map[ref] || ref; }
+    id = ref.id || "";
+    name = ref.name || "";
+    return map[id] || name || id || "";
+  }
+  function isBuiltInGroupName(name) {
+    return !name || /^Group[A-Z]/.test(name) || /^b[0-9A-F]+$/i.test(name) || name === "Company group" || name === "Asset Information" || name === "Driver activity";
+  }
+  function resolveDeviceGroupName(device, groupMap) {
+    var groups = device.groups || [], i, name, fallback = "";
+    for (i = 0; i < groups.length; i += 1) {
+      name = groupNameFromRef(groups[i], groupMap);
+      if (name && !isBuiltInGroupName(name)) { return name; }
+      if (name && !fallback) { fallback = name; }
+    }
+    return fallback && !isBuiltInGroupName(fallback) ? fallback : "Ungrouped";
+  }
+  function loadGroups(done, fail) {
+    api.call("Get", { typeName: "Group", search: {}, resultsLimit: 5000 }, function(groups) {
+      var map = {}, i;
+      groups = groups || [];
+      for (i = 0; i < groups.length; i += 1) { if (groups[i] && groups[i].id) { map[groups[i].id] = groups[i].name || groups[i].id; } }
+      done(map);
+    }, function(error) { if (typeof fail === "function") { fail(error); } });
+  }
+  function sevChip(severity) {
+    if (severity === "critical") { return '<span class="chip chipCritical">Critical</span>'; }
+    if (severity === "warning") { return '<span class="chip chipWarning">Warning</span>'; }
+    return '<span class="chip chipHealthy">Healthy</span>';
+  }
+  function buildGroupOptions(devices) {
+    var select = byId("groupFilter"), names = {}, options = ['<option value="__all__">All groups</option>'], current = select.value || "__all__", i, keys, name;
+    for (i = 0; i < devices.length; i += 1) { name = devices[i].groupName || ""; if (name && name !== "Ungrouped") { names[name] = 1; } }
+    keys = Object.keys(names).sort();
+    for (i = 0; i < keys.length; i += 1) { options.push('<option value="' + esc(keys[i]) + '">' + esc(keys[i]) + "</option>"); }
+    select.innerHTML = options.join("");
+    select.value = current !== "__all__" && names[current] ? current : "__all__";
+  }
+  function updateSummary(rows) {
+    var counts = { flagged: 0, unplugged: 0, install: 0, replace: 0 }, i;
+    for (i = 0; i < rows.length; i += 1) {
+      counts.flagged += 1;
+      if (rows[i].topIssue === "Device unplugged") { counts.unplugged += 1; }
+      if (rows[i].topIssue === "Likely bad install") { counts.install += 1; }
+      if (rows[i].topIssue === "Possible device failure") { counts.replace += 1; }
+    }
+    byId("vehiclesFlagged").textContent = counts.flagged;
+    byId("unpluggedCount").textContent = counts.unplugged;
+    byId("installCount").textContent = counts.install;
+    byId("replaceCount").textContent = counts.replace;
+  }
+  function render(rows) {
+    var i, html = "";
+    if (!rows.length) {
+      byId("vehicleTableBody").innerHTML = '<tr><td colspan="9" class="empty">No vehicles match the current filters. Healthy vehicles are intentionally hidden.</td></tr>';
+      return;
+    }
+    for (i = 0; i < rows.length; i += 1) {
+      html += '<tr><td><button class="vehicleButton" type="button" data-review="' + esc(rows[i].deviceId) + '"><div class="vehicle">' + esc(rows[i].name) + '</div><div class="sub">Group: ' + esc(rows[i].groupName || "Ungrouped") + '</div><div class="sub">Serial: ' + esc(rows[i].serial || "Unknown") + '</div></button></td>';
+      html += "<td>" + sevChip(rows[i].severity) + '<div class="sub">' + esc(rows[i].topIssue) + "</div></td>";
+      html += "<td>" + esc(fmtDate(rows[i].lastCellular)) + '<div class="sub">' + esc(fmtAgeHours(rows[i].lastCellular)) + "</div></td>";
+      html += "<td>" + sevChip(rows[i].gpsStatus.level) + '<div class="sub">' + esc(rows[i].gpsStatus.detail) + "</div></td>";
+      html += "<td>" + sevChip(rows[i].engineStatus.level) + '<div class="sub">' + esc(rows[i].engineStatus.detail) + "</div></td>";
+      html += "<td>" + sevChip(rows[i].cellularStatus.level) + '<div class="sub">' + esc(rows[i].cellularStatus.detail) + "</div></td>";
+      html += '<td><ul class="issueList">';
+      rows[i].possibleIssues.slice(0, 3).forEach(function(item) { html += "<li>" + esc(item) + "</li>"; });
+      html += "</ul></td><td>" + esc(rows[i].recommendedAction) + '</td><td><button class="reviewBtn" type="button" data-review="' + esc(rows[i].deviceId) + '">Open Review</button></td></tr>';
+    }
+    byId("vehicleTableBody").innerHTML = html;
+  }
+  function hydrateVehicleMap() {
+    var i;
+    vehicleMap = {};
+    for (i = 0; i < allVehicles.length; i += 1) { vehicleMap[allVehicles[i].deviceId] = allVehicles[i]; }
+  }
+  function applyFilters() {
+    var group = byId("groupFilter").value, issue = byId("issueFilter").value, severity = byId("severityFilter").value, query = String(byId("searchFilter").value || "").toLowerCase(), out = [], i, row;
+    for (i = 0; i < allVehicles.length; i += 1) {
+      row = allVehicles[i];
+      if (group !== "__all__" && row.groupName !== group) { continue; }
+      if (issue !== "__all__" && row.topIssue !== issue) { continue; }
+      if (severity !== "__all__" && row.severity !== severity) { continue; }
+      if (query && row.name.toLowerCase().indexOf(query) === -1) { continue; }
+      out.push(row);
+    }
+    filteredVehicles = out;
+    updateSummary(out);
+    render(out);
+  }
+  function sortRows(rows) {
+    var order = { critical: 0, warning: 1, healthy: 2 };
+    rows.sort(function(a, b) {
+      var severityDiff = order[a.severity] - order[b.severity];
+      if (severityDiff !== 0) { return severityDiff; }
+      return hoursSince(b.lastCellular || 0) - hoursSince(a.lastCellular || 0);
+    });
+  }
+  function exportCsv() {
+    var rows = filteredVehicles.length ? filteredVehicles : allVehicles, lines = ["Vehicle,Group,Severity,Top Issue,Last Cellular,Last GPS,Last Engine,Cellular Status,GPS Status,Engine Status,Possible Issues,Recommended Action"], i, blob, url, a;
+    for (i = 0; i < rows.length; i += 1) {
+      lines.push('"' + rows[i].name.replace(/"/g, '""') + '","' + String(rows[i].groupName || "").replace(/"/g, '""') + '","' + rows[i].severity + '","' + rows[i].topIssue.replace(/"/g, '""') + '","' + fmtDate(rows[i].lastCellular).replace(/"/g, '""') + '","' + fmtDate(rows[i].lastGps).replace(/"/g, '""') + '","' + fmtDate(rows[i].lastEngine).replace(/"/g, '""') + '","' + rows[i].cellularStatus.detail.replace(/"/g, '""') + '","' + rows[i].gpsStatus.detail.replace(/"/g, '""') + '","' + rows[i].engineStatus.detail.replace(/"/g, '""') + '","' + rows[i].possibleIssues.join(" | ").replace(/"/g, '""') + '","' + rows[i].recommendedAction.replace(/"/g, '""') + '"');
+    }
+    blob = new Blob([lines.join("\r\n")], { type: "text/csv" });
+    url = URL.createObjectURL(blob);
+    a = document.createElement("a");
+    a.href = url;
+    a.download = "device-health-dashboard.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+  function normalizeDiagnosticRow(row) {
+    var name = firstValue(row && row.diagnostic && row.diagnostic.name, row && row.Diagnostic && row.Diagnostic.name, row && row.name, row && row.Name, "Unknown diagnostic");
+    var value = firstValue(row && row.data, row && row.Data, row && row.value, row && row.Value, "");
+    return { name: String(name), dateTime: dateValue(row), rawValue: value, categories: matchDiagnosticGroups({ name: name }) };
+  }
+  function normalizeFaultRow(row) {
+    var name = firstValue(row && row.name, row && row.Name, row && row.description, row && row.Description, row && row.message, row && row.Message, row && row.diagnostic && row.diagnostic.name, row && row.Diagnostic && row.Diagnostic.name, "Unknown fault");
+    var code = firstValue(row && row.code, row && row.Code, row && row.faultCode, row && row.FaultCode, row && row.id, row && row.Id, "");
+    return { name: String(name), code: String(code || ""), dateTime: dateValue(row), tags: classifyText(name + " " + code) };
+  }
+  function normalizeLogRow(row) {
+    return { dateTime: dateValue(row), latitude: firstValue(row && row.latitude, row && row.Latitude, row && row.y, row && row.Y, null), longitude: firstValue(row && row.longitude, row && row.Longitude, row && row.x, row && row.X, null) };
+  }
+  function normalizeTripRow(row) {
+    return { start: firstValue(row && row.start, row && row.Start, row && row.startDate, row && row.StartDate, dateValue(row), null), stop: firstValue(row && row.stop, row && row.Stop, row && row.stopDate, row && row.StopDate, dateValue(row), null) };
+  }
+  function statusFromAge(lastSeen, warningHours, criticalHours, healthyDetail, missingDetail) {
+    var hours;
+    if (!lastSeen) { return { level: "critical", detail: missingDetail }; }
+    hours = hoursSince(lastSeen);
+    if (hours >= criticalHours) { return { level: "critical", detail: fmtAgeHours(lastSeen) }; }
+    if (hours >= warningHours) { return { level: "warning", detail: fmtAgeHours(lastSeen) }; }
+    return { level: "healthy", detail: healthyDetail + " (" + fmtAgeHours(lastSeen) + ")" };
+  }
+  function measurementSnippet(rows, predicate) {
+    var out = [], i;
+    for (i = 0; i < rows.length; i += 1) { if (predicate(rows[i])) { out.push(rows[i]); } }
+    out.sort(function(a, b) { return new Date(b.dateTime || 0) - new Date(a.dateTime || 0); });
+    return out.slice(0, 8);
+  }
+  function faultSnippet(rows) {
+    var out = (rows || []).slice();
+    out.sort(function(a, b) { return new Date(b.dateTime || 0) - new Date(a.dateTime || 0); });
+    return out.slice(0, 8);
+  }
+  function pickTopIssue(context) {
+    var issues = [], recommended = "Inspect the unit and review live measurements before taking action.";
+    if (context.cellularStatus.level === "critical" && !context.lastGps && !context.lastEngine && (context.flags.unplugged || context.flags.install || context.lastAny)) {
+      issues.push("Device unplugged");
+      recommended = "Inspect the GO device connection and vehicle power source. Reinstall or reseat the device if it is unplugged.";
+    }
+    if (context.flags.install || (context.cellularStatus.level !== "critical" && (context.engineStatus.level === "critical" || context.gpsStatus.level === "critical") && (context.flags.engine || context.flags.gps || context.flags.install))) {
+      issues.push("Likely bad install");
+      recommended = "Inspect the install quality, verify power and ground, and use the proper harness if the current connection is unreliable.";
+    }
+    if (context.gpsStatus.level === "critical" && context.cellularStatus.level !== "critical") {
+      issues.push("GPS issue");
+      recommended = "Check device placement and GPS visibility, then reinstall or relocate the unit if GPS does not recover.";
+    } else if (context.gpsStatus.level === "warning" && context.cellularStatus.level === "healthy") {
+      issues.push("GPS issue");
+    }
+    if (context.engineStatus.level === "critical" && context.cellularStatus.level !== "critical") {
+      issues.push("Engine data issue");
+      recommended = "Inspect the engine-data connection, verify the harness or OBD/CAN path, and reinstall with the correct harness if needed.";
+    }
+    if (context.cellularStatus.level === "critical" && (context.flags.cellular || context.lastGps || context.lastEngine)) {
+      issues.push("Cellular issue");
+      recommended = "Review coverage and communication faults, reseat the device, and replace the unit if cellular faults repeat after install checks.";
+    }
+    if (context.flags.device || (context.cellularStatus.level === "critical" && context.gpsStatus.level === "critical" && context.engineStatus.level === "critical" && context.faults.length >= 2)) {
+      issues.push("Possible device failure");
+      recommended = "If install and harness checks are clean, replace the device.";
+    }
+    if (!issues.length && (context.cellularStatus.level !== "healthy" || context.gpsStatus.level !== "healthy" || context.engineStatus.level !== "healthy")) {
+      issues.push("Needs investigation");
+    }
+    return { topIssue: issues[0] || "Needs investigation", possibleIssues: issues, recommendedAction: recommended };
+  }
+  function analyzeVehicle(device, diagnostics, faults, logs, trips) {
+    var normalizedDiagnostics = diagnostics.map(normalizeDiagnosticRow).filter(function(item) { return !!item.dateTime; });
+    var normalizedFaults = faults.map(normalizeFaultRow).filter(function(item) { return !!item.dateTime; });
+    var normalizedLogs = logs.map(normalizeLogRow).filter(function(item) { return !!item.dateTime; });
+    var normalizedTrips = trips.map(normalizeTripRow);
+    var deviceCommunication = dateValue(device);
+    var gpsMeasurements = measurementSnippet(normalizedDiagnostics, function(item) { return item.categories.gps; });
+    var cellMeasurements = measurementSnippet(normalizedDiagnostics, function(item) { return item.categories.cellular || item.categories.device; });
+    var engineMeasurements = measurementSnippet(normalizedDiagnostics, function(item) { return item.categories.engine; });
+    var lastGps = latestTimestamp(normalizedLogs) || latestTimestamp(gpsMeasurements);
+    var lastEngine = latestTimestamp(engineMeasurements) || latestTimestamp(normalizedTrips.map(function(item) { return { dateTime: item.stop || item.start }; }));
+    var lastCellular = deviceCommunication || latestTimestamp(cellMeasurements) || latestTimestamp(normalizedFaults) || latestTimestamp(normalizedLogs);
+    var lastAny = latestTimestamp([{ dateTime: deviceCommunication }].concat(gpsMeasurements).concat(cellMeasurements).concat(engineMeasurements).concat(normalizedFaults).concat(normalizedLogs).concat(normalizedTrips.map(function(item) { return { dateTime: item.stop || item.start }; })));
+    var combinedFaultText = normalizedFaults.map(function(item) { return item.name + " " + item.code; }).join(" || ");
+    var flags = classifyText(combinedFaultText);
+    var gpsMismatchHours = hoursBetween(lastCellular, lastGps);
+    var cellularStatus = statusFromAge(lastCellular, STALE_WARNING_HOURS, STALE_CRITICAL_HOURS, "Current", "No recent cellular communication found.");
+    var gpsStatus = statusFromAge(lastGps, STALE_WARNING_HOURS, STALE_CRITICAL_HOURS, "Recent GPS evidence", "No recent GPS evidence found.");
+    var engineStatus = statusFromAge(lastEngine, ENGINE_STALE_WARNING_HOURS, ENGINE_STALE_CRITICAL_HOURS, "Recent engine evidence", "No recent engine evidence found.");
+    var diagnosis, summary = [], severity = "warning";
+    if (gpsMismatchHours !== null && lastCellular && lastGps && gpsMismatchHours >= GPS_MISMATCH_CRITICAL_HOURS) {
+      gpsStatus = { level: "critical", detail: "GPS trails cellular by " + gpsMismatchHours.toFixed(1) + " hours." };
+    } else if (gpsMismatchHours !== null && lastCellular && lastGps && gpsMismatchHours >= GPS_MISMATCH_WARNING_HOURS && gpsStatus.level === "healthy") {
+      gpsStatus = { level: "warning", detail: "GPS trails cellular by " + gpsMismatchHours.toFixed(1) + " hours." };
+    }
+    if (flags.gps && gpsStatus.level === "healthy") { gpsStatus = { level: "warning", detail: "GPS-related faults were matched even though recent GPS evidence exists." }; }
+    if (flags.engine && engineStatus.level === "healthy") { engineStatus = { level: "warning", detail: "Engine-related faults were matched even though recent engine evidence exists." }; }
+    if (flags.cellular && cellularStatus.level === "healthy") { cellularStatus = { level: "warning", detail: "Communication-related faults were matched even though recent activity exists." }; }
+    diagnosis = pickTopIssue({ lastAny: lastAny, lastGps: lastGps, lastEngine: lastEngine, faults: normalizedFaults, flags: flags, gpsStatus: gpsStatus, engineStatus: engineStatus, cellularStatus: cellularStatus });
+    if (!diagnosis.possibleIssues.length) { return null; }
+    if (diagnosis.topIssue === "Device unplugged" || diagnosis.topIssue === "Possible device failure" || cellularStatus.level === "critical") { severity = "critical"; }
+    summary.push("Top diagnosis: " + diagnosis.topIssue + ".");
+    summary.push("Last cellular evidence: " + (lastCellular ? fmtDate(lastCellular) : "not found") + ".");
+    summary.push("Last GPS evidence: " + (lastGps ? fmtDate(lastGps) : "not found") + ".");
+    summary.push("Last engine evidence: " + (lastEngine ? fmtDate(lastEngine) : "not found") + ".");
+    if (gpsMismatchHours !== null && gpsMismatchHours >= GPS_MISMATCH_WARNING_HOURS) { summary.push("GPS is lagging cellular communication by " + gpsMismatchHours.toFixed(1) + " hours."); }
+    if (normalizedFaults.length) { summary.push("Matched " + normalizedFaults.length + " recent fault row" + (normalizedFaults.length === 1 ? "" : "s") + "."); } else { summary.push("No recent fault rows matched, so the diagnosis leans more on timing and measurement evidence."); }
+    return {
+      deviceId: device.id,
+      name: device.name || device.serialNumber || "Unnamed vehicle",
+      serial: firstValue(device.serialNumber, device.SerialNumber, device.id, ""),
+      groupName: device.primaryGroupName || "Ungrouped",
+      severity: severity,
+      topIssue: diagnosis.topIssue,
+      possibleIssues: diagnosis.possibleIssues,
+      recommendedAction: diagnosis.recommendedAction,
+      lastCellular: lastCellular,
+      lastGps: lastGps,
+      lastEngine: lastEngine,
+      cellularStatus: cellularStatus,
+      gpsStatus: gpsStatus,
+      engineStatus: engineStatus,
+      gpsMismatchHours: gpsMismatchHours,
+      summary: summary,
+      faults: faultSnippet(normalizedFaults),
+      measurements: [].concat(cellMeasurements.slice(0, 3)).concat(gpsMeasurements.slice(0, 3)).concat(engineMeasurements.slice(0, 3))
+    };
+  }
+  function fillReviewList(targetId, items) {
+    var html = "";
+    items.forEach(function(item) { html += "<li>" + esc(item) + "</li>"; });
+    byId(targetId).innerHTML = html || "<li>No detail available.</li>";
+  }
+  function fillReviewCards(targetId, items, emptyMessage) {
+    var html = "";
+    items.forEach(function(item) {
+      html += '<div class="codeItem"><div class="codeName">' + esc(item.name || "Unknown") + "</div><div class=\"codeMeta\">" + esc((item.code ? "Code: " + item.code + " | " : "") + fmtDate(item.dateTime)) + "</div>";
+      if (item.rawValue !== undefined && item.rawValue !== null && item.rawValue !== "") { html += '<div class="codeMeta">' + esc("Value: " + item.rawValue) + "</div>"; }
+      html += "</div>";
+    });
+    if (!html) { html = '<div class="codeItem"><div class="codeMeta">' + esc(emptyMessage) + "</div></div>"; }
+    byId(targetId).innerHTML = html;
+  }
+  function openReview(id) {
+    var row = vehicleMap[id], meta = [];
+    if (!row) { return; }
+    meta.push(sevChip(row.severity));
+    meta.push('<span class="chip chipWarning">' + esc(row.topIssue) + "</span>");
+    if (row.gpsMismatchHours !== null && row.gpsMismatchHours >= GPS_MISMATCH_WARNING_HOURS) { meta.push('<span class="chip chipWarning">GPS mismatch</span>'); }
+    byId("reviewTitle").textContent = row.name;
+    byId("reviewMeta").innerHTML = meta.join("");
+    byId("reviewCopy").textContent = "This review shows the last communication evidence we found plus the measurements and fault rows that influenced the first-pass diagnosis.";
+    byId("reviewLastCellular").textContent = row.lastCellular ? fmtDate(row.lastCellular) : "N/A";
+    byId("reviewLastGps").textContent = row.lastGps ? fmtDate(row.lastGps) : "N/A";
+    byId("reviewLastEngine").textContent = row.lastEngine ? fmtDate(row.lastEngine) : "N/A";
+    byId("reviewDiagnosis").textContent = row.topIssue;
+    fillReviewList("reviewSummary", row.summary.concat(["Possible issues: " + row.possibleIssues.join(", ") + "."]));
+    fillReviewList("reviewActions", [
+      row.recommendedAction,
+      row.cellularStatus.level !== "healthy" ? "Review cellular timing: " + row.cellularStatus.detail : "Cellular status looks current enough to focus on subsystem faults.",
+      row.gpsStatus.level !== "healthy" ? "Review GPS timing: " + row.gpsStatus.detail : "GPS timing does not show a primary issue.",
+      row.engineStatus.level !== "healthy" ? "Review engine timing: " + row.engineStatus.detail : "Engine timing does not show a primary issue."
+    ]);
+    fillReviewCards("reviewFaults", row.faults, "No recent fault rows were returned for this vehicle.");
+    fillReviewCards("reviewMeasurements", row.measurements, "No recent diagnostic measurement rows were returned for the matched categories.");
+    byId("reviewModal").className = "modalShell";
+    byId("reviewModal").setAttribute("aria-hidden", "false");
+  }
+  function closeReview() {
+    byId("reviewModal").className = "modalShell hidden";
+    byId("reviewModal").setAttribute("aria-hidden", "true");
+  }
+  function fetchDiagnostics(done, fail) {
+    api.call("Get", { typeName: "Diagnostic", search: {}, resultsLimit: 5000 }, function(rows) {
+      var diagnostics = rows || [], matches = [], i, groups;
+      for (i = 0; i < diagnostics.length; i += 1) {
+        groups = matchDiagnosticGroups(diagnostics[i]);
+        if (groups.gps || groups.cellular || groups.engine || groups.device) {
+          diagnostics[i].matchedGroups = groups;
+          matches.push(diagnostics[i]);
+        }
+      }
+      done(matches);
+    }, function(error) { fail("Diagnostic lookup failed: " + errText(error)); });
+  }
+  function buildVehicleRequests(devices, diagnostics, fromDate, toDate) {
+    var calls = [], meta = [], i, j;
+    for (i = 0; i < devices.length; i += 1) {
+      meta.push({ deviceId: devices[i].id, kind: "faults" });
+      calls.push(["Get", { typeName: "FaultData", search: { deviceSearch: { id: devices[i].id }, fromDate: fromDate, toDate: toDate }, resultsLimit: FAULT_LIMIT }]);
+      meta.push({ deviceId: devices[i].id, kind: "logs" });
+      calls.push(["Get", { typeName: "LogRecord", search: { deviceSearch: { id: devices[i].id }, fromDate: fromDate, toDate: toDate }, resultsLimit: LOG_LIMIT }]);
+      meta.push({ deviceId: devices[i].id, kind: "trips" });
+      calls.push(["Get", { typeName: "Trip", search: { deviceSearch: { id: devices[i].id }, fromDate: fromDate, toDate: toDate }, resultsLimit: TRIP_LIMIT }]);
+      for (j = 0; j < diagnostics.length; j += 1) {
+        meta.push({ deviceId: devices[i].id, kind: "diagnostic" });
+        calls.push(["Get", { typeName: "StatusData", search: { deviceSearch: { id: devices[i].id }, diagnosticSearch: { id: diagnostics[j].id }, fromDate: fromDate, toDate: toDate }, resultsLimit: STATUS_LIMIT }]);
+      }
+    }
+    return { calls: calls, meta: meta };
+  }
+  function buildVehiclePayloads(devices, responses, meta) {
+    var byDevice = {}, i, deviceId;
+    for (i = 0; i < devices.length; i += 1) { byDevice[devices[i].id] = { diagnostics: [], faults: [], logs: [], trips: [] }; }
+    for (i = 0; i < responses.length; i += 1) {
+      deviceId = meta[i].deviceId;
+      if (!byDevice[deviceId]) { continue; }
+      if (meta[i].kind === "faults") { byDevice[deviceId].faults = responses[i] || []; }
+      else if (meta[i].kind === "logs") { byDevice[deviceId].logs = responses[i] || []; }
+      else if (meta[i].kind === "trips") { byDevice[deviceId].trips = responses[i] || []; }
+      else if (meta[i].kind === "diagnostic") { byDevice[deviceId].diagnostics = byDevice[deviceId].diagnostics.concat(responses[i] || []); }
+    }
+    return byDevice;
+  }
+  function finishAnalysis(devices, rows) {
+    allVehicles = rows;
+    hydrateVehicleMap();
+    buildGroupOptions(rows);
+    applyFilters();
+    byId("lastUpdatedLabel").textContent = "Last updated " + fmtDate(new Date().toISOString());
+    setDebug("Devices queried: " + devices.length + "\nVehicles flagged: " + rows.length + "\nReview window: last " + REVIEW_DAYS + " days" + "\nHealthy vehicles hidden: yes");
+    if (rows.length) { setStatus("Analysis complete. Only issue vehicles are shown below.", "Open any row to see the evidence behind the diagnosis and the recommended next step.", false); }
+    else { setStatus("No issue vehicles were found in the current review window.", "Healthy vehicles are hidden, so an empty result means no obvious issue matched the current rules.", false); }
+    setLoading(false);
+  }
+  function run() {
+    var fromDate, toDate;
+    if (isLoading || !api) { return; }
+    closeReview();
+    setLoading(true);
+    setStatus("Loading recent telematics health evidence...", "This add-in compares device timing, GPS timing, engine timing, and fault measurements across the last month.", false);
+    setDebug("Starting device-health analysis...");
+    fromDate = new Date();
+    fromDate.setDate(fromDate.getDate() - REVIEW_DAYS);
+    toDate = new Date();
+    api.call("Get", { typeName: "Device", search: {}, resultsLimit: 1000 }, function(devices) {
+      devices = (devices || []).slice(0, DEVICE_CAP);
+      function continueAnalysis(groupMap, groupWarning) {
+        var i;
+        devices.forEach(function(device) { device.primaryGroupName = resolveDeviceGroupName(device, groupMap || {}); });
+        fetchDiagnostics(function(diagnostics) {
+          var requestBundle = buildVehicleRequests(devices, diagnostics, fromDate, toDate), rows = [], payloads, debugMessage;
+          debugMessage = "Devices: " + devices.length + "\nMatched diagnostics: " + diagnostics.length + "\nMultiCall requests: " + requestBundle.calls.length + "\nBatch size: " + BATCH_SIZE;
+          if (groupWarning) { debugMessage += "\n" + groupWarning; }
+          setDebug(debugMessage);
+          runBatch(requestBundle.calls, 0, function(results) {
+            payloads = buildVehiclePayloads(devices, results, requestBundle.meta);
+            for (i = 0; i < devices.length; i += 1) {
+              var analyzed = analyzeVehicle(devices[i], payloads[devices[i].id].diagnostics, payloads[devices[i].id].faults, payloads[devices[i].id].logs, payloads[devices[i].id].trips);
+              if (analyzed) { rows.push(analyzed); }
+            }
+            sortRows(rows);
+            finishAnalysis(devices, rows);
+          }, function(error) {
+            allVehicles = [];
+            hydrateVehicleMap();
+            applyFilters();
+            setStatus("We could not complete the device-health review.", errText(error), true);
+            setDebug("Batch query failed: " + errText(error));
+            setLoading(false);
+          }, []);
+        }, function(message) {
+          allVehicles = [];
+          hydrateVehicleMap();
+          applyFilters();
+          setStatus("Diagnostic lookup failed.", message, true);
+          setDebug(message);
+          setLoading(false);
+        });
+      }
+      loadGroups(function(groupMap) {
+        continueAnalysis(groupMap, "");
+      }, function(error) {
+        continueAnalysis({}, "Group lookup skipped: " + errText(error));
+      });
+    }, function(error) {
+      allVehicles = [];
+      hydrateVehicleMap();
+      applyFilters();
+      setStatus("Could not load devices from Geotab.", errText(error), true);
+      setDebug("Device lookup failed: " + errText(error));
+      setLoading(false);
+    });
+  }
+  function handleReviewClick(event) {
+    var button = event.target.closest("[data-review]");
+    if (button) { openReview(button.getAttribute("data-review")); }
+  }
+  return {
+    init: function(currentApi) {
+      api = currentApi;
+      byId("refreshButton").onclick = run;
+      byId("retryButton").onclick = run;
+      byId("exportButton").onclick = exportCsv;
+      byId("rulesButton").onclick = function() {
+        var panel = byId("rulesPanel");
+        panel.className = panel.className.indexOf("hidden") !== -1 ? "rulesPanel" : "rulesPanel hidden";
+      };
+      byId("groupFilter").onchange = applyFilters;
+      byId("issueFilter").onchange = applyFilters;
+      byId("severityFilter").onchange = applyFilters;
+      byId("searchFilter").oninput = applyFilters;
+      byId("vehicleTableBody").onclick = handleReviewClick;
+      byId("closeReviewButton").onclick = closeReview;
+      byId("reviewModal").onclick = function(event) { if (event.target === byId("reviewModal")) { closeReview(); } };
+      document.addEventListener("keydown", function(event) { if (event.key === "Escape") { closeReview(); } });
+      buildGroupOptions([]);
+      setStatus("Ready to analyze device health.", "Refresh the add-in to pull the latest communication, GPS, engine, and fault evidence.", false);
+    },
+    focus: function(currentApi) {
+      api = currentApi;
+      if (!loaded) { loaded = true; run(); }
+    }
+  };
+}());
+
+geotab.addin = geotab.addin || {};
+geotab.addin.traxxisDeviceHealth = function() {
+  return {
+    initialize: function(api, state, callback) {
+      deviceHealthDashboard.init(api);
+      if (typeof callback === "function") { callback(); }
+    },
+    focus: function(api) { deviceHealthDashboard.focus(api); },
+    blur: function() {}
+  };
+};
+</script>
+</body>
+</html>
